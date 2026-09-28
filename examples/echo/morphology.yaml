@@ -1,0 +1,20 @@
+# PROVISIONAL: the proto forms below are just the synchronic Azal underlying
+# forms with a * added. Replace them with real Proto-Echo reconstructions.
+
+affixes:
+  DIR.C:  { form: "" }
+  GEN:    { form: "*-i" }
+  DAT:    { form: "*-xx" }   # Azal /-hh/ < *-xx
+  LOC:    { form: "*-e" }
+  COM:    { form: "*-m" }
+  ABL:    { form: "*-u" }
+
+paradigms:
+  demonstrative:
+    cells:
+      - DIR: DIR.C
+      - GEN: GEN
+      - DAT: DAT
+      - LOC: LOC
+      - COM: COM
+      - ABL: ABL

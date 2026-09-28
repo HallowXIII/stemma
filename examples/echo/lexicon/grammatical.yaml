@@ -1,0 +1,13 @@
+# A grammaticalisation chain recorded on an affix, using category history.
+
+- id: n-def
+  form: "*-n"                       # PROVISIONAL
+  gloss: "definite article"
+  category:
+    - { at: proto-echo, is: DEF }
+    - { at: old-azal, is: SPEC }
+    - { at: azal, is: SG.DIR }
+  notes: |
+    Originally a definiteness marker, reanalysed first as a specificity
+    marker and then as a singulative. This is why the Azal direct -n on
+    vowel stems appears only in the singular.

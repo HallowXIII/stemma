@@ -1,0 +1,56 @@
+cabal-version:      3.0
+name:               stemma
+version:            0.1.0
+synopsis:           Computed etymological lexicons for conlang families
+license:            BSD-3-Clause
+build-type:         Simple
+
+common shared
+  default-language: GHC2021
+  default-extensions:
+    LambdaCase
+    OverloadedStrings
+    RecordWildCards
+  ghc-options:      -Wall
+  build-depends:
+      base >=4.18 && <5
+    , containers
+    , text
+
+library
+  import:           shared
+  hs-source-dirs:   src
+  exposed-modules:
+    Stemma.Types
+    Stemma.Load
+    Stemma.Engine
+    Stemma.Engine.Brassica
+    Stemma.Build
+    Stemma.Notes
+    Stemma.Output
+    Stemma.Query
+  build-depends:
+      aeson >=2.1
+    , aeson-pretty
+    , brassica ==1.0.*
+    , bytestring
+    , directory
+    , filepath
+    , yaml
+
+executable stemma
+  import:           shared
+  hs-source-dirs:   app
+  main-is:          Main.hs
+  build-depends:
+      stemma
+    , optparse-applicative
+    , filepath
+
+test-suite example
+  import:           shared
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
+  main-is:          Example.hs
+  build-depends:
+      stemma
