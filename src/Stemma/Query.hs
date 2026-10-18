@@ -7,10 +7,7 @@ module Stemma.Query
   , globMatch
   ) where
 
-import Data.List (sortOn)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (listToMaybe)
-import Data.Ord (Down (..))
 import Data.Text (Text)
 import Data.Text qualified as T
 
@@ -21,12 +18,7 @@ import Stemma.Types
 -- on the path back to the root (the last one written, if several share a
 -- stage).
 categoryAt :: Project -> Item -> StageId -> Maybe Text
-categoryAt proj it s =
-  let path = ancestorsOrSelf (famStages (prFamily proj)) s
-      depth x = length (takeWhile (/= x) (reverse path))
-      applicable = [ (depth (csAt c), n, csIs c)
-                   | (n, c) <- zip [0 :: Int ..] (itCategory it), csAt c `elem` path ]
-  in listToMaybe [t | (_, _, t) <- sortOn (\(d, n, _) -> (Down d, Down n)) applicable]
+categoryAt proj it s = categoryIn (famStages (prFamily proj)) (itCategory it) s
 
 data Shift = Shift
   { shItem :: ItemId

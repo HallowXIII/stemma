@@ -7,6 +7,7 @@ module Stemma.Types
   , Stage (..)
   , Morphology (..)
   , Paradigm (..)
+  , Dimension (..)
   , Part (..)
   , templateParts
   , Entry (..)
@@ -27,7 +28,7 @@ import Data.Aeson.KeyMap qualified as KM
 import Data.Aeson.Types (Parser)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (fromMaybe)
+import Data.Maybe (catMaybes, fromMaybe)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Text.Read (readMaybe)
@@ -114,11 +115,27 @@ data Morphology = Morphology
   }
   deriving (Show)
 
+-- | A paradigm as written. 'Stemma.Load' resolves @extends@ and expands
+-- the dimensions into cells.
 data Paradigm = Paradigm
   { pdStage :: Maybe StageId
+  , pdExtends :: Maybe Text
+  , pdDimensions :: [Dimension]
+  , pdTemplate :: Maybe [Text]
+  -- ^ Dimension names, affix IDs and @~@, in order.
   , pdCells :: [(Text, [Part])]
   -- ^ In the order written: each cell is a template of affixes around the
-  -- base. See 'templateParts'.
+  -- base. See 'templateParts'. With dimensions, these override or add to
+  -- the cells the dimensions give.
+  , pdExclude :: [Text]
+  }
+  deriving (Show)
+
+-- | One dimension of a paradigm, such as number: its members, in order,
+-- each with the affixes it contributes (none for an unmarked member).
+data Dimension = Dimension
+  { dmName :: Text
+  , dmMembers :: [(Text, [ItemId])]
   }
   deriving (Show)
 
@@ -154,15 +171,28 @@ instance FromJSON Morphology where
 instance FromJSON Paradigm where
   parseJSON = withObject "paradigm" $ \o -> do
     pdStage <- o .:? "stage"
-    cells <- o .: "cells"
-    pdCells <- traverse cell cells
+    pdExtends <- o .:? "extends"
+    pdDimensions <- traverse dimension =<< o .:? "dimensions" .!= []
+    pdTemplate <- traverse (fmap (map (fromMaybe "~")) . oneOrMany) =<< o .:? "template"
+    pdCells <- traverse cell =<< o .:? "cells" .!= []
+    pdExclude <- o .:? "exclude" .!= []
     pure Paradigm {..}
     where
+      dimension :: Value -> Parser Dimension
+      dimension = single "paradigm dimension" "`NAME: [MEMBER: affix, ...]`" $ \k v ->
+        Dimension k <$> (traverse member =<< parseJSON v)
+      member :: Value -> Parser (Text, [ItemId])
+      member = single "dimension member" "`MEMBER: affix`" $ \k v ->
+        (k,) . catMaybes <$> oneOrMany v
       -- Cells are a list of single-key maps, so that their order survives.
       cell :: Value -> Parser (Text, [Part])
-      cell = withObject "paradigm cell" $ \o -> case KM.toList o of
-        [(k, v)] -> (Key.toText k,) <$> template v
-        _ -> fail "each paradigm cell must be a single `NAME: affix` pair"
+      cell = single "paradigm cell" "`NAME: affix`" $ \k v -> (k,) <$> template v
+
+-- | Lists of single-key maps keep their order, unlike maps.
+single :: String -> String -> (Text -> Value -> Parser a) -> Value -> Parser a
+single what shape f = withObject what $ \o -> case KM.toList o of
+  [(k, v)] -> f (Key.toText k) v
+  _ -> fail ("each " <> what <> " must be a single " <> shape <> " pair")
 
 oneOrMany :: FromJSON a => Value -> Parser [a]
 oneOrMany v@(Array _) = parseJSON v

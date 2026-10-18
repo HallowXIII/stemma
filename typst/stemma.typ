@@ -11,6 +11,9 @@
 //   #entry("ir", "azal")                   a dictionary entry
 //   #dictionary("azal")                    every entry with a reflex there
 //   #dictionary("azal", bound: false)      ... leaving out bound roots (ber-)
+//   #paradigm("ir", "azal")                a table of the cells, one row per
+//                                          member of the last dimension
+//   #paradigm("ir", "azal", rows: "number")   ... or of another dimension
 
 #let stemma(lex, form-style: emph) = {
   let stage-info = (:)
@@ -108,5 +111,39 @@
     for i in ids.sorted(key: key) { entry(i, stage) }
   }
 
-  (reflex: reflex, notes: notes, entry: entry, dictionary: dictionary)
+  // Cells as a table. Rows are the members of one dimension, columns every
+  // combination of the others. Cells not in the product of the dimensions
+  // are not shown; a missing cell shows as —.
+  let paradigm(id, stage, rows: auto) = {
+    let item = lex.items.at(id)
+    assert(item.paradigm != none, message: "stemma: " + id + " has no paradigm")
+    let pd = lex.paradigms.at(item.paradigm)
+    let dims = pd.dimensions
+    let cell(name) = {
+      let r = lex.items.at(id + "." + name, default: (reflexes: (:))).reflexes.at(stage, default: none)
+      if r == none or r.forms == none { [—] } else { reflex(id + "." + name, stage) }
+    }
+    if dims.len() == 0 {
+      return table(columns: 2, ..pd.cells.map(c => ([#c], cell(c))).flatten())
+    }
+    let r = if rows == auto { dims.len() - 1 } else { dims.position(d => d.name == rows) }
+    assert(r != none, message: "stemma: " + item.paradigm + " has no dimension " + repr(rows))
+    let others = range(dims.len()).filter(k => k != r)
+    let combos = ((),)
+    for k in others {
+      let next = ()
+      for c in combos { for m in dims.at(k).members { next.push(c + (m,)) } }
+      combos = next
+    }
+    // The cell name: members in dimension order.
+    let name(m, combo) = range(dims.len()).map(k =>
+      if k == r { m } else { combo.at(others.position(o => o == k)) }).join(".")
+    table(
+      columns: combos.len() + 1,
+      [], ..combos.map(c => strong(c.join("."))),
+      ..dims.at(r).members.map(m => (strong(m), ..combos.map(c => cell(name(m, c))))).flatten(),
+    )
+  }
+
+  (reflex: reflex, notes: notes, entry: entry, dictionary: dictionary, paradigm: paradigm)
 }

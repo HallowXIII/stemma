@@ -61,6 +61,7 @@ lexiconJson b = do
                       , "parent" .= stParent st, "current" .= stCurrent st ]
                   | s <- bStageOrder b, let st = stages Map.! s ]
     , "items" .= object [Key.fromText (itId it) .= v | (it, v) <- items]
+    , "paradigms" .= Map.map paradigmJson (prParadigms proj)
     , "order" .= prItemOrder proj
     , "warnings" .= bWarnings b
     ]
@@ -82,6 +83,7 @@ itemJson b it = do
     , "formed" .= itStage it
     , "source" .= sourceText it
     , "cells" .= itCells it
+    , "paradigm" .= itParadigm it
     , "notes" .= notes
     , "category" .= [object ["at" .= csAt c, "is" .= csIs c] | c <- itCategory it]
     , "fate" .= Map.map fateJson (itFate it)
@@ -112,6 +114,13 @@ itemJson b it = do
     fateJson = \case
       Lost -> toJSON ("lost" :: Text)
       ReplacedBy x -> object ["replaced-by" .= x]
+
+paradigmJson :: ParadigmDef -> Value
+paradigmJson pf = object
+  [ "dimensions" .= [ object ["name" .= dmName d, "members" .= map fst (dmMembers d)]
+                    | d <- pfDimensions pf ]
+  , "cells" .= map fst (pfCells pf)
+  ]
 
 runJson :: Run -> Value
 runJson = \case

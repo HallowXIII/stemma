@@ -105,6 +105,57 @@ An entry with `paradigm: demonstrative` gets one item per cell, named
 `entry.CELL` (e.g. `ir.DIR`). Each cell is built at the paradigm's stage
 (or at the entry's, if that is later) and then evolves on its own.
 
+### Dimensions
+
+Rather than listing every cell, a paradigm can give its **dimensions**.
+Its cells are then every combination of their members, named by joining
+the members with `.`. The first dimension varies slowest.
+
+```yaml
+paradigms:
+  noun-v:
+    dimensions:
+      - number: [SG: ~, PL: PL]          # ~: the member adds nothing
+      - case: [DIR: DIR.V, GEN: GEN, COM: COM]
+    # cells: SG.DIR, SG.GEN, SG.COM, PL.DIR, PL.GEN, PL.COM
+```
+
+Each member adds its affixes (one, a list, or none) at its dimension's
+place in the `template`. By default the template is the base followed by
+the dimensions in order. A template names the dimensions, and can also
+hold `~` and fixed affixes:
+
+```yaml
+  verb:
+    dimensions:
+      - person: [1S: SBJ.1S, 2S: SBJ.2S]
+      - tense: [PRS: ~, PST: PST]
+    template: [person, ~, tense]         # 1S.PST is SBJ.1S + base + PST
+```
+
+With dimensions, `cells` overrides cells by name, keeping their place, or
+adds new ones at the end. `exclude` removes cells.
+
+**Inheritance.** `extends: P` starts from paradigm P: its stage, dimensions,
+template, cells and exclusions. A dimension with the same name as an
+inherited one replaces or adds members. A new dimension is added after the
+inherited ones. Cells and exclusions are added to the inherited ones.
+
+```yaml
+  noun-c:
+    extends: noun-v
+    dimensions:
+      - case: [DIR: ~]                   # no direct -n
+    cells:
+      - PL.GEN: [~, PL, GEN.C]
+    exclude: [PL.COM]
+```
+
+The dimensions are written to `lexicon.json`. In Typst,
+`paradigm(id, stage)` lays the cells out as a table, with one row per member
+of the last dimension (or of `rows: "number"`) and a column for each
+combination of the others.
+
 ### Morpheme boundaries
 
 By default, parts are simply concatenated and a `-` in a written form is
@@ -169,7 +220,8 @@ has either a `form` (a root) or a `source` (a derivative).
 | `{ compound: [X, Y] }` | concatenation of the members' bare forms |
 | `{ loan: { from: STAGE, id: X } }` | a new word borrowed from another line |
 
-A derivative's `stage` defaults to its parent entry's stage. It is built
+A derivative's `stage` defaults to its parent entry's stage. Without a `category`,
+it takes the one its parent has at that stage. It is built
 from the forms **at the end of** that stage, after that stage's rules.
 Derivatives nest.
 

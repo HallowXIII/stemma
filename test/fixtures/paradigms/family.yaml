@@ -1,0 +1,8 @@
+# Test fixture for paradigm dimensions, extends and templates. One stage,
+# no rules: only how cells are put together is tested.
+name: Paradigms
+
+stages:
+  proto:
+    name: Proto
+    current: true

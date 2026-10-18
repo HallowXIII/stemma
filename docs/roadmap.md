@@ -48,6 +48,8 @@ them with the hyphen.
 
 ## B. Paradigm dimensions and inheritance: L
 
+**Done**; see `schema.md` §2 and `test/fixtures/paradigms`.
+
 Covers finding 2, most of finding 6, and the Typst paradigm-table helper.
 
 - `extends: noun-v` plus overriding cells.
