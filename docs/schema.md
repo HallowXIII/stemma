@@ -156,6 +156,28 @@ The dimensions are written to `lexicon.json`. In Typst,
 of the last dimension (or of `rows: "number"`) and a column for each
 combination of the others.
 
+### Variants
+
+A cell named `CELL~label` is a variant of `CELL`: a second form for the
+same slot, such as an archaic or dialectal one. It is an item of its own
+(`ber.NPST.1S~archaic`) and evolves independently. Its main cell must
+exist.
+
+A dimension member can be a variant too. It then gives a variant of every
+cell with the main member:
+
+```yaml
+  verb:
+    dimensions:
+      - tense: [NPST: NPST, NPST~archaic: NPST.ARCH, PST: PST]
+      - person: [1S: SBJ.1S, 3P: SBJ.3P]
+    # NPST.1S, NPST.3P, NPST.1S~archaic, NPST.3P~archaic, PST.1S, PST.3P
+```
+
+Variants can also be added through `cells`, in a paradigm or for one entry
+(§3). In `lexicon.json` a variant has `variant_of` and `variant`; Typst's
+`paradigm()` shows variants under their main cell.
+
 ### Morpheme boundaries
 
 By default, parts are simply concatenated and a `-` in a written form is
@@ -224,6 +246,22 @@ A derivative's `stage` defaults to its parent entry's stage. Without a `category
 it takes the one its parent has at that stage. It is built
 from the forms **at the end of** that stage, after that stage's rules.
 Derivatives nest.
+
+**Changing cells.** `cells` changes the paradigm's cells for one entry,
+by name. A cell gets a different base (suppletion), different affixes, or
+both, and new names add cells or variants for this entry only:
+
+```yaml
+- id: ego
+  paradigm: noun
+  cells:
+    SG.DIR: { base: yen }          # suppletive: built on yen
+    SG.GEN: [~, GEN.IRR]           # just a different template
+    PST.3P~dialectal: [~, PST, 3P.Š]
+```
+
+A suppletive base is a real dependency, so it appears in the cell's
+source and must exist where the cell is formed.
 
 **Bound items.** `bound: true` marks an item that is not a word on its own:
 a bound root or stem. Affixes are bound by default. With a boundary symbol

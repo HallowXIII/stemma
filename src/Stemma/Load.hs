@@ -156,10 +156,8 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         (Nothing, Just s) -> Right (BSource s)
         (Nothing, Nothing) -> err "needs either `form` or `source`"
         (Just _, Just _) -> err "has both `form` and `source`"
-      forM_ cellEvents $ \ev -> case paradigm of
-        Nothing -> err ("event targets cell " <> cellOf ev <> " but the entry has no paradigm")
-        Just p -> unless (cellOf ev `elem` map fst (pfCells p)) $
-          err ("event targets unknown cell " <> cellOf ev)
+      forM_ cellEvents $ \ev -> unless (cellOf ev `elem` map fst entryCells) $
+        err ("event targets unknown cell " <> cellOf ev)
       pure Item
         { itId = eid
         , itKind = kind
@@ -173,7 +171,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itEvents = ownEvents
         , itFate = enFate e
         , itExpect = Map.mapMaybe exForm (enExpect e)
-        , itCells = [eid <> "." <> c | (c, _) <- maybe [] pfCells paradigm]
+        , itCells = [eid <> "." <> c | (c, _) <- entryCells]
         , itParadigm = enParadigm e
         }
 
@@ -182,14 +180,21 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
 
     paradigm = enParadigm e >>= (`Map.lookup` paradigms)
 
-    cells = case enParadigm e of
-      Nothing -> []
-      Just pname -> case paradigm of
-        Nothing -> [err ("unknown paradigm " <> pname)]
-        Just p -> map (mkCell p) (pfCells p)
+    -- The paradigm's cells with this entry's changes: name, base, template.
+    entryCells = foldl' change [(c, (eid, ps)) | (c, ps) <- maybe [] pfCells paradigm] (enCells e)
+    change acc (c, ov) = case lookup c acc of
+      Just (b, ps) ->
+        [(k, if k == c then (fromMaybe b (coBase ov), fromMaybe ps (coMorph ov)) else v) | (k, v) <- acc]
+      Nothing -> acc ++ [(c, (fromMaybe eid (coBase ov), fromMaybe [PBase] (coMorph ov)))]
 
-    mkCell p (c, parts) = do
-      let pstage = fromMaybe root (pfStage p)
+    cells = case (enParadigm e, paradigm) of
+      (Just pname, Nothing) -> [err ("unknown paradigm " <> pname)]
+      _ -> [ err ("variant " <> c <> " has no main cell " <> m)
+           | (c, _) <- enCells e, (m, Just _) <- [splitVariant c], m `notElem` map fst entryCells ]
+           ++ map mkCell entryCells
+
+    mkCell (c, (base, parts)) = do
+      let pstage = fromMaybe root (paradigm >>= pfStage)
       cstage <-
         if isAncestorOrSelf stages pstage stage then Right stage
         else if isAncestorOrSelf stages stage pstage then Right pstage
@@ -199,7 +204,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itKind = KCell
         , itOwner = Just eid
         , itStage = cstage
-        , itBuild = BSource (SMorph eid parts)
+        , itBuild = BSource (SMorph base parts)
         , itBound = False
         , itGloss = Nothing
         , itCategory = category
@@ -346,9 +351,17 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
       when (length (filter (== "~") slots) > 1) $ Left "a template may contain only one ~"
       forM_ names $ \d -> unless (length (filter (== d) slots) == 1) $
         Left ("dimension " <> d <> " must appear exactly once in the template")
+      forM_ dims $ \d -> forM_ (map fst (dmMembers d)) $ \m -> case splitVariant m of
+        (main, Just _) | main `notElem` map fst (dmMembers d) ->
+          Left ("variant " <> m <> " of " <> dmName d <> " has no main member " <> main)
+        _ -> Right ()
       -- The first dimension varies slowest: SG.DIR, SG.GEN, PL.DIR, ...
-      let combined =
-            [ (T.intercalate "." (map fst combo), concatMap (slot (zip names combo)) slots)
+      -- Variant members name variant cells: NPST~archaic gives 1S.NPST~archaic.
+      let cellName combo =
+            T.intercalate "." [fst (splitVariant m) | (m, _) <- combo]
+              <> T.concat ["~" <> l | (m, _) <- combo, (_, Just l) <- [splitVariant m]]
+          combined =
+            [ (cellName combo, concatMap (slot (zip names combo)) slots)
             | not (null dims), combo <- mapM dmMembers dims ]
           slot chosen s
             | s == "~" = [PBase]
@@ -359,6 +372,9 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
       unless (null unknown) $ Left ("exclude names unknown cells: " <> T.intercalate ", " unknown)
       let kept = [c | c@(n, _) <- cells, n `notElem` pdExclude p]
       when (null kept) $ Left "has no cells"
+      forM_ kept $ \(c, _) -> case splitVariant c of
+        (main, Just _) | main `notElem` map fst kept -> Left ("variant " <> c <> " has no main cell " <> main)
+        _ -> Right ()
       Right (ParadigmDef (pdStage p) dims kept)
 
 -- | Replace entries by name, keeping their position; add new ones at the end.

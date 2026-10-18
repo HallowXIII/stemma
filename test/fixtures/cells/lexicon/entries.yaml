@@ -1,0 +1,27 @@
+- id: yen
+  form: "*yen"
+
+# Suppletion: the singular direct is built on yen. A different affix for
+# one cell, and a cell of this entry's own.
+- id: ego
+  form: "*ego"
+  paradigm: noun
+  cells:
+    SG.DIR: { base: yen }
+    SG.GEN: [~, GEN.IRR]
+    VOC: ~
+  expect:
+    proto: { SG.DIR: yenn, SG.GEN: egoō, PL.DIR: egoran, PL.GEN: egorai, VOC: ego }
+
+- id: bes
+  form: "*bes"
+  paradigm: verb
+  cells:
+    PST.3P~dialectal: [~, PST, P3P.DIAL]
+  expect:
+    proto:
+      NPST.1S: besnem
+      NPST.1S~archaic: besnaim
+      NPST.3P~archaic: besnair
+      PST.3P: besvar
+      PST.3P~dialectal: besvaš

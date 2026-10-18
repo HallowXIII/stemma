@@ -1,0 +1,8 @@
+# Test fixture for per-entry cell changes (suppletion) and variants. One
+# stage, no rules: only how cells are put together is tested.
+name: Cells
+
+stages:
+  proto:
+    name: Proto
+    current: true

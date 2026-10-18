@@ -113,18 +113,30 @@
 
   // Cells as a table. Rows are the members of one dimension, columns every
   // combination of the others. Cells not in the product of the dimensions
-  // are not shown; a missing cell shows as —.
+  // are not shown; a missing cell shows as —. Variants are shown under
+  // their main cell.
   let paradigm(id, stage, rows: auto) = {
     let item = lex.items.at(id)
     assert(item.paradigm != none, message: "stemma: " + id + " has no paradigm")
     let pd = lex.paradigms.at(item.paradigm)
     let dims = pd.dimensions
+    let form(cid) = {
+      let r = lex.items.at(cid, default: (reflexes: (:))).reflexes.at(stage, default: none)
+      if r == none or r.forms == none { [—] } else { reflex(cid, stage) }
+    }
+    // A cell, with its variants (CELL~label) below it.
     let cell(name) = {
-      let r = lex.items.at(id + "." + name, default: (reflexes: (:))).reflexes.at(stage, default: none)
-      if r == none or r.forms == none { [—] } else { reflex(id + "." + name, stage) }
+      let cid = id + "." + name
+      let variants = item.cells.filter(c => c.starts-with(cid + "~"))
+      form(cid)
+      for v in variants {
+        linebreak()
+        text(size: 0.8em)[#v.slice(cid.len() + 1): #form(v)]
+      }
     }
     if dims.len() == 0 {
-      return table(columns: 2, ..pd.cells.map(c => ([#c], cell(c))).flatten())
+      let names = item.cells.map(c => c.slice(id.len() + 1)).filter(c => not c.contains("~"))
+      return table(columns: 2, ..names.map(c => ([#c], cell(c))).flatten())
     }
     let r = if rows == auto { dims.len() - 1 } else { dims.position(d => d.name == rows) }
     assert(r != none, message: "stemma: " + item.paradigm + " has no dimension " + repr(rows))

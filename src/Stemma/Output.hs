@@ -84,6 +84,8 @@ itemJson b it = do
     , "source" .= sourceText it
     , "cells" .= itCells it
     , "paradigm" .= itParadigm it
+    , "variant_of" .= fmap fst variant
+    , "variant" .= fmap snd variant
     , "notes" .= notes
     , "category" .= [object ["at" .= csAt c, "is" .= csIs c] | c <- itCategory it]
     , "fate" .= Map.map fateJson (itFate it)
@@ -93,6 +95,12 @@ itemJson b it = do
         , Map.member (itId it) (regularAt s) ]
     ]
   where
+    -- A cell named CELL~label: its main cell and label.
+    variant = case (itKind it, itOwner it) of
+      (KCell, Just o) -> case splitVariant (T.drop (T.length o + 1) (itId it)) of
+        (main, Just l) -> Just (o <> "." <> main, l)
+        _ -> Nothing
+      _ -> Nothing
     proj = bProject b
     regularAt s = fromMaybe Map.empty (Map.lookup s (bRegular b))
     reflexJson s =
@@ -117,7 +125,7 @@ itemJson b it = do
 
 paradigmJson :: ParadigmDef -> Value
 paradigmJson pf = object
-  [ "dimensions" .= [ object ["name" .= dmName d, "members" .= map fst (dmMembers d)]
+  [ "dimensions" .= [ object ["name" .= dmName d, "members" .= [m | (m, _) <- dmMembers d, (_, Nothing) <- [splitVariant m]]]
                     | d <- pfDimensions pf ]
   , "cells" .= map fst (pfCells pf)
   ]

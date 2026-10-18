@@ -72,6 +72,8 @@ inherit their parent's.
 
 ## C. Per-entry cell overrides: M, after A and B
 
+**Done**; see `schema.md` §2–3 and `test/fixtures/cells`.
+
 Covers findings 8 and 9.
 
 - **Suppletion:** `cells: { DIR: { base: yen } }` replaces the base for one
@@ -133,3 +135,34 @@ stemma can detect them. One pass after each stage:
 
 Bound roots are listed in the dictionary by default, cited as *ber-*;
 `dictionary(stage, bound: false)` leaves them out.
+
+---
+
+## Later
+
+Ideas worth having eventually, but not needed by the Azal project yet.
+
+**Suppletion across a slice of the paradigm.** Suppletion (§C) changes one
+cell at a time, so a stem used in a whole slice of the paradigm (Latin
+*ferō – tulī*: every perfect form on *tul-*) needs one override per cell.
+Two designs:
+
+1. Patterns in an entry's `cells`: `PST.*: { base: tul }` changes every
+   matching cell, using the same `*` matching as `shifts`. **S**.
+2. Stem slots, like principal parts: a dimension member names a stem
+   (`PST: { stem: perfect, affixes: PST }`), and each entry supplies it
+   (`stems: { perfect: tul }`), defaulting to the entry itself. Closer to
+   how grammars describe such verbs, but more machinery. **M**.
+
+Option 1 is the cheaper first step and doesn't rule out option 2 later.
+
+**A separate compound boundary.** With `notation.boundary`, compound
+members are joined with the same symbol as affixes. Rules that need to
+tell the two apart would need a second symbol (`compound-boundary`).
+
+**`repattern` adding cells.** As planned (§D), a new paradigm may not have
+cells the old one lacks. Allowing it means creating items partway down a
+line of descent.
+
+**Stemma-level rule tables.** Generating rules such as the hiatus table
+and cluster grid from data, instead of including a generated file (§F).

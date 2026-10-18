@@ -8,6 +8,8 @@ module Stemma.Types
   , Morphology (..)
   , Paradigm (..)
   , Dimension (..)
+  , CellOverride (..)
+  , splitVariant
   , Part (..)
   , templateParts
   , Entry (..)
@@ -213,6 +215,8 @@ data Entry = Entry
   , enParadigm :: Maybe Text
   , enBound :: Maybe Bool
   -- ^ Not a word on its own. Defaults to true for affixes, false otherwise.
+  , enCells :: [(Text, CellOverride)]
+  -- ^ Changes to the paradigm's cells for this entry, and cells of its own.
   , enNotes :: Maybe Text
   , enDerivatives :: [Entry]
   , enEvents :: [Event]
@@ -220,6 +224,30 @@ data Entry = Entry
   , enExpect :: Map StageId Expect
   }
   deriving (Show)
+
+-- | A cell or member named @NPST~archaic@ is a variant of @NPST@: its main
+-- name, and its label (everything after the first @~@).
+splitVariant :: Text -> (Text, Maybe Text)
+splitVariant c = case T.breakOn "~" c of
+  (m, rest) | not (T.null rest) -> (m, Just (T.drop 1 rest))
+  _ -> (c, Nothing)
+
+-- | An entry's change to one cell: a different base (suppletion), different
+-- affixes, or both.
+data CellOverride = CellOverride
+  { coBase :: Maybe ItemId
+  , coMorph :: Maybe [Part]
+  }
+  deriving (Show)
+
+-- | Either @{ base: X, morph: [...] }@ or just a template.
+instance FromJSON CellOverride where
+  parseJSON v = case v of
+    Object o -> do
+      coBase <- o .:? "base"
+      coMorph <- traverse template (KM.lookup "morph" o)   -- `morph: ~` is the bare base
+      pure CellOverride {..}
+    _ -> CellOverride Nothing . Just <$> template v
 
 data Source
   = SBase ItemId
@@ -285,6 +313,7 @@ parseEntryBody enId = withObject "entry" $ \o -> do
   enCategory <- o .:? "category" .!= []
   enParadigm <- o .:? "paradigm"
   enBound <- o .:? "bound"
+  enCells <- maybe [] (map (\(k, v) -> (Key.toText k, v)) . KM.toList) <$> o .:? "cells"
   enNotes <- o .:? "notes"
   enDerivatives <- o .:? "derivatives" .!= []
   enEvents <- o .:? "events" .!= []
