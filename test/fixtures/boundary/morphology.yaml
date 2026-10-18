@@ -1,0 +1,18 @@
+affixes:
+  ZERO:   { form: "" }
+  1S:     { form: "*mi-" }     # a prefix
+  PST:    { form: "*-va" }
+  GEN:    { form: "*-i" }
+  NMLZ:   { form: "*-on" }
+  CAUS:   { form: "*-er-" }    # a stem-forming suffix
+
+paradigms:
+  verb:
+    cells:
+      - INF: ~
+      - 1S: [1S, ~]
+      - 1S.PST: [1S, ~, PST]
+  noun:
+    cells:
+      - DIR: ZERO
+      - GEN: GEN

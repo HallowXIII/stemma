@@ -1,0 +1,12 @@
+categories
+C = p t k b d g m n l r s v
+V = a e i o u
+B = &+
+end
+
+; across a boundary only: r > n before i
+r / n / _ + i
+; word-final devoicing
+d / t / _ #
+; word-final r > l
+r / l / _ #

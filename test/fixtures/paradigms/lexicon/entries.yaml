@@ -1,0 +1,24 @@
+- id: sala
+  form: "*sala"
+  category: [{ at: proto, is: "N" }]
+  paradigm: noun-v
+  expect:
+    proto: { SG.DIR: salan, SG.GEN: salai, SG.COM: salam,
+             PL.DIR: salaran, PL.GEN: salarai, PL.COM: salaram }
+  derivatives:
+    # No category of its own: takes the parent's, N.
+    - id: salai
+      source: { base: sala, cell: SG.GEN }
+
+- id: tok
+  form: "*tok"
+  paradigm: noun-c
+  expect:
+    proto: { SG.DIR: tok, SG.GEN: toki, SG.COM: tokm,
+             PL.DIR: tokra, PL.GEN: tokrae }
+
+- id: ber
+  form: "*ber-"
+  paradigm: verb
+  expect:
+    proto: { 1S.PRS: biber, 2S.PRS: tiber, 1S.PST: biberva, 2S.PST: tiberva }

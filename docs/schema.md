@@ -19,6 +19,7 @@ name: Echo
 
 notation:
   graphemes: [r₁, r₂]      # multigraphs in proto forms (optional)
+  boundary: "+"            # morpheme boundary passed to the rules (optional; §2)
 
 stages:
   proto-echo:
@@ -79,6 +80,22 @@ paradigms:
       - DAT: [DAT]            # a cell may stack several affixes
 ```
 
+A cell is a **template**: affixes in order, with `~` for the base. Without
+a `~` the base comes first, so `[GEN]` means `[~, GEN]`. A cell written as
+just `~` is the bare base.
+
+```yaml
+affixes:
+  SBJ.1S: { form: "*bi-" }    # a prefix
+  PST:    { form: "*-va" }
+
+paradigms:
+  verb:
+    cells:
+      - INF: ~
+      - 1S.PST: [SBJ.1S, ~, PST]
+```
+
 Affixes take the same fields as entries (§3) and default to the root
 stage. They are items in their own right, so they can have category
 history and notes, which is how you record things like a definite article
@@ -87,6 +104,107 @@ becoming a case ending.
 An entry with `paradigm: demonstrative` gets one item per cell, named
 `entry.CELL` (e.g. `ir.DIR`). Each cell is built at the paradigm's stage
 (or at the entry's, if that is later) and then evolves on its own.
+
+### Dimensions
+
+Rather than listing every cell, a paradigm can give its **dimensions**.
+Its cells are then every combination of their members, named by joining
+the members with `.`. The first dimension varies slowest.
+
+```yaml
+paradigms:
+  noun-v:
+    dimensions:
+      - number: [SG: ~, PL: PL]          # ~: the member adds nothing
+      - case: [DIR: DIR.V, GEN: GEN, COM: COM]
+    # cells: SG.DIR, SG.GEN, SG.COM, PL.DIR, PL.GEN, PL.COM
+```
+
+Each member adds its affixes (one, a list, or none) at its dimension's
+place in the `template`. By default the template is the base followed by
+the dimensions in order. A template names the dimensions, and can also
+hold `~` and fixed affixes:
+
+```yaml
+  verb:
+    dimensions:
+      - person: [1S: SBJ.1S, 2S: SBJ.2S]
+      - tense: [PRS: ~, PST: PST]
+    template: [person, ~, tense]         # 1S.PST is SBJ.1S + base + PST
+```
+
+With dimensions, `cells` overrides cells by name, keeping their place, or
+adds new ones at the end. `exclude` removes cells.
+
+**Inheritance.** `extends: P` starts from paradigm P: its stage, dimensions,
+template, cells and exclusions. A dimension with the same name as an
+inherited one replaces or adds members. A new dimension is added after the
+inherited ones. Cells and exclusions are added to the inherited ones.
+
+```yaml
+  noun-c:
+    extends: noun-v
+    dimensions:
+      - case: [DIR: ~]                   # no direct -n
+    cells:
+      - PL.GEN: [~, PL, GEN.C]
+    exclude: [PL.COM]
+```
+
+The dimensions are written to `lexicon.json`. In Typst,
+`paradigm(id, stage)` lays the cells out as a table, with one row per member
+of the last dimension (or of `rows: "number"`) and a column for each
+combination of the others.
+
+### Variants
+
+A cell named `CELL~label` is a variant of `CELL`: a second form for the
+same slot, such as an archaic or dialectal one. It is an item of its own
+(`ber.NPST.1S~archaic`) and evolves independently. Its main cell must
+exist.
+
+A dimension member can be a variant too. It then gives a variant of every
+cell with the main member:
+
+```yaml
+  verb:
+    dimensions:
+      - tense: [NPST: NPST, NPST~archaic: NPST.ARCH, PST: PST]
+      - person: [1S: SBJ.1S, 3P: SBJ.3P]
+    # NPST.1S, NPST.3P, NPST.1S~archaic, NPST.3P~archaic, PST.1S, PST.3P
+```
+
+Variants can also be added through `cells`, in a paradigm or for one entry
+(§3). In `lexicon.json` a variant has `variant_of` and `variant`; Typst's
+`paradigm()` shows variants under their main cell.
+
+### Morpheme boundaries
+
+By default, parts are simply concatenated and a `-` in a written form is
+ignored. Set `notation.boundary` in `family.yaml` to pass morpheme
+boundaries to the rules instead:
+
+- Every `-` in a written form becomes the boundary symbol. The affix
+  `*-i` evolves as `+i`, and the bound root `*ber-` as `ber+`, so a rule
+  conditioned on the end of the word (`_ #`) does not reach them.
+- When a cell or derivative is built, its parts are joined with exactly one
+  boundary between them, and zero affixes add nothing: `bi+`, `ber+` and
+  `+va` give `bi+ber+va`. The boundaries at the outer edges are dropped,
+  unless the result is itself `bound` (§3).
+- The boundaries stay in the forms from stage to stage, so later rules can
+  refer to them: `r / n / _ + i` changes *kar+i* but not *kari*.
+- Displayed and spelled forms leave out the boundaries inside the word and
+  show those at its edges as hyphens: *mibedva*, but *ber-* and *-va*.
+  `trace` and `forms.tsv` show the raw forms. The orthography never sees
+  boundaries.
+
+The boundary must be declared as a grapheme in every rules file that has a
+`categories` block, or Brassica replaces it with U+FFFD. stemma warns when
+it is not. In a category, a leading `+` means intersection, so declare it
+as a union: `B = &+`.
+
+Rules that should apply across a boundary have to allow for it, for
+example with an optional `(+)`.
 
 ---
 
@@ -97,7 +215,7 @@ has either a `form` (a root) or a `source` (a derivative).
 
 ```yaml
 - id: ir
-  form: "*ir₁-"               # * and - are ignored when tokenising
+  form: "*ir₁-"               # * is ignored; - marks a boundary (§2)
   stage: proto-echo           # default: the root stage
   gloss: "this (proximal)"
   category: [{ at: proto-echo, is: DEM }]
@@ -119,14 +237,38 @@ has either a `form` (a root) or a `source` (a derivative).
 | shape | meaning |
 |---|---|
 | `{ base: X }` | zero derivation, conversion |
-| `{ base: X, morph: A }` or `morph: [A, B]` | X plus affixes |
+| `{ base: X, morph: A }` or `morph: [A, ~, B]` | X plus affixes, as a template (§2) |
 | `{ base: X, cell: C }` | an inflected form that took on a life of its own (*päällä*) |
 | `{ compound: [X, Y] }` | concatenation of the members' bare forms |
 | `{ loan: { from: STAGE, id: X } }` | a new word borrowed from another line |
 
-A derivative's `stage` defaults to its parent entry's stage. It is built
+A derivative's `stage` defaults to its parent entry's stage. Without a `category`,
+it takes the one its parent has at that stage. It is built
 from the forms **at the end of** that stage, after that stage's rules.
 Derivatives nest.
+
+**Changing cells.** `cells` changes the paradigm's cells for one entry,
+by name. A cell gets a different base (suppletion), different affixes, or
+both, and new names add cells or variants for this entry only:
+
+```yaml
+- id: ego
+  paradigm: noun
+  cells:
+    SG.DIR: { base: yen }          # suppletive: built on yen
+    SG.GEN: [~, GEN.IRR]           # just a different template
+    PST.3P~dialectal: [~, PST, 3P.Š]
+```
+
+A suppletive base is a real dependency, so it appears in the cell's
+source and must exist where the cell is formed.
+
+**Bound items.** `bound: true` marks an item that is not a word on its own:
+a bound root or stem. Affixes are bound by default. With a boundary symbol
+(§2), it keeps the boundaries at its edges (a written root keeps its `-`;
+one built from parts keeps its outer boundaries), so it is cited as *ber-*. stemma warns about a bound item whose form has no `-`.
+In Typst, `dictionary(stage, bound: false)` leaves bound entries out;
+entries with a paradigm are always listed.
 
 **Freezing.** A derivative is built once and after that undergoes only
 sound change. Analogy that later affects its base does not reach it. To
@@ -174,6 +316,25 @@ This is preferred over writing the output form: if you change what word-final
 ```
 
 This rebuilds the item from its `source`, using the forms entering azal.
+
+### `repattern`
+
+```yaml
+- repattern: { at: azal, paradigm: noun-o, stem: "valykkō" }
+```
+
+The entry changes paradigm at this stage: every cell is rebuilt from the
+new paradigm's template, using the stem and the affixes' forms entering
+the stage, and then goes through the stage's rules. `stem` is written as at
+that stage and is optional; without it the entry's own form is used. With
+it, the bare entry takes the new stem too. The entry's own `cells` changes
+(§3) apply to the new paradigm as well, and a suppletive cell keeps its
+base.
+
+Cells that the new paradigm lacks are lost from this stage on. The new
+paradigm may not have cells the old one lacks. A repattern applies to the
+whole entry, so it takes no `cell:`. Other lines of descent keep the old
+paradigm, and Typst's `paradigm()` uses the one in force at the stage.
 
 ### `loan`
 
@@ -267,11 +428,10 @@ stemma -d DIR shifts FROM TO     category shifts (* is a wildcard)
 
 ## Known limitations
 
-- Bare stems and affixes also run through the rules on their own, which
-  gives meaningless forms (Azal *heh* for the bare dative *\*-xx*). These
-  appear in `forms.tsv` but not in the Typst dictionary.
-- Morpheme boundaries are not passed to the engine, so rules cannot yet
-  refer to them.
+- Without a boundary symbol (§2), bare stems and affixes run through the
+  rules as if they were words, which gives meaningless forms (Azal *heh* for
+  the bare dative *\*-xx*). They appear in `forms.tsv`, and in the Typst
+  dictionary only if they are roots or derivatives.
 - When the rules give several outputs, the first one is used to build
   derivatives, and a warning is issued.
 - Loans by `source` cannot yet be adapted. Only loan events take `adapt`.

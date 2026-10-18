@@ -1,0 +1,31 @@
+affixes:
+  PL:     { form: "*-ra" }
+  DIR.V:  { form: "*-n" }
+  GEN:    { form: "*-i" }
+  GEN.C:  { form: "*-e" }
+  COM:    { form: "*-m" }
+  P1:     { form: "*bi-" }
+  P2:     { form: "*ti-" }
+  PST:    { form: "*-va" }
+
+paradigms:
+  noun-v:
+    dimensions:
+      - number: [SG: ~, PL: PL]
+      - case: [DIR: DIR.V, GEN: GEN, COM: COM]
+
+  # Consonant stems: no direct -n, a different plural genitive, and no
+  # plural comitative.
+  noun-c:
+    extends: noun-v
+    dimensions:
+      - case: [DIR: ~]
+    cells:
+      - PL.GEN: [~, PL, GEN.C]
+    exclude: [PL.COM]
+
+  verb:
+    dimensions:
+      - person: [1S: P1, 2S: P2]
+      - tense: [PRS: ~, PST: PST]
+    template: [person, ~, tense]

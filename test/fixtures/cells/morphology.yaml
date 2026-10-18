@@ -1,0 +1,23 @@
+affixes:
+  PL:        { form: "*-ra" }
+  DIR:       { form: "*-n" }
+  GEN:       { form: "*-i" }
+  GEN.IRR:   { form: "*-ō" }
+  NPST:      { form: "*-ne" }
+  NPST.ARCH: { form: "*-nai" }
+  PST:       { form: "*-va" }
+  P1:        { form: "*-m" }
+  P3P:       { form: "*-r" }
+  P3P.DIAL:  { form: "*-š" }
+
+paradigms:
+  noun:
+    dimensions:
+      - number: [SG: ~, PL: PL]
+      - case: [DIR: DIR, GEN: GEN]
+
+  # An archaic nonpast for every person, from a variant member.
+  verb:
+    dimensions:
+      - tense: [NPST: NPST, NPST~archaic: NPST.ARCH, PST: PST]
+      - person: [1S: P1, 3P: P3P]

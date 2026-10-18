@@ -1,0 +1,19 @@
+affixes:
+  PL:    { form: "*-ra" }
+  DIR.V: { form: "*-n" }
+  GEN:   { form: "*-i" }
+  COM:   { form: "*-m" }
+
+paradigms:
+  noun-c:
+    dimensions:
+      - number: [SG: ~, PL: PL]
+      - case: [DIR: ~, GEN: GEN, COM: COM]
+  noun-v:
+    extends: noun-c
+    dimensions:
+      - case: [DIR: DIR.V]
+  # Like vowel stems, but without the direct -n, and no plural genitive.
+  noun-o:
+    extends: noun-c
+    exclude: [PL.GEN]

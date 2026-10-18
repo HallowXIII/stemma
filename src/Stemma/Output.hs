@@ -61,6 +61,7 @@ lexiconJson b = do
                       , "parent" .= stParent st, "current" .= stCurrent st ]
                   | s <- bStageOrder b, let st = stages Map.! s ]
     , "items" .= object [Key.fromText (itId it) .= v | (it, v) <- items]
+    , "paradigms" .= Map.map paradigmJson (prParadigms proj)
     , "order" .= prItemOrder proj
     , "warnings" .= bWarnings b
     ]
@@ -76,11 +77,16 @@ itemJson b it = do
   pure . (it,) $ object
     [ "id" .= itId it
     , "kind" .= kindName (itKind it)
+    , "bound" .= itBound it
     , "owner" .= itOwner it
     , "gloss" .= itGloss it
     , "formed" .= itStage it
     , "source" .= sourceText it
     , "cells" .= itCells it
+    , "paradigm" .= itParadigm it
+    , "repatterns" .= [object ["at" .= s, "paradigm" .= p] | (s, p) <- itRepatterns it]
+    , "variant_of" .= fmap fst variant
+    , "variant" .= fmap snd variant
     , "notes" .= notes
     , "category" .= [object ["at" .= csAt c, "is" .= csIs c] | c <- itCategory it]
     , "fate" .= Map.map fateJson (itFate it)
@@ -90,15 +96,21 @@ itemJson b it = do
         , Map.member (itId it) (regularAt s) ]
     ]
   where
+    -- A cell named CELL~label: its main cell and label.
+    variant = case (itKind it, itOwner it) of
+      (KCell, Just o) -> case splitVariant (T.drop (T.length o + 1) (itId it)) of
+        (main, Just l) -> Just (o <> "." <> main, l)
+        _ -> Nothing
+      _ -> Nothing
     proj = bProject b
     regularAt s = fromMaybe Map.empty (Map.lookup s (bRegular b))
     reflexJson s =
       let actual = Map.lookup s (bActual b) >>= Map.lookup (itId it)
           regular = Map.lookup s (bRegular b) >>= Map.lookup (itId it)
       in object
-        [ "forms" .= fmap (map renderForm . rxForms) actual
+        [ "forms" .= fmap (map (showForm proj) . rxForms) actual
         , "spelled" .= spelledAt b False s (itId it)
-        , "regular" .= fmap (map renderForm . rxForms) regular
+        , "regular" .= fmap (map (showForm proj) . rxForms) regular
         , "regular_spelled" .= spelledAt b True s (itId it)
         , "category" .= categoryAt proj it s
         , "origin" .= fmap (T.toLower . T.pack . show . rxOrigin) actual
@@ -111,6 +123,13 @@ itemJson b it = do
     fateJson = \case
       Lost -> toJSON ("lost" :: Text)
       ReplacedBy x -> object ["replaced-by" .= x]
+
+paradigmJson :: ParadigmDef -> Value
+paradigmJson pf = object
+  [ "dimensions" .= [ object ["name" .= dmName d, "members" .= [m | (m, _) <- dmMembers d, (_, Nothing) <- [splitVariant m]]]
+                    | d <- pfDimensions pf ]
+  , "cells" .= map fst (pfCells pf)
+  ]
 
 runJson :: Run -> Value
 runJson = \case
@@ -129,7 +148,7 @@ sourceText it = case itBuild it of
   BForm _ -> Nothing
   BSource s -> Just $ case s of
     SBase x -> x
-    SMorph x as -> T.intercalate " + " (x : as)
+    SMorph x ps -> T.intercalate " + " [case p of PBase -> x; PAffix a -> a | p <- ps]
     SCell x c -> x <> "." <> c
     SCompound xs -> T.intercalate " + " xs
     SLoan st x -> x <> " (loan from " <> st <> ")"

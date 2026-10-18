@@ -10,6 +10,10 @@
 //   #notes("ir")                           the item's notes, forms resolved
 //   #entry("ir", "azal")                   a dictionary entry
 //   #dictionary("azal")                    every entry with a reflex there
+//   #dictionary("azal", bound: false)      ... leaving out bound roots (ber-)
+//   #paradigm("ir", "azal")                a table of the cells, one row per
+//                                          member of the last dimension
+//   #paradigm("ir", "azal", rows: "number")   ... or of another dimension
 
 #let stemma(lex, form-style: emph) = {
   let stage-info = (:)
@@ -92,10 +96,12 @@
     })
   }
 
-  let dictionary(stage, kinds: ("root", "derivative")) = {
+  // Bound entries are cited with a hyphen (ber-). An entry with a paradigm
+  // is always listed, since it is cited by its first cell.
+  let dictionary(stage, kinds: ("root", "derivative"), bound: true) = {
     let ids = lex.order.filter(i => {
       let it = lex.items.at(i)
-      it.kind in kinds and it.reflexes.at(stage, default: (forms: none)).forms != none
+      (bound or not it.bound or it.cells.len() > 0) and it.kind in kinds and it.reflexes.at(stage, default: (forms: none)).forms != none
     })
     let key(i) = {
       let it = lex.items.at(i)
@@ -105,5 +111,60 @@
     for i in ids.sorted(key: key) { entry(i, stage) }
   }
 
-  (reflex: reflex, notes: notes, entry: entry, dictionary: dictionary)
+  // Cells as a table. Rows are the members of one dimension, columns every
+  // combination of the others. Cells not in the product of the dimensions
+  // are not shown; a missing cell shows as —. Variants are shown under
+  // their main cell.
+  let paradigm(id, stage, rows: auto) = {
+    let item = lex.items.at(id)
+    assert(item.paradigm != none, message: "stemma: " + id + " has no paradigm")
+    // The paradigm in force at the stage: the nearest repattern on the way
+    // there, if any.
+    let line = path(stage)
+    let pname = item.paradigm
+    let depth = -1
+    for rp in item.repatterns {
+      let d = line.position(s => s == rp.at)
+      if d != none and d > depth { pname = rp.paradigm; depth = d }
+    }
+    let pd = lex.paradigms.at(pname)
+    let dims = pd.dimensions
+    let form(cid) = {
+      let r = lex.items.at(cid, default: (reflexes: (:))).reflexes.at(stage, default: none)
+      if r == none or r.forms == none { [—] } else { reflex(cid, stage) }
+    }
+    // A cell, with its variants (CELL~label) below it.
+    let cell(name) = {
+      let cid = id + "." + name
+      let variants = item.cells.filter(c => c.starts-with(cid + "~"))
+      form(cid)
+      for v in variants {
+        linebreak()
+        text(size: 0.8em)[#v.slice(cid.len() + 1): #form(v)]
+      }
+    }
+    if dims.len() == 0 {
+      let names = item.cells.map(c => c.slice(id.len() + 1)).filter(c => not c.contains("~"))
+      return table(columns: 2, ..names.map(c => ([#c], cell(c))).flatten())
+    }
+    let r = if rows == auto { dims.len() - 1 } else { dims.position(d => d.name == rows) }
+    assert(r != none, message: "stemma: " + pname + " has no dimension " + repr(rows))
+    let others = range(dims.len()).filter(k => k != r)
+    let combos = ((),)
+    for k in others {
+      let next = ()
+      for c in combos { for m in dims.at(k).members { next.push(c + (m,)) } }
+      combos = next
+    }
+    // The cell name: members in dimension order.
+    let name(m, combo) = range(dims.len()).map(k =>
+      if k == r { m } else { combo.at(others.position(o => o == k)) }).join(".")
+    table(
+      columns: combos.len() + 1,
+      [], ..combos.map(c => strong(c.join("."))),
+      ..dims.at(r).members.map(m => (strong(m), ..combos.map(c => cell(name(m, c))))).flatten(),
+    )
+  }
+
+  (reflex: reflex, notes: notes, entry: entry, dictionary: dictionary, paradigm: paradigm)
 }
