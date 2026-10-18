@@ -1,0 +1,37 @@
+# A bound root: word-final rules must not reach the bare root, but do reach
+# its inflected forms once the edge boundary is gone.
+- id: bed
+  form: "*bed-"
+  bound: true
+  gloss: "carry"
+  paradigm: verb
+  expect:
+    modern: { form: bed-, INF: bet, 1S: mibet, 1S.PST: mibedva }
+  derivatives:
+    - id: bedon
+      source: { base: bed, morph: NMLZ }
+      gloss: "load"
+      expect: { modern: bedon }
+    # A bound derivative keeps its outer boundary.
+    - id: beder
+      source: { base: bed, morph: CAUS }
+      bound: true
+      expect: { modern: beder- }
+
+# r > n applies across the boundary (kar+i) but not root-internally (kari).
+- id: kar
+  form: "*kar-"
+  gloss: "stone"
+  paradigm: noun
+  expect:
+    modern: { DIR: kal, GEN: kani }
+
+- id: kari
+  form: "*kari"
+  gloss: "pebble"
+  expect: { modern: kari }
+
+- id: gen
+  form: "*-i"
+  bound: true
+  expect: { modern: -i }

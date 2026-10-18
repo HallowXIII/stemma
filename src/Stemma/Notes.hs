@@ -17,7 +17,6 @@ import Data.Text (Text)
 import Data.Text qualified as T
 
 import Stemma.Build
-import Stemma.Engine (renderForm)
 import Stemma.Load
 
 data Run
@@ -57,7 +56,7 @@ resolve b raw = do
   it <- maybe (Left ("unknown item in reference {" <> raw <> "}")) Right (Map.lookup iid (prItems proj))
   let stage = if T.null stagePart then itStage it else T.strip (T.drop 1 stagePart)
       results = if regular then bRegular b else bActual b
-      phon = map renderForm . rxForms <$> (Map.lookup stage results >>= Map.lookup iid)
+      phon = map (showForm proj) . rxForms <$> (Map.lookup stage results >>= Map.lookup iid)
       forms
         | phonemic || stage == root = phon
         | otherwise = spelledAt b regular stage iid

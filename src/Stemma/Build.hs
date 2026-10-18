@@ -20,6 +20,7 @@ module Stemma.Build
   , StageResults
   , build
   , spelledAt
+  , showForm
   , checkExpectations
   ) where
 
@@ -28,6 +29,7 @@ import Data.Either (partitionEithers)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Map.Lazy qualified as LMap
+import Data.List (intercalate)
 import Data.Maybe (fromMaybe, maybeToList)
 import Data.Set qualified as Set
 import Data.Text (Text)
@@ -87,7 +89,7 @@ build engine proj = do
             spA <- spell proj rules a
             spG <- spell proj rules g
             let built = Built proj order a g spA spG []
-            pure (Right built {bWarnings = wa ++ redundantIrregulars built})
+            pure (Right built {bWarnings = boundaryWarnings proj rules ++ wa ++ redundantIrregulars built})
   where
     stages = famStages (prFamily proj)
     allRefs = Set.fromList $
@@ -122,6 +124,7 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
     items = prItems proj
     graphemesFor s =
       famGraphemes (prFamily proj)
+        ++ maybeToList (famBoundary (prFamily proj))
         ++ concat [ rulesGraphemes r
                   | c <- s : [c | (c, st) <- Map.toList stages, stParent st == Just s]
                   , Just ref <- [Map.lookup c stages >>= stRules]
@@ -131,7 +134,10 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
       | T.null (strip t) = Right []
       | otherwise = either (Left . (("cannot tokenise " <> t <> ": ") <>)) Right $
       engineTokenise engine (graphemesFor s) (strip t)
-    strip = T.filter (`notElem` ("*-" :: String))
+    -- `-` marks where a form attaches: a boundary, if the family has one.
+    strip = case famBoundary (prFamily proj) of
+      Nothing -> T.filter (`notElem` ("*-" :: String))
+      Just b -> T.replace "-" b . T.filter (/= '*')
 
     eventsAt s it = if mode == Actual then [ev | ev <- itEvents it, evAt ev == s] else []
 
@@ -206,7 +212,7 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
           src <- case itBuild it of
             BSource src -> Right src
             BForm _ -> Left "reform: item has no source to rebuild from"
-          f' <- buildFrom (\x -> case LMap.lookup x inputs of
+          f' <- buildFrom (joinParts proj (itBound it)) (\x -> case LMap.lookup x inputs of
                             Just v -> (\(g, _, _) -> g) <$> v
                             Nothing -> Left ("reform: " <> x <> " has no form at " <> s)) src
           pure (f', descs ++ ["re-formed"], origin)
@@ -249,7 +255,7 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
                 case Map.lookup from results >>= Map.lookup x >>= headMay . rxForms of
                   Just f -> Right (f, Borrowed)
                   Nothing -> Left ("loan: " <> x <> " has no form at " <> from)
-              BSource src -> (,Coined) <$> buildFrom lookupForm src
+              BSource src -> (,Coined) <$> buildFrom (joinParts proj (itBound it)) lookupForm src
             pure (Reflex Nothing [f] [f] [] [] origin)
           ignored =
             [ itId it <> ": events at " <> s <> " are ignored, since it is formed there"
@@ -259,13 +265,46 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
            then Right (Map.union available (Map.fromList ok), ignored)
            else Left errs
 
-buildFrom :: (ItemId -> Either Text Form) -> Source -> Either Text Form
-buildFrom look = \case
-  SBase b -> look b
-  SMorph b as -> concat <$> traverse look (b : as)
-  SCell b c -> look (b <> "." <> c)
-  SCompound xs -> concat <$> traverse look xs
+buildFrom :: ([Form] -> Form) -> (ItemId -> Either Text Form) -> Source -> Either Text Form
+buildFrom join look = \case
+  SBase b -> join . pure <$> look b
+  SMorph b ps -> join <$> traverse (look . part) ps
+    where part = \case PBase -> b; PAffix a -> a
+  SCell b c -> join . pure <$> look (b <> "." <> c)
+  SCompound xs -> join <$> traverse look xs
   SLoan _ _ -> Left "a loan source cannot be rebuilt"
+
+-- | Concatenate the parts of a built form. With a boundary symbol, the
+-- parts are joined with exactly one boundary between them, empty parts
+-- (zero affixes) are skipped, and the boundaries at the outer edges are
+-- kept only if the result is itself bound.
+joinParts :: Project -> Bool -> [Form] -> Form
+joinParts proj bound parts = case famBoundary (prFamily proj) of
+  Nothing -> concat parts
+  Just b ->
+    let split = [x | x@(_, core, _) <- map (edges b) parts, not (null core)]
+        lead = case split of (l, _, _) : _ | l -> [b]; _ -> []
+        trail = case reverse split of (_, _, t) : _ | t -> [b]; _ -> []
+        inner = intercalate [b] [core | (_, core, _) <- split]
+    in if bound then lead ++ inner ++ trail else inner
+
+-- | Split off boundaries at the edges: whether there were any at the
+-- start, the rest, and whether there were any at the end.
+edges :: Text -> Form -> (Bool, Form, Bool)
+edges b f =
+  let (pre, rest) = span (== b) f
+      (post, core) = span (== b) (reverse rest)
+  in (not (null pre), reverse core, not (null post))
+
+-- | A form for display: boundaries inside the word are dropped, and those
+-- at its edges are shown as @-@, as in a citation form (/ber-/).
+showForm :: Project -> Form -> Text
+showForm proj f = case famBoundary (prFamily proj) of
+  Nothing -> renderForm f
+  Just b -> let (l, core, t) = edges b f in hyphenate l t (renderForm (filter (/= b) core))
+
+hyphenate :: Bool -> Bool -> Text -> Text
+hyphenate l t x = (if l then "-" else "") <> x <> (if t then "-" else "")
 
 headMay :: [a] -> Maybe a
 headMay (x : _) = Just x
@@ -276,12 +315,18 @@ spell :: Project -> Map RulesRef Rules -> Map StageId StageResults -> IO (Map St
 spell proj rules results = Map.traverseWithKey spellStage results
   where
     stages = famStages (prFamily proj)
+    -- The orthography never sees boundaries: those inside the word are
+    -- dropped, and those at the edges come back as hyphens.
+    unbound f = case famBoundary (prFamily proj) of
+      Nothing -> (False, f, False)
+      Just b -> let (l, core, t) = edges b f in (l, filter (/= b) core, t)
     spellStage s res = case Map.lookup s stages >>= stOrthography >>= (`Map.lookup` rules) of
-      Nothing -> pure (map renderForm . rxForms <$> res)
+      Nothing -> pure (map (showForm proj) . rxForms <$> res)
       Just r -> do
-        let keyed = [(i, f) | (i, rx) <- Map.toList res, f <- rxForms rx]
-        evos <- rulesApply r (map snd keyed)
-        let spelled = zipWith (\(i, _) evo -> (i, map renderForm (take 1 (evoOutputs evo)))) keyed evos
+        let keyed = [(i, unbound f) | (i, rx) <- Map.toList res, f <- rxForms rx]
+        evos <- rulesApply r [core | (_, (_, core, _)) <- keyed]
+        let spelled = zipWith (\(i, (l, _, t)) evo -> (i, map (hyphenate l t . renderForm) (take 1 (evoOutputs evo))))
+                              keyed evos
         pure (Map.union (Map.fromListWith (flip (++)) spelled) (const [] <$> res))
 
 spelledAt :: Built -> Bool -> StageId -> ItemId -> Maybe [Text]
@@ -307,3 +352,21 @@ redundantIrregulars b =
   , (i, rx) <- Map.toList res
   , any ("irregular" `T.isPrefixOf`) (rxEvents rx)
   , rxRuleOutput rx == rxForms rx ]
+
+-- | Problems that make a boundary symbol misbehave: Brassica replaces
+-- undeclared graphemes with U+FFFD, and a bound item without a @-@ is
+-- evolved as if it were a whole word.
+boundaryWarnings :: Project -> Map RulesRef Rules -> [Text]
+boundaryWarnings proj rules = case famBoundary (prFamily proj) of
+  Nothing -> []
+  Just b ->
+    [ s <> ": the boundary " <> b <> " is not declared in " <> renderRulesRef ref
+        <> "; Brassica will replace it with U+FFFD"
+    | (s, st) <- Map.toList (famStages (prFamily proj))
+    , Just ref <- [stRules st], Just r <- [Map.lookup ref rules]
+    , let gs = rulesGraphemes r, not (null gs), b `notElem` gs ]
+      ++
+    [ itId it <> ": bound, but its form has no - to mark where it attaches"
+    | it <- Map.elems (prItems proj), itBound it
+    , BForm t <- [itBuild it]
+    , not (T.null (T.filter (/= '*') t)), not ("-" `T.isInfixOf` t) ]

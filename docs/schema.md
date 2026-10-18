@@ -19,6 +19,7 @@ name: Echo
 
 notation:
   graphemes: [r₁, r₂]      # multigraphs in proto forms (optional)
+  boundary: "+"            # morpheme boundary passed to the rules (optional; §2)
 
 stages:
   proto-echo:
@@ -79,6 +80,22 @@ paradigms:
       - DAT: [DAT]            # a cell may stack several affixes
 ```
 
+A cell is a **template**: affixes in order, with `~` for the base. Without
+a `~` the base comes first, so `[GEN]` means `[~, GEN]`. A cell written as
+just `~` is the bare base.
+
+```yaml
+affixes:
+  SBJ.1S: { form: "*bi-" }    # a prefix
+  PST:    { form: "*-va" }
+
+paradigms:
+  verb:
+    cells:
+      - INF: ~
+      - 1S.PST: [SBJ.1S, ~, PST]
+```
+
 Affixes take the same fields as entries (§3) and default to the root
 stage. They are items in their own right, so they can have category
 history and notes, which is how you record things like a definite article
@@ -87,6 +104,34 @@ becoming a case ending.
 An entry with `paradigm: demonstrative` gets one item per cell, named
 `entry.CELL` (e.g. `ir.DIR`). Each cell is built at the paradigm's stage
 (or at the entry's, if that is later) and then evolves on its own.
+
+### Morpheme boundaries
+
+By default, parts are simply concatenated and a `-` in a written form is
+ignored. Set `notation.boundary` in `family.yaml` to pass morpheme
+boundaries to the rules instead:
+
+- Every `-` in a written form becomes the boundary symbol. The affix
+  `*-i` evolves as `+i`, and the bound root `*ber-` as `ber+`, so a rule
+  conditioned on the end of the word (`_ #`) does not reach them.
+- When a cell or derivative is built, its parts are joined with exactly one
+  boundary between them, and zero affixes add nothing: `bi+`, `ber+` and
+  `+va` give `bi+ber+va`. The boundaries at the outer edges are dropped,
+  unless the result is itself `bound` (§3).
+- The boundaries stay in the forms from stage to stage, so later rules can
+  refer to them: `r / n / _ + i` changes *kar+i* but not *kari*.
+- Displayed and spelled forms leave out the boundaries inside the word and
+  show those at its edges as hyphens: *mibedva*, but *ber-* and *-va*.
+  `trace` and `forms.tsv` show the raw forms. The orthography never sees
+  boundaries.
+
+The boundary must be declared as a grapheme in every rules file that has a
+`categories` block, or Brassica replaces it with U+FFFD. stemma warns when
+it is not. In a category, a leading `+` means intersection, so declare it
+as a union: `B = &+`.
+
+Rules that should apply across a boundary have to allow for it, for
+example with an optional `(+)`.
 
 ---
 
@@ -97,7 +142,7 @@ has either a `form` (a root) or a `source` (a derivative).
 
 ```yaml
 - id: ir
-  form: "*ir₁-"               # * and - are ignored when tokenising
+  form: "*ir₁-"               # * is ignored; - marks a boundary (§2)
   stage: proto-echo           # default: the root stage
   gloss: "this (proximal)"
   category: [{ at: proto-echo, is: DEM }]
@@ -119,7 +164,7 @@ has either a `form` (a root) or a `source` (a derivative).
 | shape | meaning |
 |---|---|
 | `{ base: X }` | zero derivation, conversion |
-| `{ base: X, morph: A }` or `morph: [A, B]` | X plus affixes |
+| `{ base: X, morph: A }` or `morph: [A, ~, B]` | X plus affixes, as a template (§2) |
 | `{ base: X, cell: C }` | an inflected form that took on a life of its own (*päällä*) |
 | `{ compound: [X, Y] }` | concatenation of the members' bare forms |
 | `{ loan: { from: STAGE, id: X } }` | a new word borrowed from another line |
@@ -127,6 +172,13 @@ has either a `form` (a root) or a `source` (a derivative).
 A derivative's `stage` defaults to its parent entry's stage. It is built
 from the forms **at the end of** that stage, after that stage's rules.
 Derivatives nest.
+
+**Bound items.** `bound: true` marks an item that is not a word on its own:
+a bound root or stem. Affixes are bound by default. With a boundary symbol
+(§2), it keeps the boundaries at its edges (a written root keeps its `-`;
+one built from parts keeps its outer boundaries), so it is cited as *ber-*. stemma warns about a bound item whose form has no `-`.
+In Typst, `dictionary(stage, bound: false)` leaves bound entries out;
+entries with a paradigm are always listed.
 
 **Freezing.** A derivative is built once and after that undergoes only
 sound change. Analogy that later affects its base does not reach it. To
@@ -267,11 +319,10 @@ stemma -d DIR shifts FROM TO     category shifts (* is a wildcard)
 
 ## Known limitations
 
-- Bare stems and affixes also run through the rules on their own, which
-  gives meaningless forms (Azal *heh* for the bare dative *\*-xx*). These
-  appear in `forms.tsv` but not in the Typst dictionary.
-- Morpheme boundaries are not passed to the engine, so rules cannot yet
-  refer to them.
+- Without a boundary symbol (§2), bare stems and affixes run through the
+  rules as if they were words, which gives meaningless forms (Azal *heh* for
+  the bare dative *\*-xx*). They appear in `forms.tsv`, and in the Typst
+  dictionary only if they are roots or derivatives.
 - When the rules give several outputs, the first one is used to build
   derivatives, and a warning is issued.
 - Loans by `source` cannot yet be adapted. Only loan events take `adapt`.

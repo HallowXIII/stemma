@@ -1,0 +1,14 @@
+# Test fixture for morpheme boundaries and cell templates.
+name: Boundary
+
+notation:
+  boundary: "+"
+
+stages:
+  proto:
+    name: Proto
+  modern:
+    name: Modern
+    parent: proto
+    rules: rules/proto-to-modern.bsc
+    current: true

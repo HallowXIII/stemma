@@ -76,6 +76,7 @@ itemJson b it = do
   pure . (it,) $ object
     [ "id" .= itId it
     , "kind" .= kindName (itKind it)
+    , "bound" .= itBound it
     , "owner" .= itOwner it
     , "gloss" .= itGloss it
     , "formed" .= itStage it
@@ -96,9 +97,9 @@ itemJson b it = do
       let actual = Map.lookup s (bActual b) >>= Map.lookup (itId it)
           regular = Map.lookup s (bRegular b) >>= Map.lookup (itId it)
       in object
-        [ "forms" .= fmap (map renderForm . rxForms) actual
+        [ "forms" .= fmap (map (showForm proj) . rxForms) actual
         , "spelled" .= spelledAt b False s (itId it)
-        , "regular" .= fmap (map renderForm . rxForms) regular
+        , "regular" .= fmap (map (showForm proj) . rxForms) regular
         , "regular_spelled" .= spelledAt b True s (itId it)
         , "category" .= categoryAt proj it s
         , "origin" .= fmap (T.toLower . T.pack . show . rxOrigin) actual
@@ -129,7 +130,7 @@ sourceText it = case itBuild it of
   BForm _ -> Nothing
   BSource s -> Just $ case s of
     SBase x -> x
-    SMorph x as -> T.intercalate " + " (x : as)
+    SMorph x ps -> T.intercalate " + " [case p of PBase -> x; PAffix a -> a | p <- ps]
     SCell x c -> x <> "." <> c
     SCompound xs -> T.intercalate " + " xs
     SLoan st x -> x <> " (loan from " <> st <> ")"

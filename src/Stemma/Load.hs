@@ -53,6 +53,8 @@ data Item = Item
   , itStage :: StageId
   -- ^ Where the item was formed.
   , itBuild :: Build
+  , itBound :: Bool
+  -- ^ Not a word on its own: an affix, a bound root or stem.
   , itGloss :: Maybe Text
   , itCategory :: [CatShift]
   , itNotes :: Maybe Text
@@ -152,6 +154,7 @@ flattenEntry stages root paradigms kind owner defStage e =
         , itOwner = owner
         , itStage = stage
         , itBuild = build
+        , itBound = fromMaybe (kind == KAffix) (enBound e)
         , itGloss = enGloss e
         , itCategory = enCategory e
         , itNotes = enNotes e
@@ -172,7 +175,7 @@ flattenEntry stages root paradigms kind owner defStage e =
         Nothing -> [err ("unknown paradigm " <> pname)]
         Just p -> map (mkCell p) (pdCells p)
 
-    mkCell p (c, affs) = do
+    mkCell p (c, parts) = do
       let pstage = fromMaybe root (pdStage p)
       cstage <-
         if isAncestorOrSelf stages pstage stage then Right stage
@@ -183,7 +186,8 @@ flattenEntry stages root paradigms kind owner defStage e =
         , itKind = KCell
         , itOwner = Just eid
         , itStage = cstage
-        , itBuild = BSource (SMorph eid affs)
+        , itBuild = BSource (SMorph eid parts)
+        , itBound = False
         , itGloss = Nothing
         , itCategory = enCategory e
         , itNotes = Nothing
@@ -211,7 +215,7 @@ itemDeps it = case itBuild it of
   BForm _ -> []
   BSource s -> case s of
     SBase b -> [b]
-    SMorph b as -> b : as
+    SMorph b ps -> b : [a | PAffix a <- ps]
     SCell b c -> [b <> "." <> c]
     SCompound xs -> xs
     SLoan _ x -> [x]

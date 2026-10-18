@@ -12,6 +12,8 @@ cheaply detect them (§E).
 
 ## A. Cell templates and morpheme boundaries: L
 
+**Done**; see `schema.md` §2 and `test/fixtures/boundary`.
+
 Covers findings 1, 3 and 4, and the "bare affixes" known limitation in
 `schema.md`.
 
@@ -127,5 +129,5 @@ stemma can detect them. One pass after each stage:
 4. §D, which makes *valykkōm* (`sharpness.SG.COM`) pass.
 5. The rest of §F, in any order.
 
-**Open question for §A:** should bound roots appear in the dictionary
-(cited as *ber-*) or be omitted by default?
+Bound roots are listed in the dictionary by default, cited as *ber-*;
+`dictionary(stage, bound: false)` leaves them out.

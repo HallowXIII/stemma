@@ -7,6 +7,8 @@ module Stemma.Types
   , Stage (..)
   , Morphology (..)
   , Paradigm (..)
+  , Part (..)
+  , templateParts
   , Entry (..)
   , Source (..)
   , Event (..)
@@ -25,6 +27,7 @@ import Data.Aeson.KeyMap qualified as KM
 import Data.Aeson.Types (Parser)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Text.Read (readMaybe)
@@ -60,6 +63,8 @@ instance FromJSON RulesRef where
 data Family = Family
   { famName :: Text
   , famGraphemes :: [Text]
+  , famBoundary :: Maybe Text
+  -- ^ The morpheme boundary symbol, if boundaries are passed to the rules.
   , famStages :: Map StageId Stage
   }
   deriving (Show)
@@ -78,9 +83,17 @@ instance FromJSON Family where
   parseJSON = withObject "family" $ \o -> do
     famName <- o .: "name"
     notation <- o .:? "notation"
-    famGraphemes <- maybe (pure []) (withObject "notation" (\n -> n .:? "graphemes" .!= [])) notation
+    (famGraphemes, famBoundary) <- case notation of
+      Nothing -> pure ([], Nothing)
+      Just n -> flip (withObject "notation") n $ \no ->
+        (,) <$> no .:? "graphemes" .!= [] <*> (no .:? "boundary" >>= traverse boundary)
     famStages <- o .: "stages"
     pure Family {..}
+    where
+      boundary t
+        | T.null t = fail "notation.boundary must not be empty"
+        | T.any (`elem` ("*-" :: String)) t = fail "notation.boundary may not contain * or -"
+        | otherwise = pure t
 
 instance FromJSON Stage where
   parseJSON = withObject "stage" $ \o -> do
@@ -103,10 +116,29 @@ data Morphology = Morphology
 
 data Paradigm = Paradigm
   { pdStage :: Maybe StageId
-  , pdCells :: [(Text, [ItemId])]
-  -- ^ In the order written: each cell is a list of affixes.
+  , pdCells :: [(Text, [Part])]
+  -- ^ In the order written: each cell is a template of affixes around the
+  -- base. See 'templateParts'.
   }
   deriving (Show)
+
+-- | A slot in a cell or morph template.
+data Part = PBase | PAffix ItemId
+  deriving (Eq, Show)
+
+-- | Read a template: affix IDs, with @~@ for the base. Without a @~@,
+-- the base comes first, so @[GEN]@ means @[~, GEN]@.
+templateParts :: [Text] -> Either String [Part]
+templateParts ts = case length (filter (== "~") ts) of
+  0 -> Right (PBase : map PAffix ts)
+  1 -> Right [if t == "~" then PBase else PAffix t | t <- ts]
+  _ -> Left "a template may contain only one ~"
+
+-- | YAML reads a bare @~@ as null, so null is the base as well.
+template :: Value -> Parser [Part]
+template v = do
+  slots <- oneOrMany v
+  either fail pure (templateParts (map (fromMaybe "~") slots))
 
 instance FromJSON Morphology where
   parseJSON = withObject "morphology" $ \o -> do
@@ -127,9 +159,9 @@ instance FromJSON Paradigm where
     pure Paradigm {..}
     where
       -- Cells are a list of single-key maps, so that their order survives.
-      cell :: Value -> Parser (Text, [ItemId])
+      cell :: Value -> Parser (Text, [Part])
       cell = withObject "paradigm cell" $ \o -> case KM.toList o of
-        [(k, v)] -> (Key.toText k,) <$> oneOrMany v
+        [(k, v)] -> (Key.toText k,) <$> template v
         _ -> fail "each paradigm cell must be a single `NAME: affix` pair"
 
 oneOrMany :: FromJSON a => Value -> Parser [a]
@@ -149,6 +181,8 @@ data Entry = Entry
   , enGloss :: Maybe Text
   , enCategory :: [CatShift]
   , enParadigm :: Maybe Text
+  , enBound :: Maybe Bool
+  -- ^ Not a word on its own. Defaults to true for affixes, false otherwise.
   , enNotes :: Maybe Text
   , enDerivatives :: [Entry]
   , enEvents :: [Event]
@@ -159,7 +193,8 @@ data Entry = Entry
 
 data Source
   = SBase ItemId
-  | SMorph ItemId [ItemId]
+  | SMorph ItemId [Part]
+  -- ^ The base, and a template with exactly one 'PBase'.
   | SCell ItemId Text
   | SCompound [ItemId]
   | SLoan StageId ItemId
@@ -219,6 +254,7 @@ parseEntryBody enId = withObject "entry" $ \o -> do
   enGloss <- o .:? "gloss"
   enCategory <- o .:? "category" .!= []
   enParadigm <- o .:? "paradigm"
+  enBound <- o .:? "bound"
   enNotes <- o .:? "notes"
   enDerivatives <- o .:? "derivatives" .!= []
   enEvents <- o .:? "events" .!= []
@@ -235,7 +271,7 @@ instance FromJSON Source where
     loan <- o .:? "loan"
     case (base, morph, cell, compound, loan) of
       (Just b, Nothing, Nothing, Nothing, Nothing) -> pure (SBase b)
-      (Just b, Just m, Nothing, Nothing, Nothing) -> SMorph b <$> oneOrMany m
+      (Just b, Just m, Nothing, Nothing, Nothing) -> SMorph b <$> template m
       (Just b, Nothing, Just c, Nothing, Nothing) -> pure (SCell b c)
       (Nothing, Nothing, Nothing, Just xs, Nothing) -> pure (SCompound xs)
       (Nothing, Nothing, Nothing, Nothing, Just l) ->

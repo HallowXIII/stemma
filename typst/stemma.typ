@@ -10,6 +10,7 @@
 //   #notes("ir")                           the item's notes, forms resolved
 //   #entry("ir", "azal")                   a dictionary entry
 //   #dictionary("azal")                    every entry with a reflex there
+//   #dictionary("azal", bound: false)      ... leaving out bound roots (ber-)
 
 #let stemma(lex, form-style: emph) = {
   let stage-info = (:)
@@ -92,10 +93,12 @@
     })
   }
 
-  let dictionary(stage, kinds: ("root", "derivative")) = {
+  // Bound entries are cited with a hyphen (ber-). An entry with a paradigm
+  // is always listed, since it is cited by its first cell.
+  let dictionary(stage, kinds: ("root", "derivative"), bound: true) = {
     let ids = lex.order.filter(i => {
       let it = lex.items.at(i)
-      it.kind in kinds and it.reflexes.at(stage, default: (forms: none)).forms != none
+      (bound or not it.bound or it.cells.len() > 0) and it.kind in kinds and it.reflexes.at(stage, default: (forms: none)).forms != none
     })
     let key(i) = {
       let it = lex.items.at(i)
