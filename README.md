@@ -50,7 +50,22 @@ cabal run stemma -- -d examples/echo shifts '*' '*'
 cabal test                                   # the Echo example must reproduce the grammar
 ```
 
-Or use `nix build` to get `result/bin/stemma`.
+Or use `nix build` to get `result/bin/stemma`, or `nix run . -- -d examples/echo build`.
+
+To install it, use `nix profile add github:HallowXIII/stemma` (`.` from a
+clone; `nix profile install` on Nix older than 2.26), or add it to a NixOS
+or home-manager flake:
+
+```nix
+inputs.stemma.url = "github:HallowXIII/stemma";
+# or "git+https://github.com/HallowXIII/stemma.git"
+# ...
+nixpkgs.overlays = [ inputs.stemma.overlays.default ];
+environment.systemPackages = [ pkgs.stemma ];  # home.packages for home-manager
+```
+
+The installed package holds only the executable, so the closure has no GHC
+in it.
 
 In Typst:
 
