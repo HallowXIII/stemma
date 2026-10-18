@@ -317,6 +317,25 @@ This is preferred over writing the output form: if you change what word-final
 
 This rebuilds the item from its `source`, using the forms entering azal.
 
+### `repattern`
+
+```yaml
+- repattern: { at: azal, paradigm: noun-o, stem: "valykkō" }
+```
+
+The entry changes paradigm at this stage: every cell is rebuilt from the
+new paradigm's template, using the stem and the affixes' forms entering
+the stage, and then goes through the stage's rules. `stem` is written as at
+that stage and is optional; without it the entry's own form is used. With
+it, the bare entry takes the new stem too. The entry's own `cells` changes
+(§3) apply to the new paradigm as well, and a suppletive cell keeps its
+base.
+
+Cells that the new paradigm lacks are lost from this stage on. The new
+paradigm may not have cells the old one lacks. A repattern applies to the
+whole entry, so it takes no `cell:`. Other lines of descent keep the old
+paradigm, and Typst's `paradigm()` uses the one in force at the stage.
+
 ### `loan`
 
 ```yaml

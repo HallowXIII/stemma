@@ -1,0 +1,12 @@
+- id: valyk
+  form: "*valyk"
+  gloss: "sharpness"
+  paradigm: noun-c
+  events:
+    - repattern: { at: azal, paradigm: noun-o, stem: "valykkō" }
+  notes: |
+    Would-be {valyk.SG.COM @ azal !}, actual {valyk.SG.COM @ azal}.
+  expect:
+    azal: { form: valykkō, SG.DIR: valykkō, SG.GEN: valykkōy, SG.COM: valykkōm,
+            PL.DIR: valykkōra, PL.COM: valykkōram }
+    wiyan: { form: valyk, SG.COM: valykm, PL.GEN: valykrai }

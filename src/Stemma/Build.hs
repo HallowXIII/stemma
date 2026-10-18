@@ -212,14 +212,24 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
           src <- case itBuild it of
             BSource src -> Right src
             BForm _ -> Left "reform: item has no source to rebuild from"
-          f' <- buildFrom (joinParts proj (itBound it)) (\x -> case LMap.lookup x inputs of
-                            Just v -> (\(g, _, _) -> g) <$> v
-                            Nothing -> Left ("reform: " <> x <> " has no form at " <> s)) src
+          f' <- buildFrom (joinParts proj (itBound it)) (entering "reform") src
           pure (f', descs ++ ["re-formed"], origin)
+        Rebuild stem base parts desc -> do
+          baseForm <- maybe (entering "repattern" base) (tokeniseAt s) stem
+          f' <- joinParts proj (itBound it) <$> forM parts (\case
+            PBase -> Right baseForm
+            PAffix a -> entering "repattern" a)
+          pure (f', descs ++ [desc], origin)
+        Repattern {} -> pure (f, descs, origin)
         Loan from _ _ -> do
           f' <- fromMaybe (Left "loan: missing donor") (Map.lookup (itId it, k) loanForms)
           pure (f', descs ++ ["borrowed from " <> from], Borrowed)
         Irregular {} -> pure (f, descs, origin)
+      where
+        -- Forms entering this stage, after their own events.
+        entering what x = case LMap.lookup x inputs of
+          Just v -> (\(g, _, _) -> g) <$> v
+          Nothing -> Left (what <> ": " <> x <> " has no form at " <> s)
 
     inheritedReflex s (i, (inp, descs, origin)) evo = do
       let it = items Map.! i

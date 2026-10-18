@@ -68,6 +68,8 @@ data Item = Item
   , itExpect :: Map StageId Text
   , itCells :: [ItemId]
   , itParadigm :: Maybe Text
+  , itRepatterns :: [(StageId, Text)]
+  -- ^ Stages where the entry changes paradigm, and the new paradigm.
   }
   deriving (Show)
 
@@ -168,11 +170,12 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itGloss = enGloss e
         , itCategory = category
         , itNotes = enNotes e
-        , itEvents = ownEvents
+        , itEvents = concatMap restem ownEvents
         , itFate = enFate e
         , itExpect = Map.mapMaybe exForm (enExpect e)
         , itCells = [eid <> "." <> c | (c, _) <- entryCells]
         , itParadigm = enParadigm e
+        , itRepatterns = [(evAt ev, p) | ev@Event {evKind = Repattern p _} <- enEvents e]
         }
 
     (cellEvents, ownEvents) = partitionBy (\ev -> evCell ev /= Nothing) (enEvents e)
@@ -180,8 +183,9 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
 
     paradigm = enParadigm e >>= (`Map.lookup` paradigms)
 
-    -- The paradigm's cells with this entry's changes: name, base, template.
-    entryCells = foldl' change [(c, (eid, ps)) | (c, ps) <- maybe [] pfCells paradigm] (enCells e)
+    -- A paradigm's cells with this entry's changes: name, base, template.
+    cellsOf p = foldl' change [(c, (eid, ps)) | (c, ps) <- maybe [] pfCells p] (enCells e)
+    entryCells = cellsOf paradigm
     change acc (c, ov) = case lookup c acc of
       Just (b, ps) ->
         [(k, if k == c then (fromMaybe b (coBase ov), fromMaybe ps (coMorph ov)) else v) | (k, v) <- acc]
@@ -189,7 +193,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
 
     cells = case (enParadigm e, paradigm) of
       (Just pname, Nothing) -> [err ("unknown paradigm " <> pname)]
-      _ -> [ err ("variant " <> c <> " has no main cell " <> m)
+      _ -> repatternErrs ++ [ err ("variant " <> c <> " has no main cell " <> m)
            | (c, _) <- enCells e, (m, Just _) <- [splitVariant c], m `notElem` map fst entryCells ]
            ++ map mkCell entryCells
 
@@ -209,12 +213,40 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itGloss = Nothing
         , itCategory = category
         , itNotes = Nothing
-        , itEvents = [ev | ev <- cellEvents, evCell ev == Just c]
-        , itFate = enFate e
+        , itEvents =
+            [ Event s Nothing (Rebuild (if b == eid then stem else Nothing) b ps ("repatterned as " <> pname))
+            | (s, pname, stem, new) <- repatterns, Just (b, ps) <- [lookup c new] ]
+              ++ [ev | ev <- cellEvents, evCell ev == Just c]
+        , itFate = Map.union (enFate e)
+            (Map.fromList [(s, Lost) | (s, _, _, new) <- repatterns, Nothing <- [lookup c new]])
         , itExpect = Map.mapMaybe (Map.lookup c . exCells) (enExpect e)
         , itCells = []
         , itParadigm = Nothing
+        , itRepatterns = []
         }
+
+    -- Each repattern: its stage, the new paradigm, the new stem, and the
+    -- cells it gives.
+    repatterns =
+      [ (evAt ev, pname, stem, cellsOf (Just p))
+      | ev@Event {evKind = Repattern pname stem} <- enEvents e
+      , Just p <- [Map.lookup pname paradigms] ]
+    repatternErrs = concat
+      [ [ err ("repattern at " <> evAt ev <> ": unknown paradigm " <> pname)
+        | Nothing <- [Map.lookup pname paradigms] ]
+          ++ [ err ("repattern at " <> evAt ev <> " applies to every cell; it cannot have `cell:`")
+             | Just _ <- [evCell ev] ]
+          ++ [ err ("repattern at " <> evAt ev <> ": " <> pname <> " has cells that " <> eid
+                    <> " lacks: " <> T.intercalate ", " extra)
+             | Just p <- [Map.lookup pname paradigms]
+             , let extra = [c | (c, _) <- cellsOf (Just p), c `notElem` map fst entryCells]
+             , not (null extra) ]
+      | ev@Event {evKind = Repattern pname _} <- enEvents e ]
+    -- On the entry itself, a repattern with a stem replaces its form.
+    restem ev = case evKind ev of
+      Repattern pname (Just stem) -> [ev {evKind = Rebuild (Just stem) eid [PBase] ("repatterned as " <> pname)}]
+      Repattern {} -> []
+      _ -> [ev]
 
     derivs = concatMap (flattenEntry stages root paradigms KDerivative (Just eid) category stage) (enDerivatives e)
 

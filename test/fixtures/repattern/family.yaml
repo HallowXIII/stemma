@@ -1,0 +1,17 @@
+# Test fixture for repattern: a noun changes paradigm and stem at azal,
+# but not on the wiyan line.
+name: Repattern
+
+stages:
+  proto:
+    name: Proto
+  azal:
+    name: Azal
+    parent: proto
+    rules: rules/azal.bsc
+    current: true
+  wiyan:
+    name: Wiyan
+    parent: proto
+    rules: rules/wiyan.bsc
+    current: true

@@ -273,6 +273,13 @@ data EventKind
   -- ^ Donor stage, donor item (default: the same item), adaptation rules.
   | Irregular Text (Maybe Text)
   -- ^ Form, reason.
+  | Repattern Text (Maybe Text)
+  -- ^ New paradigm, and new stem as written at the stage. On an entry;
+  -- "Stemma.Load" turns it into 'Rebuild' events on the cells.
+  | Rebuild (Maybe Text) ItemId [Part] Text
+  -- ^ Rebuild from a template: a stem as written (or else the base's form
+  -- entering the stage), the base, the template, and a description. Not
+  -- written by hand.
   deriving (Show)
 
 eventKindName :: EventKind -> Text
@@ -281,6 +288,8 @@ eventKindName = \case
   Reform -> "reform"
   Loan {} -> "loan"
   Irregular {} -> "irregular"
+  Repattern {} -> "repattern"
+  Rebuild {} -> "repattern"
 
 data Fate = Lost | ReplacedBy ItemId
   deriving (Show)
@@ -349,6 +358,7 @@ instance FromJSON Event where
         "reform" -> pure Reform
         "loan" -> Loan <$> b .: "from" <*> b .:? "id" <*> b .:? "adapt"
         "irregular" -> Irregular <$> b .: "form" <*> b .:? "reason"
+        "repattern" -> Repattern <$> b .: "paradigm" <*> b .:? "stem"
         other -> fail ("unknown event type: " <> T.unpack other)
       pure Event {..}
     _ -> fail "each event must be a single-key map such as `analogy: {...}`"

@@ -118,7 +118,16 @@
   let paradigm(id, stage, rows: auto) = {
     let item = lex.items.at(id)
     assert(item.paradigm != none, message: "stemma: " + id + " has no paradigm")
-    let pd = lex.paradigms.at(item.paradigm)
+    // The paradigm in force at the stage: the nearest repattern on the way
+    // there, if any.
+    let line = path(stage)
+    let pname = item.paradigm
+    let depth = -1
+    for rp in item.repatterns {
+      let d = line.position(s => s == rp.at)
+      if d != none and d > depth { pname = rp.paradigm; depth = d }
+    }
+    let pd = lex.paradigms.at(pname)
     let dims = pd.dimensions
     let form(cid) = {
       let r = lex.items.at(cid, default: (reflexes: (:))).reflexes.at(stage, default: none)
@@ -139,7 +148,7 @@
       return table(columns: 2, ..names.map(c => ([#c], cell(c))).flatten())
     }
     let r = if rows == auto { dims.len() - 1 } else { dims.position(d => d.name == rows) }
-    assert(r != none, message: "stemma: " + item.paradigm + " has no dimension " + repr(rows))
+    assert(r != none, message: "stemma: " + pname + " has no dimension " + repr(rows))
     let others = range(dims.len()).filter(k => k != r)
     let combos = ((),)
     for k in others {

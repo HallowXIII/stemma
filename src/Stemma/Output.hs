@@ -84,6 +84,7 @@ itemJson b it = do
     , "source" .= sourceText it
     , "cells" .= itCells it
     , "paradigm" .= itParadigm it
+    , "repatterns" .= [object ["at" .= s, "paradigm" .= p] | (s, p) <- itRepatterns it]
     , "variant_of" .= fmap fst variant
     , "variant" .= fmap snd variant
     , "notes" .= notes

@@ -85,6 +85,8 @@ Covers findings 8 and 9.
 
 ## D. `repattern`: M, after B
 
+**Done**; see `schema.md` §4 and `test/fixtures/repattern`.
+
 Covers finding 12.
 
 ```yaml
