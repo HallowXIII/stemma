@@ -151,6 +151,18 @@ inherited ones. Cells and exclusions are added to the inherited ones.
     exclude: [PL.COM]
 ```
 
+**Loss on one line.** `exclude` removes a cell everywhere. `lost` removes it
+from a stage on, so other lines of descent keep it. Cell names may use `*`,
+and a cell's variants are lost with it. Every entry with the paradigm gets
+the cell fate `lost` at that stage (§5), so would-be forms are still
+computed. `lost` is inherited and merged like `exclude`.
+
+```yaml
+  noun-v:
+    lost:
+      wiyan: ["*.GEN"]                   # Wiyan drops the genitive
+```
+
 The dimensions are written to `lexicon.json`. In Typst,
 `paradigm(id, stage)` lays the cells out as a table, with one row per member
 of the last dimension (or of `rows: "number"`) and a column for each

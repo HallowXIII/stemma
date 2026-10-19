@@ -106,6 +106,9 @@ assemble dir family morphology entries = do
       flat = concatMap (flattenEntry stages root paradigms KAffix Nothing [] root)
                        (Map.elems (moAffixes morphology))
           ++ concatMap (flattenEntry stages root paradigms KRoot Nothing [] root) entries
+      lostErrs = [ "paradigm " <> n <> ": lost at unknown stage " <> s
+                 | (n, p) <- Map.toList paradigms, s <- Map.keys (pfLost p), not (Map.member s stages) ]
+  unless (null lostErrs) $ Left lostErrs
   items <- sequence flat
   let dupes = Map.keys (Map.filter (> 1) (Map.fromListWith (+) [(itId i, 1 :: Int) | i <- items]))
   unless (null dupes) $ Left ["duplicate id: " <> d | d <- dupes]
@@ -217,8 +220,12 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
             [ Event s Nothing (Rebuild (if b == eid then stem else Nothing) b ps ("repatterned as " <> pname))
             | (s, pname, stem, new) <- repatterns, Just (b, ps) <- [lookup c new] ]
               ++ [ev | ev <- cellEvents, evCell ev == Just c]
-        , itFate = Map.union (enFate e)
-            (Map.fromList [(s, Lost) | (s, _, _, new) <- repatterns, Nothing <- [lookup c new]])
+        , itFate = Map.unions
+            [ enFate e
+            , Map.fromList [(s, Lost) | (s, _, _, new) <- repatterns, Nothing <- [lookup c new]]
+            , Map.fromList [ (s, Lost) | p <- toList paradigm ++ repatternParadigms
+                           , (s, pats) <- Map.toList (pfLost p), any (`lostBy` c) pats ]
+            ]
         , itExpect = Map.mapMaybe (Map.lookup c . exCells) (enExpect e)
         , itCells = []
         , itParadigm = Nothing
@@ -231,6 +238,8 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       [ (evAt ev, pname, stem, cellsOf (Just p))
       | ev@Event {evKind = Repattern pname stem} <- enEvents e
       , Just p <- [Map.lookup pname paradigms] ]
+    repatternParadigms =
+      [p | Event {evKind = Repattern pname _} <- enEvents e, Just p <- [Map.lookup pname paradigms]]
     repatternErrs = concat
       [ [ err ("repattern at " <> evAt ev <> ": unknown paradigm " <> pname)
         | Nothing <- [Map.lookup pname paradigms] ]
@@ -329,6 +338,7 @@ data ParadigmDef = ParadigmDef
   { pfStage :: Maybe StageId
   , pfDimensions :: [Dimension]
   , pfCells :: [(Text, [Part])]
+  , pfLost :: Map StageId [Text]
   }
 
 resolveParadigms :: Map Text Paradigm -> Either [Text] (Map Text ParadigmDef)
@@ -359,6 +369,7 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
                 , pdTemplate = pdTemplate p <|> pdTemplate b
                 , pdCells = override (pdCells b) (pdCells p)
                 , pdExclude = pdExclude b ++ pdExclude p
+                , pdLost = Map.unionWith (++) (pdLost b) (pdLost p)
                 }
 
     checkUnique what xs = case nub [x | x <- xs, length (filter (== x) xs) > 1] of
@@ -407,7 +418,13 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
       forM_ kept $ \(c, _) -> case splitVariant c of
         (main, Just _) | main `notElem` map fst kept -> Left ("variant " <> c <> " has no main cell " <> main)
         _ -> Right ()
-      Right (ParadigmDef (pdStage p) dims kept)
+      let unmatched = [pat | pats <- Map.elems (pdLost p), pat <- pats, not (any (lostBy pat . fst) kept)]
+      unless (null unmatched) $ Left ("lost names no cells: " <> T.intercalate ", " unmatched)
+      Right (ParadigmDef (pdStage p) dims kept (pdLost p))
+
+-- | Does a @lost@ pattern cover this cell? A cell's variants go with it.
+lostBy :: Text -> Text -> Bool
+lostBy pat c = globMatch pat c || globMatch pat (fst (splitVariant c))
 
 -- | Replace entries by name, keeping their position; add new ones at the end.
 override :: [(Text, a)] -> [(Text, a)] -> [(Text, a)]

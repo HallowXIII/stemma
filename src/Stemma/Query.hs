@@ -9,7 +9,6 @@ module Stemma.Query
 
 import Data.Map.Strict qualified as Map
 import Data.Text (Text)
-import Data.Text qualified as T
 
 import Stemma.Load
 import Stemma.Types
@@ -45,18 +44,3 @@ findShifts proj fromPat toPat =
                             | otherwise = x : collapse (y : rest)
     collapse xs = xs
     pairs xs = zip xs (drop 1 xs)
-
--- | Shell-style matching with @*@ as the only wildcard.
-globMatch :: Text -> Text -> Bool
-globMatch pat t = go (T.splitOn "*" pat) t True
-  where
-    go [] rest _ = T.null rest
-    go [p] rest anchored
-      | anchored = p == rest
-      | otherwise = p `T.isSuffixOf` rest
-    go (p : ps) rest anchored
-      | anchored = p `T.isPrefixOf` rest && go ps (T.drop (T.length p) rest) False
-      | T.null p = go ps rest False
-      | otherwise = case T.breakOn p rest of
-          (_, "") -> False
-          (_, found) -> go ps (T.drop (T.length p) found) False
