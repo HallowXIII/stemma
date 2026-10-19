@@ -22,6 +22,7 @@ module Stemma.Types
   , parseRulesRef
   , renderRulesRef
   , eventKindName
+  , globMatch
   ) where
 
 import Data.Aeson
@@ -130,6 +131,9 @@ data Paradigm = Paradigm
   -- base. See 'templateParts'. With dimensions, these override or add to
   -- the cells the dimensions give.
   , pdExclude :: [Text]
+  , pdLost :: Map StageId [Text]
+  -- ^ Cells lost at a stage, and so on every line below it. Cell names may
+  -- contain @*@ (see 'globMatch').
   }
   deriving (Show)
 
@@ -178,6 +182,7 @@ instance FromJSON Paradigm where
     pdTemplate <- traverse (fmap (map (fromMaybe "~")) . oneOrMany) =<< o .:? "template"
     pdCells <- traverse cell =<< o .:? "cells" .!= []
     pdExclude <- o .:? "exclude" .!= []
+    pdLost <- traverse oneOrMany =<< o .:? "lost" .!= Map.empty
     pure Paradigm {..}
     where
       dimension :: Value -> Parser Dimension
@@ -385,3 +390,18 @@ instance FromJSON CatShift where
         Just (String t) -> pure t
         Just (Bool _) -> fail "category tag was read as a boolean; quote it, e.g. is: \"N\""
         Just other -> fail ("category tag must be text, not " <> show other)
+
+-- | Shell-style matching with @*@ as the only wildcard.
+globMatch :: Text -> Text -> Bool
+globMatch pat t = go (T.splitOn "*" pat) t True
+  where
+    go [] rest _ = T.null rest
+    go [p] rest anchored
+      | anchored = p == rest
+      | otherwise = p `T.isSuffixOf` rest
+    go (p : ps) rest anchored
+      | anchored = p `T.isPrefixOf` rest && go ps (T.drop (T.length p) rest) False
+      | T.null p = go ps rest False
+      | otherwise = case T.breakOn p rest of
+          (_, "") -> False
+          (_, found) -> go ps (T.drop (T.length p) found) False

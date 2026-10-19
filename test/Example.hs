@@ -14,7 +14,7 @@ import Stemma.Load
 import Stemma.Output (writeBuild)
 
 projects :: [FilePath]
-projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern"]
+projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost"]
 
 main :: IO ()
 main = do

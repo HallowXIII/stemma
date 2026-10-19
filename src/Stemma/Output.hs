@@ -129,6 +129,7 @@ paradigmJson pf = object
   [ "dimensions" .= [ object ["name" .= dmName d, "members" .= [m | (m, _) <- dmMembers d, (_, Nothing) <- [splitVariant m]]]
                     | d <- pfDimensions pf ]
   , "cells" .= map fst (pfCells pf)
+  , "lost" .= pfLost pf
   ]
 
 runJson :: Run -> Value
