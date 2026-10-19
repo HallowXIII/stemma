@@ -1,0 +1,17 @@
+# Test fixture for paradigm `lost`: wiyan loses the genitive in every
+# number, azal keeps it.
+name: Lost
+
+stages:
+  proto:
+    name: Proto
+  azal:
+    name: Azal
+    parent: proto
+    rules: rules/azal.bsc
+    current: true
+  wiyan:
+    name: Wiyan
+    parent: proto
+    rules: rules/wiyan.bsc
+    current: true

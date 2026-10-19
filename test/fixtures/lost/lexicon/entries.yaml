@@ -1,0 +1,15 @@
+- id: valyk
+  form: "*valyk"
+  paradigm: noun
+  notes: |
+    Would-be {valyk.SG.GEN @ wiyan !}.
+  expect:
+    azal: { SG.GEN: valyki, PL.GEN: valykrai }
+    wiyan: { SG.DIR: valyk, SG.COM: valykm, PL.COM: valykram }
+
+- id: tor
+  form: "*tor"
+  paradigm: noun-b
+  expect:
+    azal: { SG.GEN: tori, PL.DIR: torra }
+    wiyan: { PL.COM: torram }

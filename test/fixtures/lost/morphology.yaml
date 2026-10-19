@@ -1,0 +1,17 @@
+affixes:
+  PL:  { form: "*-ra" }
+  GEN: { form: "*-i" }
+  COM: { form: "*-m" }
+
+paradigms:
+  noun:
+    dimensions:
+      - number: [SG: ~, PL: PL]
+      - case: [DIR: ~, GEN: GEN, COM: COM]
+    lost:
+      wiyan: ["*.GEN"]
+  # Inherits the wiyan loss, and adds one of its own at azal.
+  noun-b:
+    extends: noun
+    lost:
+      azal: [PL.COM]
