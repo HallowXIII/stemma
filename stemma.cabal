@@ -29,6 +29,7 @@ library
     Stemma.Notes
     Stemma.Output
     Stemma.Query
+    Stemma.View
   build-depends:
       aeson >=2.1
     , aeson-pretty

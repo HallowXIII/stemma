@@ -45,7 +45,10 @@ rules/*.bsc          Brassica sound changes; `report` marks stage breaks
 ```sh
 nix develop                                  # GHC, cabal, HLS; Brassica pinned
 cabal run stemma -- -d examples/echo build   # compute; prints what changed
+cabal run stemma -- -d examples/echo paradigm ir azal
+cabal run stemma -- -d examples/echo history ir.DIR azal
 cabal run stemma -- -d examples/echo trace ir.DIR
+cabal run stemma -- -d examples/echo trace ir.DIR azal
 cabal run stemma -- -d examples/echo shifts '*' '*'
 cabal test                                   # the Echo example must reproduce the grammar
 ```

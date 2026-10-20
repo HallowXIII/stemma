@@ -424,9 +424,20 @@ A reference that doesn't resolve is a build error.
 
 ```
 stemma -d DIR build [--strict]   compute everything; --strict fails on warnings
-stemma -d DIR trace ID           an item's derivation, rule by rule, per stage
+stemma -d DIR paradigm ROOT STAGE  the paradigm in force at a stage
+stemma -d DIR history ID STAGE     a form's history along one stage path
+stemma -d DIR trace ID [STAGE]     an item's rule-by-rule derivation
 stemma -d DIR shifts FROM TO     category shifts (* is a wildcard)
 ```
+
+`paradigm` prints cell IDs and forms in paradigm order, with variants under
+their main cells. Cells lost through `repattern` are omitted. `history` and
+`trace ID STAGE` follow the ancestry of `STAGE`, so a change on one branch
+does not appear on another. Use a cell ID such as `valyk.PL.GEN` to follow
+one form. `history` marks its loss or deletion; `trace` also shows each rule
+step. With no stage, `trace` covers the whole stage tree as before. The
+paradigm and history views show spelling and, where it differs, phonemic
+form.
 
 `build` writes to `DIR/build/`:
 

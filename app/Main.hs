@@ -1,7 +1,6 @@
 module Main (main) where
 
 import Control.Monad (forM_, unless, when)
-import Data.Map.Strict qualified as Map
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
@@ -11,17 +10,18 @@ import System.FilePath ((</>))
 import System.IO (stderr)
 
 import Stemma.Build
-import Stemma.Engine
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (writeBuild)
 import Stemma.Query
-import Stemma.Types (Family (..), Stage (..))
+import Stemma.View
 
 data Command
   = Build Bool
   | Shifts Text Text
-  | Trace Text
+  | Paradigm Text Text
+  | History Text Text
+  | Trace Text (Maybe Text)
 
 data Opts = Opts
   { optDir :: FilePath
@@ -50,17 +50,9 @@ main = do
       forM_ found $ \Shift {..} ->
         TIO.putStrLn $ shItem <> "  [" <> shLine <> "]  "
           <> fst shFrom <> " (" <> snd shFrom <> ") > " <> fst shTo <> " (" <> snd shTo <> ")"
-    Trace i -> do
-      unless (Map.member i (prItems proj)) $ orDie (Left ["unknown item " <> i])
-      forM_ (bStageOrder built) $ \s -> case Map.lookup s (bActual built) >>= Map.lookup i of
-        Nothing -> pure ()
-        Just rx -> do
-          let name = maybe s stName (Map.lookup s (famStages (prFamily proj)))
-          TIO.putStrLn $ name <> ": " <> T.intercalate " ~ " (map renderForm (rxForms rx))
-            <> maybe "" (\f -> "   (from " <> renderForm f <> ")") (rxInput rx)
-          forM_ (rxEvents rx) $ \e -> TIO.putStrLn ("  event: " <> e)
-          forM_ (rxSteps rx) $ \st ->
-            TIO.putStrLn $ "  " <> maybe "(deleted)" renderForm (stepResult st) <> "   " <> stepRule st
+    Paradigm i s -> mapM_ TIO.putStrLn =<< orDie (paradigmView built i s)
+    History i s -> mapM_ TIO.putStrLn =<< orDie (historyView built i s)
+    Trace i s -> mapM_ TIO.putStrLn =<< orDie (traceView built i s)
   where
     opts = Opts
       <$> strOption (long "dir" <> short 'd' <> metavar "DIR" <> value "." <> showDefault
@@ -70,8 +62,12 @@ main = do
                                 (progDesc "Compute all forms; write build/lexicon.json, forms.tsv and diff.txt"))
        <> command "shifts" (info (Shifts <$> strArgument (metavar "FROM") <*> strArgument (metavar "TO"))
                                  (progDesc "List category shifts matching FROM > TO (* is a wildcard)"))
-       <> command "trace" (info (Trace <$> strArgument (metavar "ID"))
-                                (progDesc "Show an item's derivation at every stage")) )
+       <> command "paradigm" (info (Paradigm <$> strArgument (metavar "ROOT") <*> strArgument (metavar "STAGE"))
+                                   (progDesc "Show a root's paradigm at a stage"))
+       <> command "history" (info (History <$> strArgument (metavar "ID") <*> strArgument (metavar "STAGE"))
+                                  (progDesc "Show a form's history along the path to a stage"))
+       <> command "trace" (info (Trace <$> strArgument (metavar "ID") <*> optional (strArgument (metavar "STAGE")))
+                                (progDesc "Show an item's rule trace, optionally along one stage path")) )
 
 orDie :: Either [Text] a -> IO a
 orDie = \case
