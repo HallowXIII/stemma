@@ -430,7 +430,18 @@ stemma -d DIR trace ID [STAGE]     an item's rule-by-rule derivation
 stemma -d DIR shifts FROM TO     category shifts (* is a wildcard)
 stemma -d DIR rules FILE         parse a rules file (- for stdin); print its
                                  segments and statements as JSON
+stemma -d DIR typst [--stage STAGE] [--out OUT] [--force]
+                                 write stemma.typ, and a dictionary document
+                                 for STAGE, to OUT (default DIR)
 ```
+
+`typst` writes the `stemma.typ` built into the binary, so it matches the
+`lexicon.json` that version writes; it replaces the file each time. With
+`--stage` it also writes `dictionary-STAGE.typ`, a document that imports
+`stemma.typ`, reads `build/lexicon.json` and lists the stage's dictionary.
+That one is yours to edit, so it is kept if it exists unless `--force` is
+given. When `OUT` is outside the project, the document reads the lexicon
+through `..`, and Typst then needs `--root` set to a directory above both.
 
 `paradigm` prints cell IDs and forms in paradigm order, with variants under
 their main cells. Cells lost through `repattern` are omitted. `history` and

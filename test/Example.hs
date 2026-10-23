@@ -18,6 +18,7 @@ import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (formsTsv, writeBuild)
 import Stemma.Sources
+import Stemma.Typst
 import Stemma.View
 
 import Server.StageRules (addStageRules)
@@ -30,7 +31,26 @@ main = do
   ok <- mapM check projects
   overlaid <- checkOverlay
   stageRules <- checkStageRules
-  unless (and ok && overlaid && stageRules) exitFailure
+  typst <- checkTypst
+  unless (and ok && overlaid && stageRules && typst) exitFailure
+
+-- | @stemma typst@ writes the repository's stemma.typ, and a dictionary
+-- that finds the lexicon from wherever it is written.
+checkTypst :: IO Bool
+checkTypst = do
+  source <- B.readFile "typst/stemma.typ"
+  proj <- loadProject "examples/echo"
+  let dict = either (const "") (\p -> dictionaryTyp p "azal" "build/lexicon.json") proj
+      failures =
+        [ "the embedded stemma.typ should be typst/stemma.typ" | not (source `B.isSuffixOf` stemmaTyp) ]
+          ++ [ "the dictionary should read the given lexicon and list the stage"
+             | not (all (`T.isInfixOf` dict) ["json(\"build/lexicon.json\")", "#heading(\"Azal\")", "#dictionary(\"azal\")"]) ]
+          ++ [ "relative paths should go up where needed: " <> T.pack (show paths)
+             | let paths = [relativePath "/p/docs" "/p/echo/build/lexicon.json", relativePath "/p/echo" "/p/echo/build/lexicon.json"]
+             , paths /= ["../echo/build/lexicon.json", "build/lexicon.json"] ]
+  forM_ failures $ \f -> TIO.putStrLn ("typst: " <> f)
+  TIO.putStrLn (if null failures then "typst: stemma.typ embedded, dictionary written" else "typst: FAILED")
+  pure (null failures)
 
 -- | An edit overlaid in memory builds the same forms as a copy of the
 -- project with the edit on disk, and a file deleted in memory stays

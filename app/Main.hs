@@ -1,9 +1,14 @@
 module Main (main) where
 
 import Control.Monad (forM_, unless, when)
+import Data.ByteString qualified as B
+import Data.List (isPrefixOf)
+import Data.Map.Strict qualified as Map
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Data.Text.IO qualified as TIO
 import Options.Applicative
+import System.Directory (canonicalizePath, createDirectoryIfMissing, doesFileExist)
 import System.Exit (exitFailure)
 import System.FilePath ((</>))
 import System.IO (stderr)
@@ -14,6 +19,8 @@ import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (buildReport, outlineJson, writeBuild)
 import Stemma.Query
+import Stemma.Types (Family (..))
+import Stemma.Typst
 import Stemma.View
 
 data Command
@@ -23,6 +30,7 @@ data Command
   | History Text Text
   | Trace Text (Maybe Text)
   | Outline FilePath
+  | Typst (Maybe Text) (Maybe FilePath) Bool
 
 data Opts = Opts
   { optDir :: FilePath
@@ -39,6 +47,10 @@ main = do
       let outline = engineOutline brassicaEngine text
       TIO.putStrLn (outlineJson outline)
       either (const exitFailure) (const (pure ())) outline
+    -- Only loads the project; the documents read build/lexicon.json.
+    Typst stage out force -> do
+      proj <- loadProject optDir >>= orDie
+      writeTypst optDir proj stage (fromMaybe optDir out) force
     cmd -> buildAnd optDir cmd
   where
     opts = Opts
@@ -56,7 +68,12 @@ main = do
        <> command "trace" (info (Trace <$> strArgument (metavar "ID") <*> optional (strArgument (metavar "STAGE")))
                                 (progDesc "Show an item's rule trace, optionally along one stage path"))
        <> command "rules" (info (Outline <$> strArgument (metavar "FILE" <> help "Relative to DIR; - for stdin"))
-                                (progDesc "Parse a rules file and print its segments and statements as JSON")) )
+                                (progDesc "Parse a rules file and print its segments and statements as JSON"))
+       <> command "typst" (info (Typst
+              <$> optional (strOption (long "stage" <> metavar "STAGE" <> help "Also write dictionary-STAGE.typ"))
+              <*> optional (strOption (long "out" <> metavar "OUT" <> help "Where to write them (default: DIR)"))
+              <*> switch (long "force" <> help "Overwrite an existing dictionary document"))
+                              (progDesc "Write stemma.typ, and a dictionary document for a stage")) )
 
 buildAnd :: FilePath -> Command -> IO ()
 buildAnd dir cmd = do
@@ -81,6 +98,34 @@ buildAnd dir cmd = do
     History i s -> mapM_ TIO.putStrLn =<< orDie (historyView built i s)
     Trace i s -> mapM_ TIO.putStrLn =<< orDie (traceView built i s)
     Outline _ -> pure ()
+    Typst {} -> pure ()
+
+-- | Write stemma.typ to a directory, and a dictionary document for a stage
+-- if one is given. The document is left alone if it exists, unless forced.
+writeTypst :: FilePath -> Project -> Maybe Text -> FilePath -> Bool -> IO ()
+writeTypst dir proj stage out force = do
+  forM_ stage $ \s -> unless (Map.member s (famStages (prFamily proj))) $
+    orDie (Left ["unknown stage " <> s])
+  createDirectoryIfMissing True out
+  B.writeFile (out </> "stemma.typ") stemmaTyp
+  putStrLn ("wrote " <> (out </> "stemma.typ"))
+  forM_ stage $ \s -> do
+    let file = out </> dictionaryFile s
+    exists <- doesFileExist file
+    if exists && not force
+      then putStrLn ("kept " <> file <> " (--force replaces it)")
+      else do
+        from <- canonicalizePath out
+        lexicon <- (</> "build" </> "lexicon.json") <$> canonicalizePath dir
+        let path = relativePath from lexicon
+        TIO.writeFile file (dictionaryTyp proj s path)
+        putStrLn ("wrote " <> file)
+        -- Typst reads only files under the compiled file's directory unless
+        -- given a --root.
+        when (".." `isPrefixOf` path) $
+          putStrLn ("  it reads " <> path <> ", so compile it with typst's --root set to a directory above both")
+  built <- doesFileExist (dir </> "build" </> "lexicon.json")
+  unless built $ putStrLn "note: the documents read build/lexicon.json; run `stemma build` to write it"
 
 orDie :: Either [Text] a -> IO a
 orDie = \case

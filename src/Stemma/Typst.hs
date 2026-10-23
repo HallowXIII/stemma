@@ -1,0 +1,58 @@
+{-# LANGUAGE TemplateHaskell #-}
+
+-- | The Typst files @stemma typst@ writes: @stemma.typ@, built into the
+-- binary so it matches the @lexicon.json@ this version writes, and a
+-- starting document for a stage's dictionary.
+module Stemma.Typst
+  ( stemmaTyp
+  , dictionaryTyp
+  , dictionaryFile
+  , relativePath
+  ) where
+
+import Data.ByteString (ByteString)
+import Data.FileEmbed (embedFile)
+import Data.Map.Strict qualified as Map
+import Data.Text (Text)
+import Data.Text qualified as T
+import System.FilePath (joinPath, splitDirectories)
+
+import Stemma.Load
+import Stemma.Types
+
+-- | @typst/stemma.typ@, with a note that it is generated.
+stemmaTyp :: ByteString
+stemmaTyp =
+  "// Written by `stemma typst`, which replaces it each time it runs, so\n\
+  \// don't edit it here.\n//\n"
+    <> $(embedFile "typst/stemma.typ")
+
+dictionaryFile :: StageId -> FilePath
+dictionaryFile stage = "dictionary-" <> T.unpack stage <> ".typ"
+
+-- | A document with a stage's dictionary, reading the lexicon from the
+-- given path (relative to the document).
+dictionaryTyp :: Project -> StageId -> FilePath -> Text
+dictionaryTyp proj stage lexicon = T.unlines
+  [ "// The " <> name <> " dictionary, written by `stemma typst --stage " <> stage <> "`."
+  , "// stemma won't overwrite it (without --force), so edit it freely."
+  , "#import \"stemma.typ\": stemma"
+  , "#let (reflex, notes, entry, dictionary, paradigm) = stemma(json(" <> str (T.pack lexicon) <> "))"
+  , ""
+  , "#set document(title: " <> str (name <> " dictionary") <> ")"
+  , "#heading(" <> str name <> ")"
+  , ""
+  , "#dictionary(" <> str stage <> ")"
+  ]
+  where
+    name = maybe stage stName (Map.lookup stage (famStages (prFamily proj)))
+    str t = "\"" <> T.concatMap (\c -> if c `elem` ['"', '\\'] then T.pack ['\\', c] else T.singleton c) t <> "\""
+
+-- | The path from one directory to a file, both absolute, going up with
+-- @..@ where needed.
+relativePath :: FilePath -> FilePath -> FilePath
+relativePath from to = joinPath (replicate (length fs - common) ".." ++ drop common ts)
+  where
+    fs = splitDirectories from
+    ts = splitDirectories to
+    common = length (takeWhile id (zipWith (==) fs ts))

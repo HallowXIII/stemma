@@ -125,7 +125,14 @@ on the UI. Without the server,
 come from `build/trace.json`, which is loaded alongside it with `?src=`
 but not when you choose or drop a file.
 
-In Typst:
+In Typst, `stemma typst` writes `stemma.typ` next to the project, and
+`--stage` adds a document with that stage's dictionary to start from:
+
+```sh
+stemma -d examples/echo build
+stemma -d examples/echo typst --stage azal   # stemma.typ, dictionary-azal.typ
+typst compile examples/echo/dictionary-azal.typ
+```
 
 ```typst
 #import "stemma.typ": stemma
