@@ -4,7 +4,9 @@ version:            0.1.0
 synopsis:           Computed etymological lexicons for conlang families
 license:            BSD-3-Clause
 build-type:         Simple
-extra-source-files: ui/index.html
+extra-source-files:
+  typst/stemma.typ
+  ui/index.html
 
 common shared
   default-language: GHC2021
@@ -31,6 +33,7 @@ library
     Stemma.Output
     Stemma.Query
     Stemma.Sources
+    Stemma.Typst
     Stemma.View
   build-depends:
       aeson >=2.1
@@ -38,6 +41,7 @@ library
     , brassica ==1.0.*
     , bytestring
     , directory
+    , file-embed
     , filepath
     , yaml
 
@@ -47,6 +51,8 @@ executable stemma
   main-is:          Main.hs
   build-depends:
       stemma
+    , bytestring
+    , directory
     , optparse-applicative
     , filepath
 
