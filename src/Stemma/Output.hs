@@ -13,10 +13,12 @@ module Stemma.Output
   , diffForms
   , renderChange
   , diffSummary
+  , outlineJson
   ) where
 
 import Control.Monad (forM)
 import Data.Aeson (ToJSON, Value, encode, object, toJSON, (.=))
+import Data.Aeson.Encode.Pretty qualified as P
 import Data.Aeson.Key (Key)
 import Data.Aeson.Key qualified as Key
 import Data.Aeson.Types (Pair)
@@ -29,6 +31,8 @@ import Data.Set qualified as Set
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Encoding qualified as TLE
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.FilePath ((</>))
 
@@ -52,9 +56,34 @@ writeBuild outDir b = case lexiconJson b of
     old <- if hadOld then TIO.readFile tsvFile else pure new
     let diff = diffForms old new
     BL.writeFile (outDir </> "lexicon.json") (encode json)
+    BL.writeFile (outDir </> "trace.json") (encode (traceJson b))
     TIO.writeFile tsvFile new
     TIO.writeFile (outDir </> "diff.txt") (T.unlines (map renderChange diff))
     pure (Right (if hadOld then Just diff else Nothing))
+
+-- | Events, rule inputs, traces and origins, for the UI. They are kept out
+-- of @lexicon.json@, which Typst loads whole. A stage with none of them is
+-- left out, and so is an item with no stages left.
+traceJson :: Built -> Value
+traceJson b = object
+  [ Key.fromText i .= object [Key.fromText s .= object ps | (s, ps) <- stages]
+  | i <- prItemOrder (bProject b)
+  , let stages =
+          [ (s, ps)
+          | s <- bStageOrder b
+          , Just rx <- [Map.lookup s (bActual b) >>= Map.lookup i]
+          , let ps = reflexTrace rx
+          , not (null ps) ]
+  , not (null stages) ]
+  where
+    reflexTrace rx = catMaybes
+      [ "origin" .=? (if rxOrigin rx == Inherited then Nothing else Just (T.toLower (T.pack (show (rxOrigin rx)))))
+      , "events" .=? nonEmpty (rxEvents rx)
+      , "input" .=? (renderForm <$> rxInput rx)
+      , "trace" .=? nonEmpty (map stepJson (rxSteps rx))
+      ]
+    stepJson st = object
+      [ "rule" .= stepRule st, "result" .= fmap renderForm (stepResult st) ]
 
 lexiconJson :: Built -> Either [Text] Value
 lexiconJson b = do
@@ -68,7 +97,9 @@ lexiconJson b = do
     , "root" .= prRootStage proj
     , "stages" .= [ object
                       [ "id" .= s, "name" .= stName st, "abbr" .= stAbbr st
-                      , "parent" .= stParent st, "current" .= stCurrent st ]
+                      , "parent" .= stParent st, "current" .= stCurrent st
+                      , "rules" .= fmap renderRulesRef (stRules st)
+                      , "orthography" .= fmap renderRulesRef (stOrthography st) ]
                   | s <- bStageOrder b, let st = stages Map.! s ]
     , "items" .= object [Key.fromText (itId it) .= v | (it, v) <- items]
     , "paradigms" .= Map.map paradigmJson (prParadigms proj)
@@ -149,6 +180,16 @@ k .=? v = (k .=) <$> v
 
 nonEmpty :: [a] -> Maybe [a]
 nonEmpty xs = if null xs then Nothing else Just xs
+
+-- | The result of 'engineOutline' as JSON, for @stemma rules@.
+outlineJson :: Either OutlineError [[RuleStatement]] -> Text
+outlineJson = TL.toStrict . TLE.decodeUtf8 . P.encodePretty' P.defConfig {P.confIndent = P.Spaces 2} . \case
+  Left OutlineError {..} -> object
+    [ "ok" .= False, "error" .= oeMessage
+    , "line" .= fmap fst oePosition, "column" .= fmap snd oePosition ]
+  Right segs -> object
+    [ "ok" .= True
+    , "segments" .= [[object ["kind" .= rsKind r, "text" .= rsText r] | r <- seg] | seg <- segs] ]
 
 paradigmJson :: ParadigmDef -> Value
 paradigmJson pf = object

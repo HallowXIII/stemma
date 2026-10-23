@@ -1,0 +1,2678 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>stemma</title>
+<style>
+:root {
+  --bg: #fbfaf7; --panel: #ffffff; --sunk: #f3f1ec; --line: #e3dfd6;
+  --ink: #1f1d1a; --muted: #6f6a60; --faint: #a39d91;
+  --accent: #8a3b12; --accent-soft: #f6e8df;
+  --warn: #9a6400; --warn-soft: #fbf1dc;
+  --bad: #a3242a; --bad-soft: #fbe6e6;
+  --good: #2f6b3a; --good-soft: #e5f2e6;
+  --form: "Charis SIL", "Gentium Plus", "Noto Serif", "Iowan Old Style", Georgia, serif;
+  --ui: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #171614; --panel: #1f1e1b; --sunk: #262420; --line: #35322c;
+    --ink: #ece8df; --muted: #a39d91; --faint: #6f6a60;
+    --accent: #e39a6c; --accent-soft: #3a271b;
+    --warn: #e0b35a; --warn-soft: #362c16;
+    --bad: #ef8a8a; --bad-soft: #3a1d1e;
+    --good: #8fcf98; --good-soft: #1d3221;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #171614; --panel: #1f1e1b; --sunk: #262420; --line: #35322c;
+  --ink: #ece8df; --muted: #a39d91; --faint: #6f6a60;
+  --accent: #e39a6c; --accent-soft: #3a271b;
+  --warn: #e0b35a; --warn-soft: #362c16;
+  --bad: #ef8a8a; --bad-soft: #3a1d1e;
+  --good: #8fcf98; --good-soft: #1d3221;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.5 var(--ui); display: flex; flex-direction: column; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button, input, select { font: inherit; color: inherit; }
+button {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  padding: 4px 10px; cursor: pointer;
+}
+button:hover { border-color: var(--faint); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+button:disabled { opacity: .5; cursor: default; }
+input[type=search], input[type=text], select {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px;
+}
+.f { font-family: var(--form); font-style: italic; font-size: 1.05em; }
+.f.ph { font-style: normal; }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.sc { font-variant: small-caps; text-transform: lowercase; letter-spacing: .02em; }
+
+header {
+  display: flex; align-items: center; gap: 16px; padding: 8px 16px;
+  border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap;
+}
+header h1 { font: 600 16px var(--ui); margin: 0; }
+header h1 .fam { font-family: var(--form); font-weight: 400; font-size: 17px; color: var(--muted); margin-left: 6px; }
+nav.tabs { display: flex; gap: 2px; }
+nav.tabs a { padding: 4px 10px; border-radius: 6px; color: var(--muted); }
+nav.tabs a.on { background: var(--sunk); color: var(--ink); }
+nav.tabs a:hover { text-decoration: none; color: var(--ink); }
+nav.tabs .count { font-size: 11px; background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 0 6px; margin-left: 4px; }
+.spacer { flex: 1; }
+.hgroup { display: flex; align-items: center; gap: 8px; }
+.status { font-size: 12px; color: var(--muted); }
+.status.stale { color: var(--warn); }
+.status.err { color: var(--bad); }
+
+main { display: grid; grid-template-columns: 300px 1fr; flex: 1; min-height: 0; }
+main.wide { grid-template-columns: 1fr; }
+main.wide aside { display: none; }
+aside { border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; background: var(--panel); }
+aside .filters { padding: 10px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+aside .filters input[type=search] { width: 100%; }
+.chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.chip {
+  font-size: 12px; padding: 1px 8px; border-radius: 10px; border: 1px solid var(--line);
+  cursor: pointer; user-select: none; color: var(--muted);
+}
+.chip.on { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+#list { overflow-y: auto; flex: 1; }
+#list a {
+  display: grid; grid-template-columns: 1fr auto; gap: 0 8px; padding: 6px 12px;
+  border-bottom: 1px solid var(--sunk); color: var(--ink);
+}
+#list a:hover { background: var(--sunk); text-decoration: none; }
+#list a.sel { background: var(--accent-soft); }
+#list .gl { grid-column: 1 / -1; color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#list .kd { font-size: 11px; color: var(--faint); align-self: center; }
+#list .cell { padding-left: 28px; }
+#list .empty { padding: 20px; color: var(--muted); }
+
+#view { overflow-y: auto; padding: 24px 32px 64px; min-width: 0; }
+.wrap { max-width: 980px; }
+h2 { font: 400 28px/1.2 var(--form); margin: 0; }
+h2 .star { color: var(--muted); }
+h3 { font: 600 12px var(--ui); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 28px 0 8px; }
+.sub { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; margin-top: 6px; color: var(--muted); }
+.gloss { font-size: 16px; color: var(--ink); }
+.badge { font-size: 11px; padding: 1px 7px; border-radius: 8px; background: var(--sunk); color: var(--muted); }
+.badge.irr { background: var(--warn-soft); color: var(--warn); }
+.badge.lost { background: var(--bad-soft); color: var(--bad); }
+.badge.loan { background: var(--good-soft); color: var(--good); }
+.kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin-top: 14px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; }
+
+table { border-collapse: collapse; width: 100%; }
+th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); font-size: 12px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.card > table tr:last-child > td { border-bottom: 0; }
+tr.stage { cursor: pointer; }
+tr.stage:hover > td { background: var(--sunk); }
+tr.focus > td:first-child { box-shadow: inset 3px 0 var(--accent); }
+tr.stage td.name { white-space: nowrap; }
+.tw { display: inline-block; width: 12px; color: var(--faint); transition: transform .1s; }
+tr.open .tw { transform: rotate(90deg); }
+tr.trace > td { background: var(--sunk); padding: 8px 10px 12px 34px; }
+.steps { display: grid; grid-template-columns: max-content max-content 1fr; gap: 2px 14px; align-items: baseline; }
+.steps .arrow { color: var(--faint); }
+.steps .rule { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
+.ev { display: block; font-size: 12.5px; color: var(--warn); }
+.diffreg { text-decoration: line-through; color: var(--faint); }
+
+.para th[scope=row] { color: var(--ink); font-weight: 600; font-size: 13px; }
+.para td .var { display: block; font-size: 12px; color: var(--muted); }
+.para td .var .f { font-size: 13px; }
+
+.notes { font-size: 15px; line-height: 1.65; max-width: 70ch; }
+.notes p { margin: 0 0 10px; }
+.notes a.fr { border-bottom: 1px dotted var(--accent); }
+.notes a.fr:hover { text-decoration: none; }
+
+.cat { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.cat .tag { font-family: var(--mono); font-size: 12px; background: var(--sunk); padding: 1px 6px; border-radius: 4px; }
+.cat .at { font-size: 11px; color: var(--faint); }
+
+.dict { display: grid; gap: 14px; }
+.dict .e { max-width: 75ch; }
+.dict .hw { font-weight: 700; }
+.dict .ety { color: var(--muted); }
+.dict .n { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin: 16px 0; }
+.box { padding: 10px 14px; border-radius: 8px; margin: 6px 0; }
+.box.warn { background: var(--warn-soft); color: var(--warn); }
+.box.bad { background: var(--bad-soft); color: var(--bad); }
+.box.good { background: var(--good-soft); color: var(--good); }
+pre.log { background: var(--sunk); padding: 10px 14px; border-radius: 8px; overflow-x: auto; font: 12.5px/1.5 var(--mono); white-space: pre-wrap; margin: 6px 0; }
+ul.plain { list-style: none; padding: 0; margin: 0; }
+ul.plain li { padding: 4px 0; border-bottom: 1px solid var(--line); }
+.tree { font-size: 14px; }
+.tree ul { list-style: none; margin: 0; padding-left: 20px; border-left: 1px solid var(--line); }
+.tree > ul { padding-left: 0; border: 0; }
+.tree li { padding: 3px 0; }
+
+#drop {
+  display: grid; place-items: center; height: 100%; padding: 24px;
+}
+#drop .inner {
+  max-width: 520px; text-align: center; border: 2px dashed var(--line); border-radius: 14px; padding: 40px 32px;
+}
+#drop.over .inner { border-color: var(--accent); background: var(--accent-soft); }
+#drop h2 { margin-bottom: 8px; }
+#drop code { font-family: var(--mono); font-size: 12.5px; background: var(--sunk); padding: 1px 5px; border-radius: 4px; }
+
+/* Rules */
+#view.full { padding: 0; overflow: hidden; }
+.rules { display: grid; grid-template-columns: minmax(0, 1fr) 380px; height: 100%; }
+.rules .edcol { display: flex; flex-direction: column; min-width: 0; min-height: 0; border-right: 1px solid var(--line); }
+.rules .bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--panel); }
+.stabs { background: var(--panel); border-bottom: 1px solid var(--line); padding-top: 6px; }
+.srow { display: flex; align-items: flex-end; gap: 2px; flex-wrap: wrap; padding-right: 12px; }
+.srow + .srow { border-top: 1px solid var(--sunk); padding-top: 4px; }
+.srow .from { font-size: 11px; color: var(--faint); margin-right: 6px; padding-bottom: 6px; white-space: nowrap; }
+.srow select { margin-bottom: 4px; max-width: 220px; font-size: 12px; }
+.stab { padding: 4px 12px 5px; border-radius: 6px 6px 0 0; color: var(--muted); font-size: 13px; border: 1px solid transparent; border-bottom: 0; white-space: nowrap; }
+.stab:hover { text-decoration: none; color: var(--ink); background: var(--sunk); }
+.stab.path { color: var(--accent); background: var(--accent-soft); }
+.stab.on { color: var(--ink); background: var(--bg); border-color: var(--line); font-weight: 600; margin-bottom: -1px; padding-bottom: 6px; }
+.stab.none { font-style: italic; }
+.stab .dot { color: var(--warn); font-size: 10px; }
+.seg2 { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg2 a { padding: 2px 10px; font-size: 12.5px; color: var(--muted); }
+.seg2 a.on { background: var(--accent-soft); color: var(--accent); }
+.seg2 a:hover { text-decoration: none; }
+.norules { padding: 20px 24px; overflow-y: auto; max-width: 640px; }
+.ihead { display: flex; align-items: center; gap: 6px; }
+.ihead button { font-size: 12.5px; }
+.editcard { margin-top: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.editcard .ehead { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+.editcard .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 4px 16px; }
+.editcard .fld input, .editcard .fld select { color: var(--ink); font-size: 14px; }
+.editcard #le-form, .editcard #nc-form { font-family: var(--form); font-size: 17px; }
+.editcard textarea.yaml { width: 100%; font: 13px/1.5 var(--mono); background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; tab-size: 2; resize: vertical; }
+.editcard .ebtns { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.editcard .ebtns [data-act="preview"] { margin-left: auto; }
+.editcard #le-out:not(:empty) { margin-top: 12px; }
+#newentry { justify-self: start; font-size: 12.5px; }
+button.danger { color: var(--bad); }
+button.danger:hover { border-color: var(--bad); }
+button.danger-solid { background: var(--bad); border-color: var(--bad); color: var(--bg); }
+.editcard.danger { border-color: color-mix(in srgb, var(--bad) 45%, var(--line)); }
+#modal .modal-back { position: fixed; inset: 0; background: rgb(0 0 0 / .35); z-index: 10; }
+#modal .modal { position: fixed; z-index: 11; top: 6vh; left: 50%; transform: translateX(-50%); width: min(680px, calc(100vw - 32px));
+  max-height: 88vh; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; box-shadow: 0 12px 40px rgb(0 0 0 / .25); }
+#modal fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0 0 12px; padding: 6px 12px 10px; }
+#modal legend { color: var(--muted); font-size: 12.5px; padding: 0 4px; }
+#modal fieldset label { display: block; padding: 3px 0; }
+#modal .notes-list { margin: 0 0 10px; padding-left: 18px; }
+#modal .notes-list li { margin: 3px 0; }
+#modal details { margin: 8px 0; }
+#modal .ebtns { display: flex; gap: 8px; align-items: center; margin-top: 14px; }
+pre.diff .del { color: var(--bad); background: var(--bad-soft); }
+pre.diff .ins { color: var(--good); background: var(--good-soft); }
+pre.removed { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--bad) 60%, transparent); color: var(--muted); }
+.fld { display: grid; gap: 4px; margin: 10px 0; color: var(--muted); font-size: 13px; max-width: 420px; }
+.norules .fld input, .norules .fld select { color: var(--ink); font-family: var(--mono); font-size: 13px; }
+.norules .fld { max-width: 420px; }
+.rules .bar .dirty { color: var(--warn); font-size: 12px; }
+.rules .parse { padding: 6px 12px; font-size: 12.5px; border-bottom: 1px solid var(--line); }
+.rules .parse.ok { color: var(--good); }
+.rules .parse.bad { color: var(--bad); background: var(--bad-soft); white-space: pre-wrap; font-family: var(--mono); font-size: 12px; max-height: 140px; overflow: auto; }
+.editor { position: relative; flex: 1; min-height: 0; display: grid; grid-template-columns: auto 1fr; background: var(--panel); }
+.editor .gut, .editor pre, .editor textarea { font: 13px/20px var(--mono); margin: 0; padding-top: 10px; padding-bottom: 40px; tab-size: 4; }
+.editor .gut { overflow: hidden; background: var(--sunk); color: var(--faint); user-select: none; border-right: 1px solid var(--line); }
+.editor .gut div { height: 20px; display: grid; grid-template-columns: 30px 44px; gap: 6px; padding: 0 6px 0 4px; text-align: right; }
+.editor .gut .n { font-size: 11px; }
+.editor .gut .c { font-size: 11px; cursor: pointer; border-radius: 4px; text-align: center; }
+.editor .gut .c.hit { color: var(--accent); }
+.editor .gut .c.dead { color: var(--warn); background: var(--warn-soft); }
+.editor .gut .c:hover { background: var(--accent-soft); }
+.editor .gut div.err .n { color: var(--bad); font-weight: 700; }
+.editor .area { position: relative; min-width: 0; min-height: 0; }
+.editor pre, .editor textarea { position: absolute; inset: 0; padding-left: 12px; padding-right: 12px; white-space: pre; overflow: hidden; border: 0; }
+.editor pre .ln { height: 20px; width: max-content; min-width: 100%; padding-right: 12px; }
+.editor pre .ln.sel { background: var(--accent-soft); }
+.editor pre .ln.err { background: var(--bad-soft); }
+.editor pre .ln.rep { box-shadow: inset 0 -1px var(--faint); }
+.editor textarea { background: transparent; color: transparent; caret-color: var(--ink); resize: none; outline: none; overflow: auto; }
+.editor textarea::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); color: transparent; }
+.h-com { color: var(--faint); font-style: italic; }
+.h-kw { color: var(--accent); font-weight: 600; }
+.h-op { color: var(--accent); }
+.h-env { color: var(--good); font-weight: 700; }
+.h-bnd { color: var(--warn); }
+.h-cat { color: var(--good); }
+.h-flag { color: var(--warn); }
+.rpanel { overflow-y: auto; padding: 14px 16px 40px; background: var(--bg); }
+.rpanel h3:first-child { margin-top: 0; }
+.rpanel .rule { font: 13px/1.5 var(--mono); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; white-space: pre-wrap; word-break: break-word; }
+.rpanel table td, .rpanel table th { padding: 4px 8px; font-size: 13px; }
+.rpanel .seg { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.rpanel .seg a.jump { font-family: var(--mono); font-size: 12px; display: block; padding: 1px 0; }
+.rpanel .banner { margin-bottom: 12px; }
+kbd { font: 11px var(--mono); background: var(--sunk); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+
+@media (max-width: 760px) {
+  .rules { grid-template-columns: 1fr; grid-template-rows: 60% 40%; }
+  main { grid-template-columns: 1fr; grid-template-rows: 40% 60%; }
+  aside { border-right: 0; border-bottom: 1px solid var(--line); }
+  #view { padding: 16px; }
+  .card { overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>stemma<span class="fam" id="fam"></span></h1>
+  <nav class="tabs" id="tabs" hidden>
+    <a href="#/item" data-tab="item">Lexicon</a>
+    <a href="#/dict" data-tab="dict">Dictionary</a>
+    <a href="#/shifts" data-tab="shifts">Shifts</a>
+    <a href="#/rules" data-tab="rules">Rules<span class="count" id="dirtycount" hidden>●</span></a>
+    <a href="#/build" data-tab="build">Build<span class="count" id="warncount" hidden></span></a>
+  </nav>
+  <span class="spacer"></span>
+  <div class="hgroup" id="controls" hidden>
+    <label class="muted" for="stage">Stage</label>
+    <select id="stage"></select>
+    <span class="status" id="status"></span>
+    <button id="rebuild" class="primary" hidden title="Run stemma build (⌘B)">Rebuild</button>
+    <label class="muted" id="autowrap" hidden title="Rebuild when a .yaml or .bsc file changes"><input type="checkbox" id="auto"> auto</label>
+    <button id="openfile" title="Open a lexicon.json">Open…</button>
+  </div>
+  <input type="file" id="file" accept=".json,application/json" hidden>
+</header>
+
+<main id="main" class="wide">
+  <aside>
+    <div class="filters">
+      <input type="search" id="q" placeholder="Search forms, glosses, IDs  ( / )" autocomplete="off" spellcheck="false">
+      <div class="chips" id="kinds"></div>
+      <button id="newentry" data-act="new" hidden>+ New entry</button>
+    </div>
+    <div id="list"></div>
+  </aside>
+  <section id="view"></section>
+</main>
+
+<script>
+"use strict";
+
+// ---------------------------------------------------------------------------
+// State
+
+const S = {
+  lex: null,          // lexicon.json
+  stage: null,        // focus stage id
+  live: false,        // served by ui/serve.py
+  kinds: new Set(["root", "derivative", "affix"]),
+  query: "",
+  open: new Set(),    // expanded trace rows, "item|stage"
+  lastBuild: null,    // result of POST /api/build
+  diff: null,         // lines of diff.txt
+  builtAt: null,
+  stale: false,
+};
+
+const $ = (sel) => document.querySelector(sel);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const norm = (s) => String(s ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+const href = (id) => "#/item/" + encodeURIComponent(id);
+
+// ---------------------------------------------------------------------------
+// Derived indexes over the lexicon
+
+let IX = null;
+
+function index(lex) {
+  const stages = new Map(lex.stages.map((s) => [s.id, s]));
+  const depth = (s) => { let d = 0; while ((s = stages.get(s)?.parent)) d++; return d; };
+  // Stages in tree order (depth-first, children in build order).
+  const children = new Map();
+  for (const s of lex.stages) {
+    const p = s.parent ?? null;
+    if (!children.has(p)) children.set(p, []);
+    children.get(p).push(s.id);
+  }
+  const treeOrder = [];
+  const walk = (p) => (children.get(p) || []).forEach((c) => { treeOrder.push(c); walk(c); });
+  walk(null);
+
+  // Items that refer to each item in their source.
+  const usedIn = new Map();
+  const ids = new Set(Object.keys(lex.items));
+  for (const it of Object.values(lex.items)) {
+    for (const ref of sourceRefs(it.source, ids)) {
+      if (!usedIn.has(ref)) usedIn.set(ref, []);
+      usedIn.get(ref).push(it.id);
+    }
+  }
+
+  // Search text for each item: id, gloss, every form at every stage.
+  const hay = new Map();
+  for (const it of Object.values(lex.items)) {
+    const parts = [it.id, it.gloss];
+    for (const r of Object.values(it.reflexes)) parts.push(...(r.forms || []), ...(r.spelled || []));
+    hay.set(it.id, norm(parts.join(" ")));
+  }
+  return { stages, depth, children, treeOrder, usedIn, hay };
+}
+
+// Item IDs mentioned in a source description ("ir + yane", "ir.DIR", "x (loan from s)").
+function sourceRefs(src, ids) {
+  if (!src) return [];
+  const out = [];
+  for (const tok of src.replace(/\(loan from [^)]*\)/, "").split(/\s*\+\s*/)) {
+    const t = tok.trim();
+    if (ids.has(t)) out.push(t);
+  }
+  return out;
+}
+
+function path(s) {
+  const out = [];
+  for (let cur = s; cur != null; cur = IX.stages.get(cur)?.parent) out.unshift(cur);
+  return out;
+}
+const isAncestorOrSelf = (a, b) => path(b).includes(a);
+const stageName = (s) => IX.stages.get(s)?.name ?? s;
+const stageAbbr = (s) => IX.stages.get(s)?.abbr ?? stageName(s);
+
+// The form of an item at a stage, as stemma.typ's `reflex` would show it.
+function formsAt(id, stage, { regular = false, phonemic = false } = {}) {
+  const r = S.lex.items[id]?.reflexes?.[stage];
+  if (!r) return null;
+  const star = stage === S.lex.root;
+  if (regular) return phonemic || star ? r.regular : (r.regular_spelled ?? r.regular);
+  return phonemic || star ? r.forms : (r.spelled ?? r.forms);
+}
+
+function fmt(forms, stage, cls = "") {
+  if (forms == null) return `<span class="faint">—</span>`;
+  if (forms.length === 0) return `<span class="faint">∅</span>`;
+  const star = stage === S.lex.root ? "*" : "";
+  return `<span class="f ${cls}">${esc(star + forms.join(" ~ "))}</span>`;
+}
+
+function same(a, b) { return JSON.stringify(a) === JSON.stringify(b); }
+
+// The category in force at a stage: nearest stage on the path back to the
+// root; the last one written if several share a stage (Stemma.Query).
+function categoryAt(it, s) {
+  for (const st of path(s).reverse()) {
+    const hits = it.category.filter((c) => c.at === st);
+    if (hits.length) return hits[hits.length - 1].is;
+  }
+  return null;
+}
+
+// Headword at a stage: an item with a paradigm is cited by its first cell.
+function headAt(it, stage) {
+  const cid = it.cells.length ? it.cells[0] : it.id;
+  return formsAt(cid, stage);
+}
+
+function irregularAt(r) { return r && r.forms != null && !same(r.forms, r.regular); }
+
+// ---------------------------------------------------------------------------
+// Loading
+
+async function boot() {
+  try {
+    const st = await fetch("api/status", { cache: "no-store" });
+    if (st.ok) {
+      S.live = true;
+      const status = await st.json();
+      S.builtAt = status.built;
+      $("#rebuild").hidden = false;
+      $("#newentry").hidden = false;
+      $("#autowrap").hidden = false;
+      if (status.built == null) { await rebuild(); return; }
+      await loadLive();
+      S.stale = status.inputs > status.built;
+      setInterval(poll, 1500);
+      return;
+    }
+  } catch { /* opened from file:// or a plain static server */ }
+  const src = new URLSearchParams(location.search).get("src");
+  if (src) {
+    try {
+      const r = await fetch(src);
+      if (r.ok) {
+        // trace.json sits next to lexicon.json in a build directory.
+        const t = await fetch(new URL("trace.json", new URL(src, location.href))).catch(() => null);
+        return setLexicon(await r.json(), t?.ok ? await t.json() : null);
+      }
+    } catch {}
+  }
+  showDrop();
+}
+
+async function loadLive() {
+  const r = await fetch("api/lexicon", { cache: "no-store" });
+  if (!r.ok) { showDrop("No build yet. Press Rebuild."); return; }
+  const lex = await r.json();
+  const t = await fetch("api/trace", { cache: "no-store" });
+  const traces = t.ok ? await t.json() : null;
+  const d = await fetch("api/diff", { cache: "no-store" });
+  S.diff = d.ok ? (await d.text()).split("\n").filter(Boolean) : null;
+  if (R.files) await loadRules();
+  if (L.sources) await loadSources();
+  setLexicon(lex, traces);
+}
+
+async function poll() {
+  try {
+    const st = await (await fetch("api/status", { cache: "no-store" })).json();
+    const stale = st.built == null || st.inputs > st.built;
+    if (stale && $("#auto").checked && !S.building) return rebuild();
+    if (st.built !== S.builtAt && !S.building) { S.builtAt = st.built; await loadLive(); }
+    if (stale !== S.stale) { S.stale = stale; renderStatus(); }
+  } catch { S.stale = false; setStatus("server stopped", "err"); }
+}
+
+// After a save the editor already showed what would change, so a failed
+// build doesn't take you to the Build tab; the header still says so.
+async function rebuild({ fromSave = false } = {}) {
+  S.building = true;
+  $("#rebuild").disabled = true;
+  setStatus("building…");
+  try {
+    const r = await (await fetch("api/build", { method: "POST" })).json();
+    S.lastBuild = { ...r, at: new Date() };
+    S.knownMismatches = mismatches();
+    const st = await (await fetch("api/status", { cache: "no-store" })).json();
+    S.builtAt = st.built;
+    S.stale = st.built == null || st.inputs > st.built;
+    if (st.built != null) await loadLive();
+    else showDrop("The build failed before writing lexicon.json.");
+    if (!r.ok && !fromSave && !location.hash.startsWith("#/build") && !location.hash.startsWith("#/rules")) location.hash = "#/build";
+  } catch (e) {
+    S.lastBuild = { ok: false, stderr: String(e), stdout: "", at: new Date() };
+  } finally {
+    S.building = false;
+    $("#rebuild").disabled = false;
+    renderStatus();
+    route();
+  }
+}
+
+function setStatus(text, cls = "") { const el = $("#status"); el.textContent = text; el.className = "status " + cls; }
+function renderStatus() {
+  if (!S.lex) return;
+  const b = S.lastBuild;
+  if (b && !b.ok) setStatus(mismatches().length ? `${mismatches().length} mismatch(es)` : "build failed", "err");
+  else if (S.stale) setStatus("sources changed", "stale");
+  else if (S.live && S.builtAt) setStatus("built " + new Date(S.builtAt * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
+  else setStatus("");
+}
+
+function mismatches() {
+  return (S.lastBuild?.stderr || "").split("\n").filter((l) => l.startsWith("MISMATCH: ")).map((l) => l.slice(10));
+}
+
+// lexicon.json leaves out what can be inferred (docs/schema.md §8), and the
+// events, inputs, traces and origins come separately in trace.json. Put
+// both back, so the rest of the UI sees every field of every reflex at every
+// stage where the item exists. Without traces, those fields are empty.
+function expandLexicon(lex, traces) {
+  if (lex.expanded) return lex;
+  const parent = new Map(lex.stages.map((s) => [s.id, s.parent]));
+  for (const [id, it] of Object.entries(lex.items)) {
+    // A stage left out has the same reflex as its parent; stages are listed
+    // parents first.
+    const slim = {};
+    for (const s of lex.stages.map((st) => st.id)) {
+      const r = it.reflexes[s] ?? (s !== it.formed ? slim[parent.get(s)] : undefined);
+      if (r) slim[s] = r;
+    }
+    const reflexes = {};
+    for (const [s, r] of Object.entries(slim)) {
+      const lost = r.lost === true;
+      const forms = r.forms ?? null, spelled = r.spelled ?? forms, regular = r.regular ?? forms;
+      const t = traces?.[id]?.[s] ?? {};
+      reflexes[s] = {
+        forms, spelled, regular,
+        regular_spelled: r.regular_spelled ?? (lost ? regular : spelled),
+        category: r.category ?? null,
+        origin: lost ? null : t.origin ?? "inherited",
+        events: t.events ?? [], input: t.input ?? null, trace: t.trace ?? [],
+      };
+    }
+    lex.items[id] = {
+      bound: false, owner: null, gloss: null, source: null, paradigm: null,
+      variant: null, variant_of: null, notes: null,
+      cells: [], repatterns: [], category: [], fate: {},
+      ...it, id, reflexes,
+    };
+  }
+  lex.expanded = true;
+  return lex;
+}
+
+// A preview or changeset build from the server, with its lexicon expanded.
+function expandResult(result) {
+  if (result?.lexicon) expandLexicon(result.lexicon, result.traces);
+  return result;
+}
+
+function setLexicon(lex, traces) {
+  expandLexicon(lex, traces);
+  const keepStage = S.lex && lex.stages.some((s) => s.id === S.stage) ? S.stage : null;
+  S.lex = lex;
+  IX = index(lex);
+  S.stage = keepStage ?? (lex.stages.find((s) => s.current) ?? lex.stages[lex.stages.length - 1]).id;
+  $("#fam").textContent = lex.family;
+  document.title = lex.family + " · stemma";
+  $("#tabs").hidden = false;
+  $("#controls").hidden = false;
+  const sel = $("#stage");
+  sel.innerHTML = IX.treeOrder.map((s) =>
+    `<option value="${esc(s)}">${" ".repeat(IX.depth(s))}${esc(stageName(s))}${IX.stages.get(s).current ? " ●" : ""}</option>`).join("");
+  sel.value = S.stage;
+  const wc = $("#warncount");
+  const nw = lex.warnings.length + mismatches().length;
+  wc.hidden = nw === 0; wc.textContent = nw;
+  renderKinds();
+  renderStatus();
+  route();
+}
+
+function showDrop(msg) {
+  $("#main").className = "wide";
+  $("#view").innerHTML = `<div id="drop"><div class="inner">
+    <h2>Open a stemma build</h2>
+    <p class="muted">${esc(msg || "Drop a build/lexicon.json here, or choose one.")}</p>
+    <p><button class="primary" onclick="document.getElementById('file').click()">Choose lexicon.json…</button></p>
+    <p class="muted" style="font-size:13px">For live rebuilds, run<br><code>python3 ui/serve.py -d examples/echo</code></p>
+  </div></div>`;
+  $("#controls").hidden = !S.live;
+}
+
+function readFile(f) {
+  f.text().then((t) => {
+    try { S.live = false; S.diff = null; setLexicon(JSON.parse(t)); }
+    catch (e) { showDrop("Couldn't read " + f.name + ": " + e.message); }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Routing
+
+function route() {
+  if (!S.lex) return;
+  const [, tab = "item", ...rest] = location.hash.replace(/^#/, "").split("/");
+  const arg = rest.length ? decodeURIComponent(rest.join("/")) : null;
+  document.querySelectorAll("#tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === tab));
+  $("#main").className = tab === "item" ? "" : "wide";
+  const v = $("#view");
+  v.className = tab === "rules" ? "full" : "";
+  if (tab === "rules") return renderRules(arg);
+  R.mounted = null;
+  if (tab === "new") v.innerHTML = viewNew();
+  else if (tab === "dict") v.innerHTML = viewDict();
+  else if (tab === "shifts") v.innerHTML = viewShifts(arg);
+  else if (tab === "build") v.innerHTML = viewBuild();
+  else {
+    const id = arg && S.lex.items[arg] ? arg : null;
+    if (!id) {
+      const first = visibleItems()[0] ?? S.lex.order[0];
+      if (first) { history.replaceState(null, "", href(first)); return route(); }
+    }
+    renderList(id);
+    v.innerHTML = id ? viewItem(id) : "";
+    if (id) $("#list a.sel")?.scrollIntoView({ block: "nearest" });
+  }
+  if (tab === "shifts") bindShifts();
+}
+
+// ---------------------------------------------------------------------------
+// Sidebar
+
+const KINDS = ["root", "derivative", "affix", "cell"];
+
+function renderKinds() {
+  const counts = {};
+  for (const it of Object.values(S.lex.items)) counts[it.kind] = (counts[it.kind] || 0) + 1;
+  $("#kinds").innerHTML = KINDS.filter((k) => counts[k]).map((k) =>
+    `<span class="chip ${S.kinds.has(k) ? "on" : ""}" data-kind="${k}">${k === "affix" ? "affixes" : k + "s"} ${counts[k]}</span>`).join("");
+}
+
+function visibleItems() {
+  const q = norm(S.query.trim());
+  return S.lex.order.filter((id) => {
+    const it = S.lex.items[id];
+    if (!it) return false;
+    if (q) return IX.hay.get(id).includes(q);
+    return S.kinds.has(it.kind);
+  });
+}
+
+function renderList(selId) {
+  const ids = visibleItems();
+  const el = $("#list");
+  if (!ids.length) { el.innerHTML = `<div class="empty">Nothing matches.</div>`; return; }
+  el.innerHTML = ids.map((id) => {
+    const it = S.lex.items[id];
+    const f = headAt(it, S.stage);
+    const shown = f != null ? fmt(f, S.stage) : `${fmt(formsAt(id, it.formed), it.formed, "faint")}`;
+    return `<a href="${href(id)}" class="${id === selId ? "sel" : ""} ${it.kind === "cell" ? "cell" : ""}">
+      <span>${shown}</span><span class="kd">${esc(it.kind === "cell" ? id.slice((it.owner || "").length + 1) : it.kind)}</span>
+      <span class="gl">${esc(it.gloss ?? id)}</span></a>`;
+  }).join("");
+}
+
+// ---------------------------------------------------------------------------
+// Item view
+
+function linkId(id) {
+  const it = S.lex.items[id];
+  return it ? `<a href="${href(id)}">${esc(id)}</a>` : esc(id);
+}
+
+function linkSource(src) {
+  if (!src) return "";
+  const ids = new Set(Object.keys(S.lex.items));
+  return esc(src).replace(/[^\s+()]+/g, (tok) => {
+    const raw = tok.replace(/&amp;/g, "&");
+    return ids.has(raw) ? `<a href="${href(raw)}">${tok}</a>` : tok;
+  });
+}
+
+function viewItem(id) {
+  const it = S.lex.items[id];
+  const formed = it.formed;
+  const head = formsAt(id, formed);
+  // Bound roots are cited as ber-. Affixes are not: lexicon.json doesn't
+  // say which side they attach on.
+  const bound = it.bound && it.kind !== "affix" ? "-" : "";
+  const badges = [`<span class="badge">${esc(it.kind)}</span>`];
+  if (it.bound) badges.push(`<span class="badge">bound</span>`);
+  if (it.source?.includes("(loan from")) badges.push(`<span class="badge loan">loan</span>`);
+  if (Object.values(it.reflexes).some(irregularAt)) badges.push(`<span class="badge irr">irregular</span>`);
+  for (const [s, f] of Object.entries(it.fate || {}))
+    badges.push(`<span class="badge lost">${f === "lost" ? "lost" : "replaced"} · ${esc(stageAbbr(s))}</span>`);
+
+  const editing = L.edit?.id === id;
+  const tools = !S.live || editing ? ""
+    : it.kind === "cell" ? `<span class="muted" style="font-size:12.5px">Built from ${linkId(it.owner)}'s paradigm</span>`
+    : `<button data-act="edit" title="Edit this entry's form and gloss">Edit</button><button data-act="edit-yaml" title="Edit this entry's YAML">YAML</button><button data-act="delete" class="danger" title="Delete this entry from the lexicon">Delete</button>`;
+  let h = `<div class="wrap">
+    <div class="ihead"><h2>${head ? fmt(head.map((f) => f + bound), formed) : esc(id)}</h2><span class="spacer"></span>${tools}</div>
+    <div class="sub">${it.gloss ? `<span class="gloss">“${esc(it.gloss)}”</span>` : ""}${badges.join("")}</div>
+    <dl class="kv">
+      <dt>ID</dt><dd class="mono">${esc(id)}</dd>
+      <dt>Formed</dt><dd>${esc(stageName(formed))}</dd>`;
+  if (it.source) h += `<dt>Source</dt><dd>${linkSource(it.source)}</dd>`;
+  if (it.owner) h += `<dt>${it.kind === "cell" ? "Cell of" : "Derivative of"}</dt><dd>${linkId(it.owner)}</dd>`;
+  if (it.variant_of) h += `<dt>Variant</dt><dd>${esc(it.variant)} of ${linkId(it.variant_of)}</dd>`;
+  if (it.paradigm) h += `<dt>Paradigm</dt><dd>${esc(it.paradigm)}${it.repatterns.map((r) =>
+    ` <span class="muted">→ ${esc(r.paradigm)} at ${esc(stageName(r.at))}</span>`).join("")}</dd>`;
+  for (const [s, f] of Object.entries(it.fate || {}))
+    h += `<dt>Fate</dt><dd>${f === "lost" ? "lost" : `replaced by ${linkId(f["replaced-by"])}`} at ${esc(stageName(s))}</dd>`;
+  // Its own cells are already in the paradigm table.
+  const used = (IX.usedIn.get(id) || []).filter((u) => S.lex.items[u].owner !== id);
+  if (used.length) h += `<dt>Used in</dt><dd>${used.map((u) =>
+    `${linkId(u)} ${fmt(headAt(S.lex.items[u], S.stage) ?? formsAt(u, S.lex.items[u].formed), S.stage)}`).join(", ")}</dd>`;
+  h += `</dl>`;
+  if (editing) h += editCardHtml(id);
+
+  if (it.category.length) {
+    h += `<h3>Category</h3><div class="cat">` + it.category.map((c, k) =>
+      `${k ? `<span class="faint">›</span>` : ""}<span class="tag">${esc(c.is)}</span><span class="at">${esc(stageAbbr(c.at))}</span>`).join(" ") + `</div>`;
+  }
+
+  if (it.notes?.length) h += `<h3>Notes</h3><div class="notes">${renderNotes(it.notes)}</div>`;
+
+  if (it.paradigm && it.cells.length) h += `<h3>Paradigm · ${esc(stageName(S.stage))}</h3>` + paradigmTable(it, S.stage);
+
+  h += `<h3>Reflexes</h3>` + reflexTable(id);
+  return h + `</div>`;
+}
+
+function renderNotes(runs) {
+  let html = "";
+  for (const r of runs) {
+    if ("text" in r) html += esc(r.text);
+    else {
+      const ref = r.ref.split("@")[0].replace(/[\/!\s]+$/, "").trim();
+      const reg = /!\s*$|!\s*\//.test(r.ref);
+      const t = (r.star ? "*" : "") + r.form;
+      html += `<a class="fr f" href="${href(ref)}" title="{${esc(r.ref)}}${reg ? " — regular form" : ""}">${esc(t)}</a>`;
+    }
+  }
+  return html.split(/\n\s*\n/).map((p) => `<p>${p.replace(/\n/g, " ")}</p>`).join("");
+}
+
+function reflexTable(id) {
+  const it = S.lex.items[id];
+  const stages = IX.treeOrder.filter((s) => it.reflexes[s]);
+  const base = IX.depth(it.formed);
+  let h = `<div class="card"><table>
+    <tr><th>Stage</th><th>Form</th><th>Phonemic</th><th>Category</th><th>Notes</th></tr>`;
+  for (const s of stages) {
+    const r = it.reflexes[s];
+    const key = id + "|" + s;
+    const open = S.open.has(key);
+    const irr = irregularAt(r);
+    const lost = r.forms == null;
+    const notes = [];
+    if (r.origin && r.origin !== "inherited") notes.push(`<span class="badge ${r.origin === "borrowed" ? "loan" : ""}">${esc(r.origin)}</span>`);
+    if (lost) notes.push(`<span class="badge lost">lost</span>`);
+    for (const e of r.events) notes.push(`<span class="ev">${esc(e)}</span>`);
+    if (irr) notes.push(`<span class="muted">regularly ${fmt(formsAt(id, s, { regular: true }), s, "diffreg")}</span>`);
+    const traced = r.trace.length > 0 || r.input != null;
+    h += `<tr class="${traced ? "stage" : ""} ${open && traced ? "open" : ""} ${s === S.stage ? "focus" : ""}" ${traced ? `data-key="${esc(key)}"` : ""}>
+      <td class="name" style="padding-left:${10 + 16 * (IX.depth(s) - base)}px"><span class="tw">${traced ? "▸" : ""}</span> ${esc(stageName(s))}</td>
+      <td>${fmt(formsAt(id, s), s)}</td>
+      <td>${r.forms ? `<span class="f ph">/${esc(r.forms.join(" ~ "))}/</span>` : ""}</td>
+      <td>${r.category ? `<span class="sc">${esc(r.category)}</span>` : ""}</td>
+      <td>${notes.join(" ")}</td></tr>`;
+    if (open && traced) h += `<tr class="trace"><td colspan="5">${traceHtml(r, s)}</td></tr>`;
+  }
+  return h + `</table></div>`;
+}
+
+function traceHtml(r, s) {
+  const p = IX.stages.get(s).parent;
+  const rows = [];
+  if (r.input != null) rows.push(`<span class="muted">from</span><span class="f ph">${esc(r.input)}</span><span class="rule">${p ? esc(stageName(p)) : ""}${r.events.length ? " + " + esc(r.events.join("; ")) : ""}</span>`);
+  for (const st of r.trace) {
+    rows.push(`<span class="arrow">→</span>${st.result == null ? `<span class="badge lost">deleted</span>` : `<span class="f ph">${esc(st.result)}</span>`}<span class="rule">${esc(st.rule)}</span>`);
+  }
+  if (!r.trace.length) rows.push(`<span></span><span class="muted">no rule applied</span><span></span>`);
+  return `<div class="steps">${rows.join("")}</div>`;
+}
+
+// Cells as a table, as in stemma.typ's `paradigm`.
+function paradigmTable(it, stage) {
+  const line = path(stage);
+  let pname = it.paradigm, depthSeen = -1;
+  for (const rp of it.repatterns) {
+    const d = line.indexOf(rp.at);
+    if (d > depthSeen) { pname = rp.paradigm; depthSeen = d; }
+  }
+  const pd = S.lex.paradigms[pname];
+  if (!pd) return "";
+  const cellHtml = (name) => {
+    const cid = it.id + "." + name;
+    const variants = it.cells.filter((c) => c.startsWith(cid + "~"));
+    const one = (c) => {
+      const r = S.lex.items[c]?.reflexes?.[stage];
+      if (!r) return `<span class="faint">—</span>`;
+      const mark = irregularAt(r) ? ` <span class="badge irr" title="regularly ${esc((formsAt(c, stage, { regular: true }) || []).join(" ~ "))}">irr.</span>` : "";
+      return `<a href="${href(c)}">${fmt(formsAt(c, stage), stage)}</a>${mark}`;
+    };
+    return one(cid) + variants.map((v) => `<span class="var">${esc(v.slice(cid.length + 1))}: ${one(v)}</span>`).join("");
+  };
+  const dims = pd.dimensions;
+  if (!dims.length) {
+    const names = it.cells.map((c) => c.slice(it.id.length + 1)).filter((c) => !c.includes("~"));
+    return `<div class="card para"><table>${names.map((c) =>
+      `<tr><th scope="row">${esc(c)}</th><td>${cellHtml(c)}</td></tr>`).join("")}</table></div>`;
+  }
+  const r = dims.length - 1;
+  const others = dims.map((_, k) => k).filter((k) => k !== r);
+  let combos = [[]];
+  for (const k of others) combos = combos.flatMap((c) => dims[k].members.map((m) => [...c, m]));
+  const name = (m, combo) => dims.map((_, k) => k === r ? m : combo[others.indexOf(k)]).join(".");
+  return `<div class="card para"><table>
+    <tr><th></th>${combos.map((c) => `<th>${esc(c.join(".") || "")}</th>`).join("")}</tr>
+    ${dims[r].members.map((m) => `<tr><th scope="row">${esc(m)}</th>${combos.map((c) => `<td>${cellHtml(name(m, c))}</td>`).join("")}</tr>`).join("")}
+  </table></div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Dictionary, as in stemma.typ's `dictionary`
+
+function viewDict() {
+  const stage = S.stage;
+  const ids = S.lex.order.filter((i) => {
+    const it = S.lex.items[i];
+    return ["root", "derivative"].includes(it.kind) && it.reflexes[stage]?.forms != null;
+  });
+  const key = (i) => norm((headAt(S.lex.items[i], stage) || [""])[0]);
+  ids.sort((a, b) => key(a).localeCompare(key(b)));
+  const entries = ids.map((id) => {
+    const it = S.lex.items[id];
+    const r = it.reflexes[stage];
+    const line = path(stage);
+    const earlier = line.slice(line.indexOf(it.formed), line.length - 1).reverse();
+    const shown = earlier.filter((s, k) => {
+      const next = earlier[k + 1];
+      return next == null || !same(it.reflexes[s]?.forms, it.reflexes[next]?.forms);
+    });
+    const chain = shown.map((s) => `${esc(stageAbbr(s))} ${fmt(formsAt(id, s), s)}`).join(" &lt; ");
+    const hw = (headAt(it, stage) || []).join(" ~ ") + (it.bound && !it.cells.length ? "-" : "");
+    return `<div class="e"><a href="${href(id)}" class="hw f">${esc(hw)}</a>
+      ${r.category ? ` <span class="sc">${esc(r.category)}</span>` : ""}
+      ${it.gloss ? ` “${esc(it.gloss)}”` : ""}
+      ${chain ? ` <span class="ety">&lt; ${chain}</span>` : ""}
+      ${it.source ? ` <span class="muted">(${linkSource(it.source)})</span>` : ""}
+      ${it.notes?.length ? `<div class="n notes">${renderNotes(it.notes)}</div>` : ""}</div>`;
+  });
+  return `<div class="wrap"><h2>${esc(stageName(stage))} dictionary</h2>
+    <p class="muted">${ids.length} entries · change the stage at the top right</p>
+    <div class="dict">${entries.join("") || `<p class="muted">No entries have a reflex at this stage.</p>`}</div></div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Shifts, as in Stemma.Query.findShifts
+
+function glob(pat, t) {
+  const re = new RegExp("^" + pat.split("*").map((p) => p.replace(/[.+?^${}()|[\]\\]/g, "\\$&")).join(".*") + "$");
+  return re.test(t);
+}
+
+function findShifts(from, to) {
+  const leaves = S.lex.stages.filter((s) => s.current).map((s) => s.id);
+  const out = [];
+  for (const id of S.lex.order) {
+    const it = S.lex.items[id];
+    if (!it?.category.length) continue;
+    for (const leaf of leaves) {
+      if (!isAncestorOrSelf(it.formed, leaf)) continue;
+      const p = path(leaf);
+      const seq = [];
+      for (const s of p.slice(p.indexOf(it.formed))) {
+        const t = categoryAt(it, s);
+        if (t != null && (!seq.length || seq[seq.length - 1][0] !== t)) seq.push([t, s]);
+      }
+      for (let k = 0; k + 1 < seq.length; k++)
+        if (glob(from, seq[k][0]) && glob(to, seq[k + 1][0])) out.push({ id, leaf, a: seq[k], c: seq[k + 1] });
+    }
+  }
+  return out;
+}
+
+function viewShifts(arg) {
+  const [from = "*", to = "*"] = (arg || "*>*").split(">");
+  const found = findShifts(from, to);
+  return `<div class="wrap"><h2>Category shifts</h2>
+    <p class="muted">Changes of part of speech or function along each line of descent. <span class="mono">*</span> is a wildcard.</p>
+    <form class="toolbar" id="shiftform">
+      <input type="text" id="sfrom" value="${esc(from)}" size="10" spellcheck="false" aria-label="From">
+      <span class="muted">&gt;</span>
+      <input type="text" id="sto" value="${esc(to)}" size="10" spellcheck="false" aria-label="To">
+      <button type="submit">Find</button>
+      <span class="muted">${found.length} shift${found.length === 1 ? "" : "s"}</span>
+    </form>
+    ${found.length ? `<div class="card"><table>
+      <tr><th>Item</th><th>Gloss</th><th>Line</th><th>From</th><th></th><th>To</th></tr>
+      ${found.map((f) => {
+        const it = S.lex.items[f.id];
+        return `<tr><td><a href="${href(f.id)}">${fmt(formsAt(f.id, it.formed), it.formed)}</a> <span class="faint mono">${esc(f.id)}</span></td>
+        <td class="muted">${esc(it.gloss ?? "")}</td><td>${esc(stageName(f.leaf))}</td>
+        <td><span class="cat"><span class="tag">${esc(f.a[0])}</span><span class="at">${esc(stageAbbr(f.a[1]))}</span></span></td>
+        <td class="faint">›</td>
+        <td><span class="cat"><span class="tag">${esc(f.c[0])}</span><span class="at">${esc(stageAbbr(f.c[1]))}</span></span></td></tr>`;
+      }).join("")}</table></div>` : `<p class="muted">No matching shifts.</p>`}</div>`;
+}
+
+function bindShifts() {
+  $("#shiftform")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    location.hash = "#/shifts/" + encodeURIComponent(($("#sfrom").value || "*") + ">" + ($("#sto").value || "*"));
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Build: warnings, mismatches, diff, log, stage tree
+
+function linkDiffLine(l) {
+  // "stage  id: description"
+  const m = l.match(/^(\S+)\s+(\S+?): (.*)$/);
+  if (!m) return esc(l);
+  return `<span class="muted">${esc(stageName(m[1]))}</span> ${linkId(m[2])}: <span class="f ph">${esc(m[3])}</span>`;
+}
+
+function viewBuild() {
+  const b = S.lastBuild;
+  const mm = mismatches();
+  let h = `<div class="wrap"><h2>Build</h2>`;
+  if (S.live) h += `<p class="muted">Project: <span class="mono">${esc(S.lex.family)}</span> · ${S.stale ? `<span style="color:var(--warn)">sources changed since the last build</span>` : "up to date"}</p>`;
+  else h += `<p class="muted">Viewing a file. Run <span class="mono">python3 ui/serve.py -d &lt;project&gt;</span> for live rebuilds.</p>`;
+
+  if (b) h += `<div class="box ${b.ok ? "good" : "bad"}">${b.ok ? "Build succeeded" : "Build failed" + (b.code != null ? ` (exit ${b.code})` : "")} at ${b.at.toLocaleTimeString()}</div>`;
+
+  if (mm.length) h += `<h3>Expectation mismatches</h3><ul class="plain">${mm.map((m) => {
+    const id = m.split(/[\s:]/)[0];
+    return `<li>${S.lex.items[id] ? m.replace(id, linkId(id)) : esc(m)}</li>`;
+  }).join("")}</ul>`;
+
+  h += `<h3>Warnings</h3>` + (S.lex.warnings.length
+    ? `<ul class="plain">${S.lex.warnings.map((w) => `<li class="muted">${esc(w)}</li>`).join("")}</ul>`
+    : `<p class="muted">None.</p>`);
+
+  if (S.diff) h += `<h3>Changed forms (last build)</h3>` + (S.diff.length
+    ? `<ul class="plain">${S.diff.map((l) => `<li>${linkDiffLine(l)}</li>`).join("")}</ul>`
+    : `<p class="muted">No forms changed.</p>`);
+
+  if (b) {
+    if (b.stdout.trim()) h += `<h3>Output</h3><pre class="log">${esc(b.stdout)}</pre>`;
+    if (b.stderr.trim()) h += `<h3>Errors and warnings</h3><pre class="log">${esc(b.stderr)}</pre>`;
+    if (b.command) h += `<p class="faint mono">${esc(b.command)}</p>`;
+  }
+
+  const counts = new Map();
+  for (const it of Object.values(S.lex.items)) for (const s of Object.keys(it.reflexes))
+    if (it.reflexes[s].forms != null) counts.set(s, (counts.get(s) || 0) + 1);
+  const tree = (p) => {
+    const cs = IX.children.get(p) || [];
+    return cs.length ? `<ul>${cs.map((c) => { const st = IX.stages.get(c); return `<li>${esc(st.name)}${st.abbr ? ` <span class="faint">${esc(st.abbr)}</span>` : ""}${st.current ? ` <span class="badge">current</span>` : ""} <span class="muted">· ${counts.get(c) || 0} forms</span>${tree(c)}</li>`; }).join("")}</ul>` : "";
+  };
+  h += `<h3>Stages</h3><div class="tree">${tree(null)}</div>`;
+  return h + `</div>`;
+}
+
+// ---------------------------------------------------------------------------
+// Rules: edit the project's Brassica files, see what each rule did, and
+// preview an edit before saving it. There is a tab per stage, in layers
+// following the family tree; a stage's tab edits just its segment of the
+// file (see RulesRef). A whole file can also be opened.
+
+const R = {
+  files: null,        // [{file, content}] as saved on disk
+  drafts: new Map(),  // file → unsaved text (always the whole file)
+  outline: null,      // {content, result} from stemma rules (Brassica's parser)
+  preview: null,      // {file, content, result} from /api/preview
+  previewing: false,
+  view: null,         // {stage, role, file, seg} or {file} for a whole file
+  win: null,          // {start, tail, empty}: lines of the file before and after the editor's
+  line: 0,            // caret line in the editor
+  mounted: null,      // key of the view the editor is showing
+  timer: null,
+};
+
+// "rules/x.bsc#2" → {file, seg: 2}; without #N, seg is null (whole file).
+function parseRef(ref) {
+  if (!ref) return null;
+  const m = ref.match(/^(.*?)(?:#(\d+))?$/);
+  return { file: m[1].replace(/^\.\//, ""), seg: m[2] ? +m[2] : null };
+}
+
+function savedText(file) { return R.files.find((f) => f.file === file)?.content ?? ""; }
+function textOf(file) { return R.drafts.has(file) ? R.drafts.get(file) : savedText(file); }
+function isDirty(file) { return R.drafts.has(file) && R.drafts.get(file) !== savedText(file); }
+
+// Stages whose rules (or spelling) come from this file.
+function stagesUsing(lex, file) {
+  const out = [];
+  for (const s of lex.stages) {
+    for (const [role, ref] of [["rules", s.rules], ["orthography", s.orthography]]) {
+      const r = parseRef(ref);
+      if (r && r.file === file) out.push({ stage: s.id, role, seg: r.seg });
+    }
+  }
+  return out;
+}
+
+// Every application of a rule from this file, from the traces in a build:
+// "seg|rule text" → [{id, stage, before, after}], seg "*" for whole-file stages.
+// Orthography has no traces, so only sound-change stages count.
+function ruleHits(lex, file, onlyStage) {
+  const segOf = new Map(stagesUsing(lex, file)
+    .filter((u) => u.role === "rules" && (!onlyStage || u.stage === onlyStage))
+    .map((u) => [u.stage, u.seg ?? "*"]));
+  const hits = new Map();
+  for (const it of Object.values(lex.items)) {
+    for (const [s, r] of Object.entries(it.reflexes)) {
+      if (!segOf.has(s)) continue;
+      let before = r.input;
+      for (const st of r.trace) {
+        const k = segOf.get(s) + "|" + st.rule;
+        if (!hits.has(k)) hits.set(k, []);
+        hits.get(k).push({ id: it.id, stage: s, before, after: st.result });
+        if (st.result != null) before = st.result;
+      }
+    }
+  }
+  return hits;
+}
+
+const stripComment = (l) => { const i = l.indexOf(";"); return (i < 0 ? l : l.slice(0, i)).trim(); };
+const isReport = (l) => /^report\s*$/.test(stripComment(l));
+
+// The lines of segment `seg` (1-based; null for all of it), as
+// {start, tail}: how many lines of the file come before and after it.
+// Report lines belong to no segment. Null if the file has no such segment.
+function segmentWindow(text, seg) {
+  const lines = text.split("\n");
+  if (seg == null) return { start: 0, tail: 0 };
+  const reports = lines.flatMap((l, i) => isReport(l) ? [i] : []);
+  if (seg - 1 > reports.length) return null;
+  const start = seg === 1 ? 0 : reports[seg - 2] + 1;
+  const end = seg - 1 < reports.length ? reports[seg - 1] : lines.length;
+  return { start, tail: lines.length - end };
+}
+
+function segmentText(text, seg) {
+  const w = segmentWindow(text, seg);
+  if (!w) return null;
+  const lines = text.split("\n");
+  return lines.slice(w.start, lines.length - w.tail).join("\n");
+}
+
+// What each line is, given Brassica's outline of the same text: its segment
+// (1-based), and for rule and filter lines their text as Brassica reports it.
+// Without an outline (a parse error), lines are only split into segments.
+function classifyLines(lines, outline) {
+  const info = [];
+  let seg = 1;
+  for (const l of lines) {
+    info.push({ seg, report: isReport(l), rule: null });
+    if (isReport(l)) seg++;
+  }
+  if (!outline?.ok) return info;
+  let i = 0;
+  outline.segments.forEach((stmts, k) => {
+    for (const st of stmts) {
+      if (st.text == null) continue;
+      let j = i;
+      while (j < lines.length && !(info[j].seg === k + 1 && stripComment(lines[j]) === st.text)) j++;
+      if (j < lines.length) { info[j].rule = st.text; info[j].kind = st.kind; i = j + 1; }
+    }
+  });
+  return info;
+}
+
+// The build whose traces the counts come from: the preview if it is of this
+// exact text, otherwise the last real build.
+function statsSource(file) {
+  const p = R.preview;
+  if (p && p.file === file && p.content === textOf(file) && p.result.lexicon) return { lex: p.result.lexicon, preview: true };
+  return { lex: S.lex, preview: false };
+}
+
+function lineStats(file, lines, info, onlyStage) {
+  const { lex } = statsSource(file);
+  const hits = ruleHits(lex, file, onlyStage);
+  const used = stagesUsing(lex, file).filter((u) => u.role === "rules" && (!onlyStage || u.stage === onlyStage));
+  const segUsed = (k) => used.some((u) => u.seg == null || u.seg === k);
+  return info.map((li, n) => {
+    const text = li.rule ?? (li.report ? null : stripComment(lines[n]));
+    if (!text) return null;
+    const hs = [...(hits.get(li.seg + "|" + text) || []), ...(hits.get("*|" + text) || [])];
+    if (!li.rule && !hs.length) return null;   // not known to be a rule
+    return { hits: hs, used: segUsed(li.seg), text };
+  });
+}
+
+// --- Brassica syntax highlighting -------------------------------------------
+
+const RULE_TOK = /(\/\/|\/|→|->)|(_)|(#)|(\[[^\]]*\]?)|((?:^|(?<=\s))-(?:ltr|rtl|x|no|1|\?\?|\?)(?=\s|$))/g;
+
+function hlRule(code) {
+  let out = "", last = 0;
+  for (const m of code.matchAll(RULE_TOK)) {
+    out += esc(code.slice(last, m.index));
+    const cls = m[1] ? "h-op" : m[2] ? "h-env" : m[3] ? "h-bnd" : m[4] ? "h-cat" : "h-flag";
+    out += `<span class="${cls}">${esc(m[0])}</span>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(code.slice(last));
+}
+
+function hlLines(lines) {
+  let inCats = false;
+  return lines.map((line) => {
+    const ci = line.indexOf(";");
+    const code = ci < 0 ? line : line.slice(0, ci);
+    const com = ci < 0 ? "" : line.slice(ci);
+    const t = code.trim();
+    let h;
+    if (/^(new\s+)?categories\b/.test(t)) { inCats = true; h = `<span class="h-kw">${esc(code)}</span>`; }
+    else if (inCats && t === "end") { inCats = false; h = `<span class="h-kw">${esc(code)}</span>`; }
+    else if (inCats) h = esc(code)
+      .replace(/^(\s*)(auto|extra|feature)\b/, '$1<span class="h-kw">$2</span>')
+      .replace(/^(\s*(?:<span[^>]*>[^<]*<\/span>\s*)?)([^\s=<]+)(\s*=)/, '$1<span class="h-cat">$2</span><span class="h-op">$3</span>');
+    else if (/^report$/.test(t)) h = `<span class="h-kw">${esc(code)}</span>`;
+    else h = hlRule(code);
+    return h + (com ? `<span class="h-com">${esc(com)}</span>` : "");
+  });
+}
+
+// --- Loading, outlining, saving, previewing ----------------------------------
+
+async function loadRules() {
+  R.files = await (await fetch("api/rules", { cache: "no-store" })).json();
+}
+
+function scheduleOutline(file) {
+  clearTimeout(R.timer);
+  R.timer = setTimeout(() => outlineNow(file), 300);
+}
+
+async function outlineNow(file) {
+  const content = textOf(file);
+  if (R.outline?.content === content) return;
+  try {
+    const result = await (await fetch("api/outline", { method: "POST", body: JSON.stringify({ content }) })).json();
+    if (textOf(file) !== content) return;     // edited meanwhile
+    R.outline = { content, result };
+    updateRules();
+  } catch { /* server gone; the status line says so */ }
+}
+
+async function saveRules() {
+  const file = R.view?.file;
+  if (!file || !S.live || !isDirty(file)) return;
+  const content = textOf(file);
+  const o = R.outline?.content === content ? R.outline.result : null;
+  if (o && !o.ok && !confirm("Brassica can't parse this file, so the build will fail. Save anyway?")) return;
+  const r = await fetch("api/rules", { method: "PUT", body: JSON.stringify({ file, content }) });
+  if (!r.ok) { alert("Couldn't save " + file + ": " + ((await r.json()).error || r.status)); return; }
+  R.files.find((f) => f.file === file).content = content;
+  R.drafts.delete(file);
+  R.preview = null;
+  updateRules();
+  await rebuild({ fromSave: true });
+}
+
+async function previewRules() {
+  const file = R.view?.file;
+  if (!file || !S.live || R.previewing) return;
+  const content = textOf(file);
+  R.previewing = true;
+  updateRules();
+  try {
+    const result = expandResult(await (await fetch("api/preview", { method: "POST", body: JSON.stringify({ file, content }) })).json());
+    R.preview = { file, content, result };
+  } finally {
+    R.previewing = false;
+    updateRules();
+  }
+}
+
+function revertRules() {
+  const file = R.view?.file;
+  if (!file || !isDirty(file)) return;
+  const others = R.view.seg != null && segmentText(textOf(file), R.view.seg) === segmentText(savedText(file), R.view.seg);
+  if (!confirm(`Discard all unsaved changes to ${file}${others ? " (they are in other stages' segments)" : ""}?`)) return;
+  R.drafts.delete(file);
+  R.mounted = null;
+  renderRules(routeArg());
+}
+
+// --- Stage tabs -----------------------------------------------------------------
+
+// The tab rows for a selected stage: the root's daughters, then the
+// daughters of each selected stage in turn, down to the selection's own
+// daughters (none of which is selected yet).
+function stageRows(sel) {
+  const p = sel ? path(sel) : [S.lex.root];
+  const rows = [];
+  for (let i = 1, parent = S.lex.root; ; i++) {
+    const kids = IX.children.get(parent) || [];
+    if (!kids.length) break;
+    rows.push({ parent, kids, chosen: p[i] ?? null });
+    if (!p[i]) break;
+    parent = p[i];
+  }
+  return rows;
+}
+
+function stageDirty(id) {
+  const st = IX.stages.get(id);
+  return [st.rules, st.orthography].some((ref) => {
+    const r = parseRef(ref);
+    return r && R.drafts.has(r.file) && segmentText(textOf(r.file), r.seg) !== segmentText(savedText(r.file), r.seg);
+  });
+}
+
+function stageTabsHtml() {
+  const sel = R.view?.stage ?? null;
+  const rows = stageRows(sel);
+  const used = new Set(S.lex.stages.flatMap((s) => [parseRef(s.rules)?.file, parseRef(s.orthography)?.file]).filter(Boolean));
+  const files = R.files.map((f) => f.file);
+  return rows.map((row, i) => `<div class="srow" style="padding-left:${12 + i * 18}px">
+      <span class="from">${i ? "↳ " : ""}${esc(stageAbbr(row.parent))}</span>
+      ${row.kids.map((k) => {
+        const st = IX.stages.get(k);
+        const cls = k === sel ? "on" : k === row.chosen ? "path" : "";
+        const none = !st.rules && !st.orthography;
+        const nKids = (IX.children.get(k) || []).length;
+        return `<a class="stab ${cls} ${none ? "none" : ""}" href="#/rules/${encodeURIComponent(k)}" aria-label="${esc(st.name)}" title="${esc(st.name)}: ${esc(st.rules ?? "no sound changes")}${nKids ? ` · ${nKids} daughter${nKids === 1 ? "" : "s"}` : ""}">${esc(st.name)}${stageDirty(k) ? ` <span class="dot">●</span>` : ""}${nKids && k !== row.chosen && k !== sel ? ` <span class="faint">›</span>` : ""}</a>`;
+      }).join("")}
+      ${i === 0 ? `<span class="spacer"></span><select id="rfile" aria-label="Open a whole file">
+        <option value="">Whole file…</option>
+        ${files.map((f) => `<option value="${esc(f)}" ${R.view && !R.view.stage && R.view.file === f ? "selected" : ""}>${esc(f)}${used.has(f) ? "" : " (unused)"}${isDirty(f) ? " ●" : ""}</option>`).join("")}
+      </select>` : ""}
+    </div>`).join("");
+}
+
+// --- View ----------------------------------------------------------------------
+
+function routeArg() {
+  const [, tab, ...rest] = location.hash.replace(/^#/, "").split("/");
+  return tab === "rules" && rest.length ? decodeURIComponent(rest.join("/")) : null;
+}
+
+// #/rules/<stage>, #/rules/<stage>/spelling or #/rules/file/<path>.
+function resolveRulesView(arg) {
+  if (arg?.startsWith("file/")) {
+    const file = arg.slice(5);
+    if (R.files.some((f) => f.file === file)) return { file, seg: null, stage: null, role: null };
+  }
+  const [id, sub] = (arg || "").split("/");
+  let stage = IX.stages.has(id) && id !== S.lex.root ? id : null;
+  if (!stage) {
+    const has = (s) => s !== S.lex.root && (IX.stages.get(s).rules || IX.stages.get(s).orthography);
+    stage = has(S.stage) ? S.stage : IX.treeOrder.find(has) ?? IX.treeOrder.find((s) => s !== S.lex.root);
+  }
+  if (!stage) return null;
+  const st = IX.stages.get(stage);
+  const role = sub === "spelling" && st.orthography ? "orthography" : st.rules ? "rules" : st.orthography ? "orthography" : "rules";
+  const ref = parseRef(st[role]);
+  return { stage, role, file: ref?.file ?? null, seg: ref?.seg ?? null };
+}
+
+function viewHash(v) {
+  if (!v.stage) return "#/rules/file/" + v.file;
+  return "#/rules/" + encodeURIComponent(v.stage) + (v.role === "orthography" && IX.stages.get(v.stage).rules ? "/spelling" : "");
+}
+
+async function renderRules(arg) {
+  const v = $("#view");
+  if (!S.live) {
+    R.mounted = null;
+    v.className = "";
+    v.innerHTML = `<div class="wrap"><h2>Rules</h2><p class="muted">Editing rules needs the server: run
+      <span class="mono">python3 ui/serve.py -d &lt;project&gt;</span>.</p></div>`;
+    return;
+  }
+  if (!R.files) {
+    v.innerHTML = `<div class="wrap" style="padding:24px 32px"><p class="muted">Loading rules…</p></div>`;
+    await loadRules();
+  }
+  const view = resolveRulesView(arg);
+  if (!view) {
+    v.className = "";
+    v.innerHTML = `<div class="wrap"><h2>Rules</h2><p class="muted">This family has only one stage.</p></div>`;
+    return;
+  }
+  if (location.hash !== viewHash(view)) history.replaceState(null, "", viewHash(view));
+  if (view.stage && view.stage !== S.stage) { S.stage = view.stage; $("#stage").value = view.stage; }
+  const key = JSON.stringify(view);
+  if (R.mounted !== key || !$("#rpanel")) return mountRules(view, key);
+  // Changed on disk by something else, with no edits here: show the new text.
+  const ed = $("#ed");
+  if (ed && view.file && !R.drafts.has(view.file)) {
+    const w = segmentWindow(savedText(view.file), view.seg);
+    const want = w ? segmentText(savedText(view.file), view.seg) : "";
+    if (ed.value !== want) {
+      const pos = ed.selectionStart;
+      R.win = w && { ...w, empty: want === "" };
+      ed.value = want;
+      ed.setSelectionRange(pos, pos);
+      scheduleOutline(view.file);
+    }
+  }
+  updateRules();
+}
+
+function mountRules(view, key) {
+  R.mounted = key;
+  R.view = view;
+  R.line = 0;
+  const st = view.stage ? IX.stages.get(view.stage) : null;
+  const text = view.file ? textOf(view.file) : "";
+  R.win = view.file ? segmentWindow(text, view.seg) : null;
+  if (R.win) R.win.empty = segmentText(text, view.seg) === "";
+  const v = $("#view");
+
+  const roles = st && st.rules && st.orthography
+    ? `<span class="seg2">${[["rules", "Sound changes"], ["orthography", "Spelling"]].map(([r, label]) =>
+        `<a href="${viewHash({ ...view, role: r })}" class="${view.role === r ? "on" : ""}">${label}</a>`).join("")}</span>` : "";
+  const where = !view.file ? ""
+    : view.seg == null ? `<span class="mono">${esc(view.file)}</span>`
+    : `<span class="mono">${esc(view.file)}</span> <span class="muted">· segment ${view.seg}</span> <a href="#/rules/file/${esc(view.file)}" class="muted" style="font-size:12px">open whole file</a>`;
+
+  let body;
+  if (!view.file) {
+    const p = st.parent ? IX.stages.get(st.parent) : null;
+    const sources = R.files.filter((f) => categoriesBlock(f.content));
+    const src = categoriesSource(view.stage, sources);
+    const slug = (x) => x.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const name = `rules/${slug(p ? (p.abbr ?? p.id) : "x")}-to-${slug(view.stage)}.bsc`;
+    body = `<form class="norules" id="newrules">
+      <p><b>${esc(st.name)}</b> has no sound changes yet, so its forms are copied unchanged from ${esc(p?.name ?? "its parent")}.</p>
+      <h3>Give ${esc(st.name)} sound changes</h3>
+      <label class="fld">New rules file
+        <input type="text" id="nr-file" value="${esc(name)}" spellcheck="false" size="36"></label>
+      <label class="fld">Start with the categories from
+        <select id="nr-cats">
+          ${sources.map((f) => `<option value="${esc(f.file)}" ${f.file === src ? "selected" : ""}>${esc(f.file)}</option>`).join("")}
+          <option value="" ${src ? "" : "selected"}>nothing (an empty file)</option>
+        </select></label>
+      <p class="faint" style="font-size:12.5px">Brassica only treats multigraphs like <span class="f ph">${esc(familyMultigraph())}</span> as one sound if a categories block declares them, so starting from an existing block is usually right.</p>
+      <p><button type="submit" class="primary">Create rules for ${esc(st.name)}</button></p>
+      <p class="faint" style="font-size:12.5px">This creates the file and adds <span class="mono" id="nr-line">rules: "${esc(name)}"</span> to <span class="mono">${esc(view.stage)}</span> in <span class="mono">family.yaml</span>, leaving the rest of the file as it is. ${esc(st.name)}'s forms stay the same until you add rules.</p>
+      <div id="nr-err"></div>
+      ${(IX.children.get(view.stage) || []).length ? `<p class="muted">Its daughters are in the row below.</p>` : ""}
+    </form>`;
+  } else if (!R.win) {
+    body = `<div class="norules"><div class="box bad">${esc(view.file)} has no segment ${view.seg}: the stage points at
+      <span class="mono">${esc(st[view.role])}</span>, but the file has fewer <span class="mono">report</span> lines.
+      <a href="#/rules/file/${esc(view.file)}">Open the whole file</a> to add one.</div></div>`;
+  } else {
+    body = `<div class="parse" id="rparse"></div>
+      <div class="editor">
+        <div class="gut" id="gut"></div>
+        <div class="area">
+          <pre id="hl" aria-hidden="true"></pre>
+          <textarea id="ed" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off" aria-label="Brassica rules"></textarea>
+        </div>
+      </div>`;
+  }
+
+  v.innerHTML = `<div class="rules">
+    <div class="edcol">
+      <div class="stabs" id="stabs"></div>
+      <div class="bar">
+        ${roles}${where}
+        <span class="dirty" id="rdirty"></span>
+        <span class="spacer"></span>
+        ${view.stage && view.stage !== S.lex.root ? `<button class="danger" data-del="stage" data-target="${esc(view.stage)}" title="Remove ${esc(st.name)} from the family">Delete stage…</button>` : ""}
+        ${view.file && R.files.some((f) => f.file === view.file) ? `<button class="danger" data-del="file" data-target="${esc(view.file)}" title="Delete ${esc(view.file)}">Delete file…</button>` : ""}
+        ${view.file && R.win ? `<button id="rrevert">Revert</button>
+        <button id="rpreview" title="Build with this text without saving (⌘↵)">Preview</button>
+        <button id="rsave" class="primary" title="Save and rebuild (⌘S)">Save</button>` : ""}
+      </div>
+      ${body}
+    </div>
+    <div class="rpanel" id="rpanel"></div>
+  </div>`;
+
+  $("#newrules")?.addEventListener("submit", (e) => { e.preventDefault(); createStageRules(view.stage); });
+  $("#nr-file")?.addEventListener("input", (e) => {
+    $("#nr-line").textContent = `rules: "${e.target.value.trim()}"`;
+  });
+  $("#stabs").addEventListener("change", (e) => {
+    if (e.target.id === "rfile" && e.target.value) location.hash = "#/rules/file/" + e.target.value;
+  });
+  const ed = $("#ed");
+  if (ed) {
+    ed.value = segmentText(text, view.seg);
+    $("#rsave").addEventListener("click", saveRules);
+    $("#rpreview").addEventListener("click", previewRules);
+    $("#rrevert").addEventListener("click", revertRules);
+    ed.addEventListener("input", () => {
+      // Put the edited window back into the whole file.
+      const full = textOf(view.file).split("\n");
+      const mine = ed.value === "" && R.win.empty ? [] : ed.value.split("\n");
+      const next = [...full.slice(0, R.win.start), ...mine, ...full.slice(full.length - R.win.tail)].join("\n");
+      R.win.empty = false;
+      if (next === savedText(view.file)) R.drafts.delete(view.file); else R.drafts.set(view.file, next);
+      scheduleOutline(view.file);
+      caretMoved();
+      updateRules();
+    });
+    ed.addEventListener("scroll", syncScroll);
+    for (const ev of ["click", "keyup", "select"]) ed.addEventListener(ev, caretMoved);
+    ed.addEventListener("keydown", (e) => {
+      if (e.key === "Tab" && !e.metaKey && !e.ctrlKey && !e.altKey) { e.preventDefault(); document.execCommand("insertText", false, "\t"); }
+    });
+    $("#gut").addEventListener("click", (e) => {
+      const n = e.target.closest("[data-line]")?.dataset.line;
+      if (n != null) jumpTo(+n);
+    });
+    scheduleOutline(view.file);
+  }
+  $("#rpanel").addEventListener("click", (e) => {
+    const n = e.target.closest("[data-line]")?.dataset.line;
+    if (n != null) { e.preventDefault(); jumpTo(+n); }
+  });
+  updateRules();
+}
+
+// Lines are numbered as in the whole file; the editor shows lines
+// [R.win.start, length - R.win.tail).
+function winStart() { return R.win?.start ?? 0; }
+
+function caretMoved() {
+  const ed = $("#ed");
+  if (!ed) return;
+  const n = ed.value.slice(0, ed.selectionStart).split("\n").length - 1;
+  if (n !== R.line) { R.line = n; updateRules(); }
+}
+
+function syncScroll() {
+  const ed = $("#ed");
+  $("#hl").scrollTop = ed.scrollTop;
+  $("#hl").scrollLeft = ed.scrollLeft;
+  $("#gut").scrollTop = ed.scrollTop;
+}
+
+// Put the caret on a line of the file (if the editor shows it).
+function jumpTo(fileLine) {
+  const ed = $("#ed");
+  const n = fileLine - winStart();
+  const lines = ed.value.split("\n");
+  if (n < 0 || n >= lines.length) return;
+  const pos = lines.slice(0, n).reduce((a, l) => a + l.length + 1, 0);
+  ed.focus();
+  ed.setSelectionRange(pos, pos);
+  const top = n * 20, h = ed.clientHeight;
+  if (top < ed.scrollTop || top > ed.scrollTop + h - 60) ed.scrollTop = Math.max(0, top - h / 3);
+  R.line = n;
+  syncScroll();
+  updateRules();
+}
+
+function updateRules() {
+  const view = R.view;
+  if (!view || !$("#rpanel")) return;
+  $("#stabs").innerHTML = stageTabsHtml();
+  $("#dirtycount").hidden = !R.files.some((f) => isDirty(f.file));
+  const ed = $("#ed");
+  if (!ed) { $("#rpanel").innerHTML = view.stage ? stageSummary(view.stage) : ""; return; }
+
+  const file = view.file;
+  const text = textOf(file);
+  const lines = text.split("\n");
+  const outline = R.outline?.content === text ? R.outline.result : null;
+  const info = classifyLines(lines, outline);
+  const stats = lineStats(file, lines, info, view.stage);
+  const errLine = outline && !outline.ok && outline.line ? outline.line - 1 : -1;
+  const s = winStart(), e = lines.length - R.win.tail;
+  const caret = s + R.line;
+
+  // Highlighted text and gutter, numbered as in the whole file.
+  const hl = hlLines(lines);
+  const shown = R.win.empty && ed.value === "" ? [] : Array.from({ length: e - s }, (_, k) => s + k);
+  $("#hl").innerHTML = (shown.length ? shown : [s]).map((n) => shown.length
+    ? `<div class="ln ${n === caret ? "sel" : ""} ${n === errLine ? "err" : ""} ${info[n].report ? "rep" : ""}">${hl[n] || " "}</div>`
+    : `<div class="ln sel"> </div>`).join("");
+  $("#gut").innerHTML = (shown.length ? shown : [s]).map((n) => {
+    const st = shown.length ? stats[n] : null;
+    let c = `<span class="c"></span>`;
+    if (st && st.used) {
+      const forms = new Set(st.hits.map((h) => h.id + "|" + h.stage)).size;
+      c = `<span class="c ${forms ? "hit" : "dead"}" data-line="${n}" title="${forms ? `changed ${forms} form${forms === 1 ? "" : "s"}` : "never applies"}">${forms || "0"}</span>`;
+    }
+    return `<div class="${n === errLine ? "err" : ""}"><span class="n">${n + 1}</span>${c}</div>`;
+  }).join("");
+  syncScroll();
+
+  // Toolbar.
+  const dirty = isDirty(file);
+  const segDirty = view.seg != null && dirty && segmentText(text, view.seg) !== segmentText(savedText(file), view.seg);
+  $("#rdirty").textContent = !dirty ? "" : view.seg == null || segDirty ? "● unsaved" : "● unsaved changes in other segments";
+  $("#rsave").disabled = !dirty;
+  $("#rrevert").disabled = !dirty;
+  $("#rpreview").disabled = R.previewing;
+  $("#rpreview").textContent = R.previewing ? "Previewing…" : "Preview";
+
+  const parse = $("#rparse");
+  if (!outline) { parse.className = "parse muted"; parse.textContent = "Checking with Brassica…"; }
+  else if (outline.ok) {
+    const segs = outline.segments;
+    const n = (view.seg == null ? segs.flat() : segs[view.seg - 1] || []).filter((x) => x.text != null).length;
+    parse.className = "parse ok";
+    parse.textContent = `✓ Brassica parses ${view.seg == null ? "this file" : `${file}`}: ${n} rule${n === 1 ? "" : "s"} ${view.seg == null ? `in ${segs.length} segment${segs.length === 1 ? "" : "s"}` : "in this segment"}`;
+  } else {
+    parse.className = "parse bad";
+    const outside = errLine >= 0 && (errLine < s || errLine >= e);
+    parse.textContent = (outside ? `The error is on line ${errLine + 1}, outside this stage's segment.\n` : "") + outline.error;
+  }
+
+  $("#rpanel").innerHTML = rulesPanel(file, lines, info, stats, outline, s, e);
+}
+
+// The first categories block in a rules file, or null.
+function categoriesBlock(text) {
+  const lines = text.split("\n");
+  const i = lines.findIndex((l) => /^(new\s+)?categories\b/.test(stripComment(l)));
+  const j = lines.findIndex((l, k) => k > i && stripComment(l) === "end");
+  return i < 0 || j < 0 ? null : lines.slice(i, j + 1).join("\n");
+}
+
+// Where a new stage's categories should come from: the rules of its
+// nearest ancestor that has some, else the first file any stage uses.
+function categoriesSource(stage, sources) {
+  const ok = (f) => f && sources.some((x) => x.file === f);
+  for (const s of path(stage).reverse()) {
+    const f = parseRef(IX.stages.get(s).rules)?.file;
+    if (ok(f)) return f;
+  }
+  const any = S.lex.stages.map((s) => parseRef(s.rules)?.file).find(ok);
+  return any ?? sources[0]?.file ?? "";
+}
+
+function familyMultigraph() {
+  for (const it of Object.values(S.lex.items))
+    for (const r of Object.values(it.reflexes)) for (const f of r.forms || []) {
+      const m = f.match(/\p{L}[\p{M}\u2080-\u2089\u00b2\u00b3\u00b9]+/u);
+      if (m) return m[0];
+    }
+  return "r₁";
+}
+
+async function createStageRules(stage) {
+  const st = IX.stages.get(stage);
+  const parent = st.parent ? IX.stages.get(st.parent).name : "";
+  const file = $("#nr-file").value.trim();
+  const from = $("#nr-cats").value;
+  const cats = from ? categoriesBlock(savedText(from)) : null;
+  const content = `; ${parent ? parent + " > " : ""}${st.name}\n${cats ? `\n${cats}\n` : ""}\n`;
+  const btn = $("#newrules button[type=submit]");
+  btn.disabled = true;
+  btn.textContent = "Creating…";
+  $("#nr-err").innerHTML = "";
+  try {
+    const r = await fetch("api/stage-rules", { method: "POST", body: JSON.stringify({ stage, file, content }) });
+    const res = await r.json();
+    if (!r.ok) throw new Error(res.error || r.status);
+    await loadRules();
+    R.mounted = null;
+    await rebuild({ fromSave: true });
+  } catch (e) {
+    $("#nr-err").innerHTML = `<div class="box bad" style="white-space:pre-wrap">${esc(e.message)}</div>`;
+    btn.disabled = false;
+    btn.textContent = `Create rules for ${st.name}`;
+  }
+}
+
+// For a stage with no rules: what it contains.
+function stageSummary(id) {
+  let n = 0;
+  for (const it of Object.values(S.lex.items)) if (it.reflexes[id]?.forms != null) n++;
+  const kids = IX.children.get(id) || [];
+  return `<h3>${esc(stageName(id))}</h3><p class="muted">${n} forms${kids.length ? ` · daughters: ${kids.map((k) =>
+    `<a href="#/rules/${encodeURIComponent(k)}">${esc(stageName(k))}</a>`).join(", ")}` : ""}</p>`;
+}
+
+function rulesPanel(file, lines, info, stats, outline, s, e) {
+  const src = statsSource(file);
+  const view = R.view;
+  const dirty = isDirty(file);
+  let h = "";
+
+  // Preview results.
+  const p = R.preview;
+  if (p && p.file === file) {
+    const current = p.content === textOf(file);
+    const r = p.result;
+    const { fresh: mm, old } = splitMismatches(r);
+    const errs = (r.stderr || "").split("\n").filter((l) => l.startsWith("error: "));
+    h += `<h3>Preview${current ? "" : ` <span class="badge irr">out of date</span>`}</h3>`;
+    if (!r.lexicon) h += `<div class="box bad">The preview build failed.</div><pre class="log">${esc(r.stderr)}</pre>`;
+    else {
+      h += `<div class="box ${r.diff?.length ? "warn" : "good"} banner">${r.diff?.length
+        ? `${r.diff.length} form${r.diff.length === 1 ? "" : "s"} would change`
+        : "No forms would change"}${mm.length ? `, ${mm.length} new expectation mismatch${mm.length === 1 ? "" : "es"}` : ""}${old.length ? ` <span class="muted">(${old.length} already failing)</span>` : ""}</div>`;
+      if (r.diff?.length) h += `<ul class="plain">${r.diff.slice(0, 300).map((l) => `<li>${linkDiffLine(l)}</li>`).join("")}</ul>`;
+      if (mm.length) h += `<h3>New mismatches</h3><ul class="plain">${mm.map((m) => `<li>${esc(m)}</li>`).join("")}</ul>`;
+    }
+    if (errs.length && r.lexicon) h += `<pre class="log">${esc(errs.join("\n"))}</pre>`;
+  } else if (dirty) {
+    h += `<div class="box warn banner">Unsaved changes. <b>Preview</b> (<kbd>⌘↵</kbd>) shows what they would change without saving; <b>Save</b> (<kbd>⌘S</kbd>) writes the file and rebuilds.</div>`;
+  }
+
+  // The rule under the caret.
+  const caret = s + R.line;
+  const st = stats[caret];
+  if (st) {
+    const forms = st.hits;
+    h += `<h3>Rule on line ${caret + 1}${src.preview ? " · preview" : ""}</h3><div class="rule">${hlRule(st.text)}</div>`;
+    if (!st.used) h += `<p class="muted">No stage uses segment ${info[caret].seg} of this file.</p>`;
+    else if (!forms.length) h += `<p style="color:var(--warn)">This rule never applies to any form${src.preview ? " in the preview" : ""}.</p>`;
+    else {
+      const oneStage = new Set(forms.map((x) => x.stage)).size === 1;
+      h += `<p class="muted">Applied ${forms.length} time${forms.length === 1 ? "" : "s"}, to ${new Set(forms.map((x) => x.id + "|" + x.stage)).size} form(s)${oneStage ? ` in ${esc(stageName(forms[0].stage))}` : ""}:</p>
+        <div class="card"><table><tr><th>Item</th><th>Before</th><th>After</th></tr>${forms.slice(0, 300).map((x) => {
+          const it = src.lex.items[x.id];
+          return `<tr><td>${S.lex.items[x.id] ? `<a href="${href(x.id)}">${esc(x.id)}</a>` : esc(x.id)}${oneStage ? "" : ` <span class="faint">${esc(stageAbbr(x.stage))}</span>`}<div class="faint" style="font-size:12px">${esc(it?.gloss ?? "")}</div></td>
+            <td><span class="f ph">${esc(x.before ?? "—")}</span></td>
+            <td>${x.after == null ? `<span class="badge lost">deleted</span>` : `<span class="f ph">${esc(x.after)}</span>`}</td></tr>`;
+        }).join("")}</table></div>${forms.length > 300 ? `<p class="muted">…and ${forms.length - 300} more</p>` : ""}`;
+    }
+    if (dirty && !src.preview) h += `<p class="faint" style="font-size:12px">Counts are from the last build; preview to see them for your edit.</p>`;
+  }
+
+  // Segments shown here: rules that never apply.
+  const segs = new Map();
+  info.forEach((li, n) => {
+    const x = stats[n];
+    if (n < s || n >= e || !x || !x.used) return;
+    if (!segs.has(li.seg)) segs.set(li.seg, { rules: 0, dead: [] });
+    const g = segs.get(li.seg);
+    g.rules++;
+    if (!x.hits.length) g.dead.push(n);
+  });
+  const uses = stagesUsing(S.lex, file).filter((u) => u.role === "rules");
+  if (outline && !outline.ok) {
+    h += `<h3>Never applies</h3><p class="muted">Fix the parse error to see which rules never apply.</p>`;
+  } else if (!outline) {
+    // Still checking.
+  } else if (view.role === "orthography") {
+    h += `<p class="muted">Spelling rules have no traces, so there are no counts.</p>`;
+  } else if (segs.size) {
+    h += `<h3>${view.stage ? esc(stageName(view.stage)) : "Segments"}${src.preview ? " · preview" : ""}</h3>`;
+    for (const [k, g] of segs) {
+      const names = uses.filter((u) => u.seg == null || u.seg === k).map((u) => stageName(u.stage)).join(", ");
+      h += `<div class="seg">${view.stage ? "" : `<b>#${k}</b> → ${esc(names)} <span class="muted">· </span>`}<span class="muted">${g.rules} rule${g.rules === 1 ? "" : "s"}${g.dead.length ? `, <span style="color:var(--warn)">${g.dead.length} never appl${g.dead.length === 1 ? "ies" : "y"}</span>` : ", all apply"}</span>
+        ${g.dead.map((n) => `<a class="jump" href="#" data-line="${n}">${n + 1}: ${esc(stripComment(lines[n]))}</a>`).join("")}</div>`;
+    }
+  } else if (!stagesUsing(S.lex, file).length) {
+    h += `<p class="muted">No stage in family.yaml uses this file.</p>`;
+  }
+  if (view.stage && view.seg != null) {
+    const before = Array.from({ length: view.seg - 1 }, (_, k) => k + 1);
+    if (before.length) h += `<p class="faint" style="font-size:12px">Categories declared in earlier segments of ${esc(file)} are still in force here.</p>`;
+  }
+  h += `<p class="faint" style="font-size:12px;margin-top:24px">The number beside each rule is how many forms it changed. Click it, or put the caret on a line, to list them.</p>`;
+  return h;
+}
+
+window.addEventListener("beforeunload", (e) => {
+  if (R.files?.some((f) => isDirty(f.file))) { e.preventDefault(); e.returnValue = ""; }
+});
+
+// ---------------------------------------------------------------------------
+// Lexicon editing: an entry's form and gloss, or its whole YAML block, and
+// new entries. Edits change only the lines involved, so comments and layout
+// survive, and are built on a copy of the project before they are saved.
+
+const L = {
+  sources: null,   // [{file, content}]: the project's YAML files, as saved
+  edit: null,      // the entry being edited (see startEdit)
+  create: null,    // a new entry being written (see viewNew)
+};
+
+async function loadSources() {
+  L.sources = await (await fetch("api/sources", { cache: "no-store" })).json();
+}
+const srcText = (f) => L.sources.find((x) => x.file === f)?.content ?? "";
+const indentOf = (l) => l.length - l.trimStart().length;
+const blankOrComment = (l) => !l.trim() || l.trim().startsWith("#");
+const reEsc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const QUOTED = `"(?:[^"\\\\]|\\\\.)*"|'(?:[^']|'')*'`;
+
+// Lexicon files first, then morphology, then the rest (never family.yaml).
+function entryFiles() {
+  const rank = (f) => f.startsWith("lexicon/") ? 0 : /morphology\.ya?ml$/.test(f) ? 1 : 2;
+  return L.sources.filter((s) => !/(^|\/)family\.ya?ml$/.test(s.file)).sort((a, b) => rank(a.file) - rank(b.file));
+}
+
+// Where an entry is written, as lines [start, end) of a file:
+//   item  `- id: X` and the keys below it, at keyIndent
+//   key   `X:` under affixes:, with block keys below it
+//   flow  `X: { ... }` or `- { id: X, ... }` on one line
+function locateEntry(id) {
+  const item = new RegExp(`^(\\s*)-\\s+id:\\s*(["']?)${reEsc(id)}\\2\\s*(#.*)?$`);
+  const flowItem = new RegExp(`^\\s*-\\s*\\{.*\\bid:\\s*(["']?)${reEsc(id)}\\1\\s*[,}]`);
+  const key = new RegExp(`^(\\s+)(["']?)${reEsc(id)}\\2\\s*:(.*)$`);
+  for (const { file, content } of entryFiles()) {
+    const lines = content.split("\n");
+    let top = null, childIndent = null;
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (/^[^\s#-][^:]*:/.test(l)) { top = l.split(":")[0].trim(); childIndent = null; continue; }
+      let m;
+      if ((m = l.match(item))) {
+        const dash = m[1].length;
+        let end = i + 1;
+        for (let k = i + 1; k < lines.length; k++) {
+          if (blankOrComment(lines[k])) continue;
+          if (indentOf(lines[k]) <= dash) break;
+          end = k + 1;
+        }
+        return { file, start: i, end, style: "item", keyIndent: l.indexOf("id:") };
+      }
+      if (flowItem.test(l)) return { file, start: i, end: i + 1, style: "flow" };
+      if (top === "affixes" && !blankOrComment(l)) {
+        childIndent ??= indentOf(l);
+        if (indentOf(l) !== childIndent || !(m = l.match(key))) continue;
+        const rest = m[3].trim();
+        if (rest.startsWith("{")) return { file, start: i, end: i + 1, style: "flow" };
+        if (rest && !rest.startsWith("#")) return null;   // e.g. an alias; edit the YAML by hand
+        let end = i + 1, keyIndent = null;
+        for (let k = i + 1; k < lines.length; k++) {
+          if (blankOrComment(lines[k])) continue;
+          if (indentOf(lines[k]) <= childIndent) break;
+          keyIndent ??= indentOf(lines[k]);
+          end = k + 1;
+        }
+        return { file, start: i, end, style: "key", keyIndent: keyIndent ?? childIndent + 2 };
+      }
+    }
+  }
+  return null;
+}
+
+function parseScalar(v) {
+  v = v.trim();
+  if (v.startsWith('"')) { try { return JSON.parse(v); } catch { return undefined; } }
+  if (v.startsWith("'")) return v.slice(1, -1).replace(/''/g, "'");
+  if (v === "~" || v === "null") return null;
+  return v;
+}
+
+// A block value and its trailing comment: `"*ir₁-"   # note`.
+function splitValue(v) {
+  const q = v.match(new RegExp(`^\\s*(${QUOTED})(.*)$`));
+  if (q) return { value: q[1], comment: q[2].trim() };
+  const i = v.search(/\s#/);
+  return i < 0 ? { value: v.trim(), comment: "" } : { value: v.slice(0, i).trim(), comment: v.slice(i).trim() };
+}
+
+const flowField = (field) => new RegExp(`([{,]\\s*)${reEsc(field)}(\\s*:\\s*)(${QUOTED}|[^,}#]*?)(\\s*)(?=[,}])`);
+
+// A scalar field of an entry: its value, null if absent, undefined if it
+// isn't a plain scalar (a block scalar or a list), which this doesn't edit.
+function getField(text, loc, field) {
+  const lines = text.split("\n");
+  if (loc.style === "flow") {
+    const m = lines[loc.start].match(flowField(field));
+    return m ? parseScalar(m[3]) : null;
+  }
+  for (let k = loc.start + 1; k < loc.end; k++) {
+    const l = lines[k];
+    if (indentOf(l) !== loc.keyIndent || blankOrComment(l)) continue;
+    const m = l.match(new RegExp(`^\\s*${reEsc(field)}\\s*:(.*)$`));
+    if (!m) continue;
+    const { value } = splitValue(m[1]);
+    return /^[|>[{&*!]/.test(value) ? undefined : parseScalar(value);
+  }
+  return null;
+}
+
+// The text with one scalar field set (added if absent).
+function setField(text, loc, field, value) {
+  const lines = text.split("\n");
+  const q = JSON.stringify(value);
+  if (loc.style === "flow") {
+    const l = lines[loc.start];
+    if (flowField(field).test(l)) lines[loc.start] = l.replace(flowField(field), (_, a, b, _v, d) => a + field + b + q + d);
+    else {
+      const close = l.lastIndexOf("}");
+      const inner = l.slice(l.indexOf("{") + 1, close).trim();
+      lines[loc.start] = l.slice(0, close).trimEnd() + (inner ? ", " : " ") + `${field}: ${q} ` + l.slice(close);
+    }
+    return lines.join("\n");
+  }
+  let after = loc.start;
+  for (let k = loc.start + 1; k < loc.end; k++) {
+    const l = lines[k];
+    if (indentOf(l) !== loc.keyIndent || blankOrComment(l)) continue;
+    if (/^\s*form\s*:/.test(l)) after = k;
+    const m = l.match(new RegExp(`^(\\s*${reEsc(field)}\\s*:)(.*)$`));
+    if (m) {
+      const { comment } = splitValue(m[2]);
+      lines[k] = `${m[1]} ${q}${comment ? "   " + comment : ""}`;
+      return lines.join("\n");
+    }
+  }
+  lines.splice(after + 1, 0, " ".repeat(loc.keyIndent) + `${field}: ${q}`);
+  return lines.join("\n");
+}
+
+// --- Editing an entry -------------------------------------------------------------
+
+async function startEdit(id, mode = "fields") {
+  if (!L.sources) await loadSources();
+  const loc = locateEntry(id);
+  const base = loc ? srcText(loc.file) : null;
+  L.edit = { id, loc, base, mode, preview: null, previewing: false, error: null };
+  if (loc) {
+    const lines = base.split("\n");
+    L.edit.yaml = lines.slice(loc.start, loc.end).join("\n");
+    L.edit.origForm = getField(base, loc, "form");
+    L.edit.origGloss = getField(base, loc, "gloss");
+    L.edit.form = L.edit.origForm ?? "";
+    L.edit.gloss = L.edit.origGloss ?? "";
+  }
+  route();
+}
+
+// The whole file as it would be with the edit.
+function editedText(e = L.edit) {
+  if (e.mode === "create") return createdText(e);
+  if (e.mode === "delete") {
+    // Drop the block, and one blank line beside it so no gap is left.
+    const lines = e.base.split("\n");
+    let { start, end } = e.loc;
+    if (end < lines.length && !lines[end].trim() && (start === 0 || !lines[start - 1].trim())) end++;
+    else if (start > 0 && !lines[start - 1].trim() && end >= lines.length - 1) start--;
+    return [...lines.slice(0, start), ...lines.slice(end)].join("\n");
+  }
+  if (e.mode === "yaml") {
+    const lines = e.base.split("\n");
+    return [...lines.slice(0, e.loc.start), ...e.yaml.split("\n"), ...lines.slice(e.loc.end)].join("\n");
+  }
+  let t = e.base;
+  if (typeof e.origForm === "string" && e.form !== e.origForm) t = setField(t, e.loc, "form", e.form);
+  if (e.origGloss !== undefined && e.gloss !== (e.origGloss ?? "") && !(e.origGloss == null && e.gloss === ""))
+    t = setField(t, e.loc, "gloss", e.gloss);
+  return t;
+}
+
+const editDirty = (e = L.edit) => !!e?.loc && editedText(e) !== e.base;
+
+async function previewEdit(e, file) {
+  e.previewing = true;
+  e.error = null;
+  route();
+  try {
+    const content = editedText(e);
+    const result = expandResult(await (await fetch("api/preview", { method: "POST", body: JSON.stringify({ file, content }) })).json());
+    e.preview = { content, result };
+  } catch (err) { e.error = String(err); }
+  e.previewing = false;
+  route();
+}
+
+// Save, unless the file changed on disk since editing began.
+async function saveEdit(e, file, then) {
+  // Never save YAML that breaks the build: preview first if needed.
+  if (!e.preview || e.preview.content !== editedText(e)) await previewEdit(e, file);
+  if (!e.preview?.result.lexicon) {
+    e.error = (e.error ? e.error + "\n" : "") + "Not saved: the project wouldn't build with this edit.\n\n" + (e.preview?.result.stderr ?? "");
+    return route();
+  }
+  await loadSources();
+  if (srcText(file) !== e.base) {
+    e.error = `${file} changed on disk since you started editing. Cancel and edit again to pick up the changes.`;
+    return route();
+  }
+  const r = await fetch("api/source", { method: "PUT", body: JSON.stringify({ file, content: editedText(e) }) });
+  if (!r.ok) { e.error = "Couldn't save: " + ((await r.json()).error || r.status); return route(); }
+  await loadSources();
+  then();
+  await rebuild({ fromSave: true });
+}
+
+// What a preview build says, and how this entry's reflexes would change.
+function previewHtml(e, id) {
+  if (e.previewing) return `<p class="muted">Building a copy of the project…</p>`;
+  if (e.error) return `<div class="box bad" style="white-space:pre-wrap">${esc(e.error)}</div>`;
+  const p = e.preview;
+  if (!p) return "";
+  const stale = p.content !== editedText(e);
+  const r = p.result;
+  let h = stale ? `<p><span class="badge irr">out of date</span> <span class="muted">You've edited since this preview.</span></p>` : "";
+  if (!r.lexicon) return h + `<div class="box bad">The project wouldn't build with this edit.</div><pre class="log">${esc(r.stderr)}</pre>`;
+  const { fresh, old } = splitMismatches(r);
+  const n = r.diff?.length ?? 0;
+  const goneN = (r.diff || []).filter((l) => /: gone \(was /.test(l)).length;
+  const what = e.mode === "delete" && goneN === n ? `${n} form${n === 1 ? "" : "s"} would be removed`
+    : `${n} form${n === 1 ? "" : "s"} would change`;
+  h += `<div class="box ${fresh.length ? "bad" : n ? "warn" : "good"}">${n ? what : "No forms would change"}${fresh.length
+    ? `, ${fresh.length} new expectation mismatch${fresh.length === 1 ? "" : "es"}` : ""}${old.length
+    ? ` <span class="muted">(${old.length} already failing)</span>` : ""}</div>`;
+  const now = S.lex.items[id], next = id && r.lexicon.items[id];
+  if (!now && next) {
+    const show = (s) => { const x = next.reflexes[s]; return !x ? null : s === r.lexicon.root ? x.forms : x.spelled ?? x.forms; };
+    h += `<div class="card" style="margin-top:8px"><table><tr><th>Stage</th><th>Form</th></tr>${IX.treeOrder.filter((s) => next.reflexes[s]).map((s) =>
+      `<tr><td>${esc(stageName(s))}</td><td>${fmt(show(s), s)}</td></tr>`).join("")}</table></div>`;
+  }
+  if (now && next) {
+    const rows = IX.treeOrder.filter((s) => !same(now.reflexes[s]?.forms, next.reflexes[s]?.forms)
+      || !same(now.reflexes[s]?.spelled, next.reflexes[s]?.spelled));
+    if (rows.length) h += `<div class="card" style="margin-top:8px"><table><tr><th>Stage</th><th>Now</th><th>After</th></tr>${rows.map((s) => {
+      const show = (it) => { const x = it.reflexes[s]; return !x ? null : s === r.lexicon.root ? x.forms : x.spelled ?? x.forms; };
+      return `<tr><td>${esc(stageName(s))}</td><td>${fmt(show(now), s)}</td><td>${fmt(show(next), s)}</td></tr>`;
+    }).join("")}</table></div>`;
+  }
+  const others = (r.diff || []).filter((l) => { const m = l.match(/^\S+\s+(\S+?):/); return !m || m[1] !== id; });
+  if (others.length) h += `<details style="margin-top:8px" ${others.length <= 12 ? "open" : ""}><summary class="muted">${others.length} other form${others.length === 1 ? "" : "s"} (cells, derivatives, compounds)</summary>
+    <ul class="plain">${others.slice(0, 300).map((l) => `<li>${linkDiffLine(l)}</li>`).join("")}</ul></details>`;
+  if (fresh.length) h += `<h3>New mismatches</h3><ul class="plain">${fresh.map((m) => `<li>${esc(m)}</li>`).join("")}</ul>`;
+  if (old.length) h += `<details><summary class="muted">${old.length} already failing before this edit</summary><ul class="plain">${old.map((m) => `<li class="muted">${esc(m)}</li>`).join("")}</ul></details>`;
+  return h;
+}
+
+// A preview's expectation mismatches: new ones, and ones the current sources
+// already have (the server works these out for each preview).
+function splitMismatches(result) {
+  const mm = (result.stderr || "").split("\n").filter((l) => l.startsWith("MISMATCH: ")).map((l) => l.slice(10));
+  const known = new Set(result.baseline_mismatches ?? S.knownMismatches ?? []);
+  return { fresh: mm.filter((m) => !known.has(m)), old: mm.filter((m) => known.has(m)) };
+}
+
+// Entries written inside this one's block (nested derivatives), which a
+// delete takes with it.
+function nestedEntries(e) {
+  const lines = e.base.split("\n").slice(e.loc.start + 1, e.loc.end);
+  return lines.map((l) => l.match(/^\s*-\s+id:\s*["']?([^\s"'#]+)/)?.[1]).filter(Boolean);
+}
+
+// Who still refers to an entry being deleted, and what to change first.
+function usedWarning(users) {
+  if (!users.length) return "";
+  const cells = users.filter((u) => S.lex.items[u]?.kind === "cell");
+  const others = users.filter((u) => !cells.includes(u));
+  const parts = [];
+  if (others.length) parts.push(`Still used by ${others.map(linkId).join(", ")}; change ${others.length === 1 ? "it" : "them"} first.`);
+  if (cells.length) {
+    const pds = [...new Set(cells.map((c) => S.lex.items[S.lex.items[c].owner]?.paradigm).filter(Boolean))];
+    parts.push(`Used in the paradigm cells ${cells.map(linkId).join(", ")}${pds.length ? ` (paradigm ${pds.map(esc).join(", ")})` : ""}; take it out of the paradigm in the morphology file first.`);
+  }
+  return `<div class="box warn">${parts.join(" ")} Otherwise the project won't build, and the delete is refused.</div>`;
+}
+
+function deleteCardHtml(id) {
+  const e = L.edit, loc = e.loc;
+  const removed = e.base.split("\n").slice(loc.start, loc.end).join("\n");
+  const nested = nestedEntries(e);
+  const gone = new Set([id, ...nested]);
+  const users = [...gone].flatMap((g) => IX.usedIn.get(g) || [])
+    .filter((u) => !gone.has(u) && !gone.has(S.lex.items[u]?.owner));
+  return `<div class="editcard danger">
+    <div class="ehead"><b>Delete ${fmt(formsAt(id, S.lex.items[id].formed), S.lex.items[id].formed)}?</b>
+      <span class="muted mono" style="font-size:12px">${esc(loc.file)}:${loc.start + 1}${loc.end - loc.start > 1 ? `–${loc.end}` : ""}</span></div>
+    <p class="muted" style="margin:4px 0">These lines will be removed:</p>
+    <pre class="log removed">${esc(removed)}</pre>
+    ${nested.length ? `<p>It also deletes the derivative${nested.length === 1 ? "" : "s"} written inside it: ${nested.map(linkId).join(", ")}.</p>` : ""}
+    ${usedWarning([...new Set(users)])}
+    <div class="ebtns">
+      <button data-act="cancel">Cancel</button>
+      <span class="spacer"></span>
+      <button data-act="save" class="danger-solid" ${e.previewing || (e.preview && !e.preview.result.lexicon) ? "disabled" : ""}>Delete entry</button>
+    </div>
+    <div id="le-out">${previewHtml(e, id)}</div>
+  </div>`;
+}
+
+// The editor shown on an entry's page.
+function editCardHtml(id) {
+  const e = L.edit;
+  if (e.loc && e.mode === "delete") return deleteCardHtml(id);
+  const it = S.lex.items[id];
+  if (!e.loc) {
+    return `<div class="editcard"><div class="box warn">Couldn't find where <span class="mono">${esc(id)}</span> is written in the project's YAML.
+      Entries are found as <span class="mono">- id: ${esc(id)}</span> in a lexicon file or as a key under <span class="mono">affixes:</span>.</div>
+      <p><button data-act="cancel">Close</button></p></div>`;
+  }
+  const loc = e.loc;
+  const fieldsOk = e.origForm !== undefined && e.origGloss !== undefined;
+  const mode = fieldsOk ? e.mode : "yaml";
+  let body;
+  if (mode === "fields") {
+    body = `<div class="fields">
+      ${typeof e.origForm === "string"
+        ? `<label class="fld">Form <input id="le-form" value="${esc(e.form)}" spellcheck="false" autocomplete="off"></label>`
+        : `<div class="fld">Form <span class="muted" style="font-size:13px">built from <b>${esc(it.source ?? "its source")}</b>; change that under YAML</span></div>`}
+      <label class="fld">Gloss <input id="le-gloss" value="${esc(e.gloss)}" spellcheck="true" autocomplete="off"></label>
+    </div>`;
+  } else {
+    const rows = Math.min(24, Math.max(4, e.yaml.split("\n").length + 1));
+    body = `<textarea id="le-yaml" class="yaml" rows="${rows}" spellcheck="false" wrap="off">${esc(e.yaml)}</textarea>`;
+  }
+  return `<div class="editcard">
+    <div class="ehead">
+      ${fieldsOk ? `<span class="seg2"><a href="#" data-act="mode-fields" class="${mode === "fields" ? "on" : ""}">Form &amp; gloss</a><a href="#" data-act="mode-yaml" class="${mode === "yaml" ? "on" : ""}">YAML</a></span>` : ""}
+      <span class="muted mono" style="font-size:12px">${esc(loc.file)}:${loc.start + 1}${loc.end - loc.start > 1 ? `–${loc.end}` : ""}</span>
+      <span class="spacer"></span>
+      <span class="dirty" style="color:var(--warn);font-size:12px">${editDirty() ? "● unsaved" : ""}</span>
+    </div>
+    ${body}
+    <div class="ebtns">
+      <button data-act="cancel">${editDirty() ? "Discard" : "Close"}</button>
+      <button data-act="preview" ${e.previewing ? "disabled" : ""} title="⌘↵">${e.previewing ? "Previewing…" : "Preview"}</button>
+      <button data-act="save" class="primary" ${editDirty() ? "" : "disabled"} title="Save and rebuild (⌘S)">Save</button>
+    </div>
+    <div id="le-out">${previewHtml(e, id)}</div>
+  </div>`;
+}
+
+// --- New entries --------------------------------------------------------------------
+
+function lexiconFiles() {
+  const fs = entryFiles().filter((f) => /^\s*-\s+id:/m.test(f.content) || f.file.startsWith("lexicon/"));
+  return fs.length ? fs : entryFiles();
+}
+
+function newEntryBlock(c) {
+  const dash = (srcText(c.file).match(/^([ \t]*)-\s+id:/m)?.[1] ?? "");
+  const pad = dash + "  ";
+  const lines = [`${dash}- id: ${c.id}`, `${pad}form: ${JSON.stringify(c.form)}`];
+  if (c.gloss) lines.push(`${pad}gloss: ${JSON.stringify(c.gloss)}`);
+  if (c.category) lines.push(`${pad}category: [{ at: ${S.lex.root}, is: ${JSON.stringify(c.category)} }]`);
+  return lines.join("\n");
+}
+
+function createdText(c = L.create) {
+  const base = c.base;
+  const sep = base === "" ? "" : base.endsWith("\n\n") ? "" : base.endsWith("\n") ? "\n" : "\n\n";
+  return base + sep + newEntryBlock(c) + "\n";
+}
+
+function createProblem(c = L.create) {
+  if (!c.id) return "Give it an ID.";
+  if (!/^[^\s:#{}\[\],&*!|>'"%@`]+$/.test(c.id)) return "IDs can't contain spaces or YAML punctuation.";
+  if (S.lex.items[c.id] || locateEntry(c.id)) return `There is already an entry ${c.id}.`;
+  if (!c.form || c.form === "*") return "Give it a form.";
+  return null;
+}
+
+async function startCreate() {
+  if (!L.sources) await loadSources();
+  const files = lexiconFiles();
+  const file = files[0]?.file;
+  L.create = { file, base: srcText(file), id: "", form: "*", gloss: "", category: "", preview: null, previewing: false, error: null };
+  location.hash = "#/new";
+}
+
+function viewNew() {
+  if (!S.live) return `<div class="wrap"><h2>New entry</h2><p class="muted">Adding entries needs the server: run <span class="mono">python3 ui/serve.py -d &lt;project&gt;</span>.</p></div>`;
+  const c = L.create;
+  if (!c) { startCreate(); return ""; }
+  const problem = createProblem();
+  return `<div class="wrap"><h2>New entry</h2>
+    <p class="muted">A new word in ${esc(stageName(S.lex.root))}. For events, notes, derivatives and the rest, edit its YAML once it exists.</p>
+    <div class="editcard">
+      <div class="fields">
+        <label class="fld">File <select id="nc-file">${lexiconFiles().map((f) =>
+          `<option value="${esc(f.file)}" ${f.file === c.file ? "selected" : ""}>${esc(f.file)}</option>`).join("")}</select></label>
+        <label class="fld">ID <input id="nc-id" value="${esc(c.id)}" spellcheck="false" autocomplete="off" placeholder="e.g. tan"></label>
+        <label class="fld">Form <input id="nc-form" value="${esc(c.form)}" spellcheck="false" autocomplete="off" placeholder="*tan"></label>
+        <label class="fld">Gloss <input id="nc-gloss" value="${esc(c.gloss)}" autocomplete="off"></label>
+        <label class="fld">Category <span class="faint">(optional)</span> <input id="nc-cat" value="${esc(c.category)}" spellcheck="false" autocomplete="off" placeholder="N, V, DEM…"></label>
+      </div>
+      <pre class="log" id="nc-block">${esc(newEntryBlock(c))}</pre>
+      <div class="ebtns">
+        <a href="#/item" class="muted" data-act="nc-cancel">Cancel</a>
+        <span class="spacer"></span>
+        <span class="muted" id="nc-problem" style="font-size:12.5px">${esc(problem ?? "")}</span>
+        <button data-act="nc-preview" ${problem || c.previewing ? "disabled" : ""}>${c.previewing ? "Previewing…" : "Preview"}</button>
+        <button data-act="nc-save" class="primary" ${problem ? "disabled" : ""}>Add entry</button>
+      </div>
+      <div id="le-out">${previewHtml({ ...c, mode: "create" }, c.id)}</div>
+    </div></div>`;
+}
+
+// --- Wiring ---------------------------------------------------------------------------
+
+// Inputs update the edit without re-rendering, so typing keeps focus.
+document.addEventListener("input", (ev) => {
+  const t = ev.target;
+  if (L.edit && ["le-form", "le-gloss", "le-yaml"].includes(t.id)) {
+    L.edit[t.id.slice(3)] = t.value;
+    const d = document.querySelector(".editcard .dirty");
+    if (d) d.textContent = editDirty() ? "● unsaved" : "";
+    const save = document.querySelector('[data-act="save"]');
+    if (save) save.disabled = !editDirty();
+    const cancel = document.querySelector('[data-act="cancel"]');
+    if (cancel) cancel.textContent = editDirty() ? "Discard" : "Close";
+  }
+  if (L.create && t.id?.startsWith("nc-")) {
+    const k = { "nc-id": "id", "nc-form": "form", "nc-gloss": "gloss", "nc-cat": "category" }[t.id];
+    if (k) L.create[k] = t.value.trim();
+    $("#nc-block").textContent = newEntryBlock(L.create);
+    const problem = createProblem();
+    $("#nc-problem").textContent = problem ?? "";
+    document.querySelector('[data-act="nc-preview"]').disabled = !!problem;
+    document.querySelector('[data-act="nc-save"]').disabled = !!problem;
+  }
+});
+document.addEventListener("change", (ev) => {
+  if (ev.target.id === "nc-file" && L.create) {
+    L.create.file = ev.target.value;
+    L.create.base = srcText(ev.target.value);
+    $("#nc-block").textContent = newEntryBlock(L.create);
+  }
+});
+
+// Edits and previews also run through the generic editing shortcuts.
+function lexShortcut(e) {
+  const k = e.key === "s" ? "save" : e.key === "Enter" ? "preview" : null;
+  if (!k || !(e.metaKey || e.ctrlKey)) return false;
+  if (location.hash.startsWith("#/new") && L.create) { e.preventDefault(); lexAction("nc-" + k); return true; }
+  if (location.hash.startsWith("#/item") && L.edit) { e.preventDefault(); lexAction(k); return true; }
+  return false;
+}
+
+async function lexAction(act) {
+  const e = L.edit, c = L.create;
+  switch (act) {
+    case "new": L.create = null; return startCreate();
+    case "edit": return startEdit(currentItem());
+    case "edit-yaml": return startEdit(currentItem(), "yaml");
+    case "delete":
+      await startEdit(currentItem(), "delete");
+      return L.edit?.loc && previewEdit(L.edit, L.edit.loc.file);
+    case "mode-fields": case "mode-yaml":
+      if (e) {
+        // Carry the edit across: fields → YAML shows the edited block.
+        if (act === "mode-yaml" && e.mode === "fields") {
+          const lines = editedText(e).split("\n");
+          const delta = lines.length - e.base.split("\n").length;
+          e.yaml = lines.slice(e.loc.start, e.loc.end + delta).join("\n");
+        } else if (act === "mode-fields" && e.mode === "yaml" && editDirty(e)) {
+          if (!confirm("Switching back drops your YAML edits. Continue?")) return;
+          e.yaml = e.base.split("\n").slice(e.loc.start, e.loc.end).join("\n");
+        }
+        e.mode = act.slice(5);
+        e.preview = null;
+        route();
+      }
+      return;
+    case "cancel":
+      if (e && e.mode !== "delete" && editDirty() && !confirm("Discard your changes to this entry?")) return;
+      L.edit = null;
+      return route();
+    case "preview": return e?.loc && previewEdit(e, e.loc.file);
+    case "save": return e?.loc && editDirty() && saveEdit(e, e.loc.file, () => {
+      if (e.mode === "delete") history.replaceState(null, "", "#/item");
+      L.edit = null;
+    });
+    case "nc-preview": return c && !createProblem() && previewEdit(Object.assign(c, { mode: "create" }), c.file);
+    case "nc-save":
+      if (!c || createProblem()) return;
+      return saveEdit(Object.assign(c, { mode: "create" }), c.file, () => {
+        const id = c.id;
+        L.create = null;
+        history.replaceState(null, "", href(id));
+      });
+    case "nc-cancel": L.create = null; return;
+  }
+}
+
+function currentItem() {
+  const m = location.hash.match(/^#\/item\/(.+)$/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+document.addEventListener("click", (ev) => {
+  const a = ev.target.closest("[data-act]");
+  if (!a) return;
+  if (a.tagName === "A" && a.dataset.act !== "nc-cancel") ev.preventDefault();
+  lexAction(a.dataset.act);
+});
+
+window.addEventListener("beforeunload", (e) => {
+  if ((editDirty() && L.edit.mode !== "delete") || (L.create && (L.create.id || L.create.form.length > 1))) { e.preventDefault(); e.returnValue = ""; }
+});
+
+// ---------------------------------------------------------------------------
+// Deleting stages and rules files. Each delete is planned here as a set of
+// file changes (family.yaml edited line by line, rules files trimmed or
+// removed), previewed by building a copy, and applied only if that build
+// succeeds and the files are unchanged on disk (/api/changeset).
+
+const familyFile = () => L.sources.find((s) => /^family\.ya?ml$/.test(s.file))?.file ?? "family.yaml";
+
+// A stage's block in family.yaml: lines [head, end), where head takes in the
+// comment lines directly above its key (they describe it).
+function stageBlock(text, id) {
+  const lines = text.split("\n");
+  const top = lines.findIndex((l) => /^stages\s*:\s*(#.*)?$/.test(l));
+  if (top < 0) return null;
+  const key = new RegExp(`^(\\s+)(["']?)${reEsc(id)}\\2\\s*:\\s*(#.*)?$`);
+  let child = null;
+  for (let i = top + 1; i < lines.length; i++) {
+    const l = lines[i];
+    if (l.trim() && !/^\s/.test(l) && !l.startsWith("#")) break;
+    if (blankOrComment(l)) continue;
+    child ??= indentOf(l);
+    if (indentOf(l) !== child || !key.test(l)) continue;
+    let end = i + 1, keyIndent = null;
+    for (let k = i + 1; k < lines.length; k++) {
+      if (blankOrComment(lines[k])) continue;
+      if (indentOf(lines[k]) <= child) break;
+      keyIndent ??= indentOf(lines[k]);
+      end = k + 1;
+    }
+    let head = i;
+    while (head - 1 > top && lines[head - 1].trim().startsWith("#") && indentOf(lines[head - 1]) >= child) head--;
+    return { head, start: i, end, keyIndent: keyIndent ?? child + 2 };
+  }
+  return null;
+}
+
+function removeStageBlock(text, id) {
+  const b = stageBlock(text, id);
+  if (!b) throw new Error(`couldn't find stage ${id} in family.yaml`);
+  const lines = text.split("\n");
+  let { head, end } = b;
+  // Take one neighbouring blank line too, so no double gap is left.
+  if (head > 0 && !lines[head - 1].trim()) head--;
+  else if (end < lines.length && !lines[end].trim()) end++;
+  return [...lines.slice(0, head), ...lines.slice(end)].join("\n");
+}
+
+function stageKeyLine(lines, b, key) {
+  for (let k = b.start + 1; k < b.end; k++)
+    if (indentOf(lines[k]) === b.keyIndent && new RegExp(`^\\s*${reEsc(key)}\\s*:`).test(lines[k])) return k;
+  return -1;
+}
+
+function removeStageKey(text, id, key) {
+  const lines = text.split("\n");
+  const b = stageBlock(text, id);
+  const k = b ? stageKeyLine(lines, b, key) : -1;
+  if (k >= 0) lines.splice(k, 1);
+  return lines.join("\n");
+}
+
+// Set key: value in a stage, keeping a trailing comment; bare if the value
+// is a plain slug, else quoted.
+function setStageKey(text, id, key, value, quote = false) {
+  const lines = text.split("\n");
+  const b = stageBlock(text, id);
+  if (!b) throw new Error(`couldn't find stage ${id} in family.yaml`);
+  const v = !quote && /^[A-Za-z0-9_.-]+$/.test(value) ? value : JSON.stringify(value);
+  const k = stageKeyLine(lines, b, key);
+  if (k >= 0) {
+    const { comment } = splitValue(lines[k].replace(/^[^:]*:/, ""));
+    lines[k] = " ".repeat(b.keyIndent) + `${key}: ${v}` + (comment ? "   " + comment : "");
+  } else {
+    const p = stageKeyLine(lines, b, "parent");
+    lines.splice((p >= 0 ? p : b.start) + 1, 0, " ".repeat(b.keyIndent) + `${key}: ${v}`);
+  }
+  return lines.join("\n");
+}
+
+// A rules file without segment n (1-based) and one of the report lines
+// beside it. Categories blocks in the segment are kept, since later
+// segments may use them (Brassica keeps them in force across reports).
+function removeSegment(text, n) {
+  const lines = text.split("\n");
+  const w = segmentWindow(text, n);
+  if (!w) return text;
+  const end = lines.length - w.tail;
+  const hasAfter = end < lines.length;     // a report line follows
+  const from = hasAfter ? w.start : Math.max(0, w.start - 1);
+  const to = hasAfter ? end + 1 : end;
+  const keep = [];
+  let inCats = false;
+  for (const l of lines.slice(w.start, end)) {
+    const t = stripComment(l);
+    if (/^(new\s+)?categories\b/.test(t)) inCats = true;
+    if (inCats) keep.push(l);
+    if (inCats && t === "end") { inCats = false; keep.push(""); }
+  }
+  return [...lines.slice(0, from), ...keep, ...lines.slice(to)].join("\n");
+}
+
+const descendants = (id) => (IX.children.get(id) || []).flatMap((c) => [c, ...descendants(c)]);
+
+// What still points at stages that are going: entries formed there, and
+// category, fate and repattern records at them. (Events, expectations and
+// paradigm stages aren't in lexicon.json; the preview build catches those.)
+function stageReferences(gone) {
+  const refs = [];
+  for (const it of Object.values(S.lex.items)) {
+    if (it.kind === "cell") continue;
+    const why = [];
+    if (gone.has(it.formed)) why.push("formed there");
+    if (it.category.some((c) => gone.has(c.at))) why.push("category");
+    if (Object.keys(it.fate || {}).some((s) => gone.has(s))) why.push("fate");
+    if (it.repatterns.some((r) => gone.has(r.at))) why.push("repattern");
+    if (why.length) refs.push({ id: it.id, why });
+  }
+  return refs;
+}
+
+// --- Plans ----------------------------------------------------------------------
+
+// Delete a whole rules file, and unhook the stages that use it.
+function planDeleteFile(file) {
+  const fam = familyFile();
+  let text = srcText(fam);
+  const users = stagesUsing(S.lex, file);
+  for (const u of users) text = removeStageKey(text, u.stage, u.role);
+  const notes = [`Deletes <span class="mono">${esc(file)}</span>.`];
+  for (const u of users) notes.push(`${esc(stageName(u.stage))} loses its ${u.role === "rules" ? "sound changes" : "spelling rules"}; ${
+    u.role === "rules" ? "its forms will be copied unchanged from " + esc(stageName(IX.stages.get(u.stage).parent ?? "")) : "its forms will be unspelled"}.`);
+  return { writes: users.length ? { [fam]: text } : {}, deletes: [file], notes, gone: new Set() };
+}
+
+// Delete a stage, with options for its daughters and its rules.
+function planDeleteStage(id, opts) {
+  const st = IX.stages.get(id);
+  const fam = familyFile();
+  let text = srcText(fam);
+  const gone = new Set([id, ...(opts.daughters === "delete" ? descendants(id) : [])]);
+  const notes = [];
+  const writes = {}, deletes = [];
+  const kept = S.lex.stages.filter((s) => !gone.has(s.id));
+
+  // Rules belonging to the stages that go.
+  const files = new Map();          // file → new text
+  const segsGone = new Map();       // file → [segment numbers removed]
+  for (const g of gone) {
+    const gs = IX.stages.get(g);
+    for (const role of ["rules", "orthography"]) {
+      const ref = parseRef(gs[role]);
+      if (!ref) continue;
+      const stillUsed = kept.some((s) => parseRef(s.rules)?.file === ref.file || parseRef(s.orthography)?.file === ref.file);
+      if (opts.rules === "remove" && deletes.includes(ref.file)) continue;   // already going
+      if (opts.rules === "remove" && ref.seg == null && !stillUsed) {
+        deletes.push(ref.file);
+        notes.push(`Deletes <span class="mono">${esc(ref.file)}</span>.`);
+      } else if (opts.rules === "remove" && ref.seg != null && !stillUsed && !deletes.includes(ref.file)) {
+        deletes.push(ref.file);
+        notes.push(`Deletes <span class="mono">${esc(ref.file)}</span> (no remaining stage uses it).`);
+      } else if (opts.rules === "remove" && ref.seg != null) {
+        if (!segsGone.has(ref.file)) segsGone.set(ref.file, []);
+        segsGone.get(ref.file).push(ref.seg);
+      } else {
+        notes.push(`Leaves <span class="mono">${esc(gs[role])}</span> in place, unused${ref.seg != null ? " (a segment no stage points at)" : ""}.`);
+      }
+    }
+  }
+  // Cut segments, last first, and renumber the references after them.
+  for (const [file, segs] of segsGone) {
+    let t = textOf(file);
+    const sorted = [...new Set(segs)].sort((a, b) => b - a);
+    for (const n of sorted) t = removeSegment(t, n);
+    files.set(file, t);
+    notes.push(`Removes segment${sorted.length > 1 ? "s" : ""} ${sorted.slice().reverse().join(", ")} of <span class="mono">${esc(file)}</span>.`);
+    for (const s of kept) for (const role of ["rules", "orthography"]) {
+      const ref = parseRef(s[role]);
+      if (ref?.file !== file || ref.seg == null) continue;
+      const shift = sorted.filter((n) => n < ref.seg).length;
+      if (shift) {
+        text = setStageKey(text, s.id, role, `${file}#${ref.seg - shift}`, true);
+        notes.push(`${esc(s.name)} now points at <span class="mono">${esc(file)}#${ref.seg - shift}</span> (was #${ref.seg}).`);
+      }
+    }
+  }
+
+  // Daughters.
+  const kids = IX.children.get(id) || [];
+  if (kids.length && opts.daughters === "reattach") {
+    for (const k of kids) {
+      if (st.parent) text = setStageKey(text, k, "parent", st.parent);
+      else text = removeStageKey(text, k, "parent");
+    }
+    notes.push(`${kids.map((k) => esc(stageName(k))).join(", ")} will descend directly from ${esc(st.parent ? stageName(st.parent) : "nothing (becoming roots)")}, skipping ${esc(st.name)}'s changes.`);
+  } else if (kids.length) {
+    notes.push(`Also deletes ${[...gone].filter((g) => g !== id).map((g) => esc(stageName(g))).join(", ")}.`);
+  }
+
+  for (const g of gone) text = removeStageBlock(text, g);
+  writes[fam] = text;
+  for (const [f, t] of files) writes[f] = t;
+  notes.unshift(`Removes ${esc(st.name)} from <span class="mono">${esc(fam)}</span>.`);
+  return { writes, deletes, notes, gone };
+}
+
+// --- The dialog -------------------------------------------------------------------
+
+const M = { open: null };   // {kind, target, opts, plan, preview, previewing, error}
+
+async function openDelete(kind, target) {
+  // Plans are made from the build's picture of the family, so it must
+  // match the files on disk.
+  const st = await (await fetch("api/status", { cache: "no-store" })).json();
+  if (st.built == null || st.inputs > st.built) await rebuild({ fromSave: true });
+  if (kind === "stage" && !IX.stages.has(target)) return;
+  await loadSources();
+  await loadRules();
+  M.open = { kind, target, opts: { daughters: "reattach", rules: "remove" }, preview: null, previewing: false, error: null };
+  replan();
+}
+
+function replan() {
+  const m = M.open;
+  m.error = null;
+  m.preview = null;
+  try {
+    m.plan = m.kind === "file" ? planDeleteFile(m.target) : planDeleteStage(m.target, m.opts);
+    const touched = [...Object.keys(m.plan.writes), ...m.plan.deletes].filter((f) => f.endsWith(".bsc"));
+    const unsaved = touched.filter((f) => isDirty(f));
+    if (unsaved.length) throw new Error(`Save or revert your unsaved edits to ${unsaved.join(", ")} first.`);
+  } catch (e) { m.plan = null; m.error = e.message; }
+  renderModal();
+  if (m.plan) runChangeset(false);
+}
+
+function changesetBody(apply) {
+  const p = M.open.plan;
+  const expect = {};
+  for (const f of [...Object.keys(p.writes), ...p.deletes])
+    expect[f] = f.endsWith(".bsc") ? savedText(f) : srcText(f);
+  return JSON.stringify({ writes: p.writes, deletes: p.deletes, expect, apply });
+}
+
+async function runChangeset(apply) {
+  const m = M.open;
+  m.previewing = true;
+  renderModal();
+  try {
+    const r = await fetch("api/changeset", { method: "POST", body: changesetBody(apply) });
+    const res = expandResult(await r.json());
+    if (!r.ok) throw new Error(res.error || r.status);
+    m.preview = res;
+    if (apply && res.applied) {
+      const { kind, target } = m;
+      const parent = kind === "stage" ? IX.stages.get(target).parent : null;
+      for (const f of m.plan.deletes) R.drafts.delete(f);
+      M.open = null;
+      renderModal();
+      await loadSources();
+      await loadRules();
+      R.mounted = null;
+      history.replaceState(null, "", kind === "stage" && parent ? "#/rules/" + encodeURIComponent(parent) : "#/rules");
+      await rebuild({ fromSave: true });
+      return;
+    }
+  } catch (e) { m.error = e.message; }
+  if (M.open) { m.previewing = false; renderModal(); }
+}
+
+// Lines that differ between two texts, as - and + lines with a little
+// context. A patience diff: lines that occur once in each text anchor the
+// alignment, so repeated lines (parent: proto-echo) don't pair up wrongly.
+function diffOps(x, y) {
+  let p = 0;
+  while (p < x.length && p < y.length && x[p] === y[p]) p++;
+  let q = 0;
+  while (q < x.length - p && q < y.length - p && x[x.length - 1 - q] === y[y.length - 1 - q]) q++;
+  const head = x.slice(0, p).map((l) => [" ", l]), tail = x.slice(x.length - q).map((l) => [" ", l]);
+  const xs = x.slice(p, x.length - q), ys = y.slice(p, y.length - q);
+  if (!xs.length || !ys.length) return [...head, ...xs.map((l) => ["-", l]), ...ys.map((l) => ["+", l]), ...tail];
+  const count = (arr) => arr.reduce((m, l, i) => m.set(l, m.has(l) ? -1 : i), new Map());
+  const cx = count(xs), cy = count(ys);
+  const pairs = [...cx].filter(([l, i]) => i >= 0 && cy.get(l) >= 0).map(([l, i]) => [i, cy.get(l)]).sort((a, b) => a[0] - b[0]);
+  // Longest increasing run of y positions among the anchors.
+  const tails = [], prev = [];
+  pairs.forEach((pr, k) => {
+    let lo = 0, hi = tails.length;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (pairs[tails[mid]][1] < pr[1]) lo = mid + 1; else hi = mid; }
+    prev[k] = lo ? tails[lo - 1] : -1;
+    tails[lo] = k;
+  });
+  const anchors = [];
+  for (let k = tails.length ? tails[tails.length - 1] : -1; k >= 0; k = prev[k]) anchors.unshift(pairs[k]);
+  if (!anchors.length) return [...head, ...lcsOps(xs, ys), ...tail];
+  const ops = [];
+  let i = 0, j = 0;
+  for (const [ai, aj] of anchors) {
+    ops.push(...diffOps(xs.slice(i, ai), ys.slice(j, aj)), [" ", xs[ai]]);
+    i = ai + 1; j = aj + 1;
+  }
+  ops.push(...diffOps(xs.slice(i), ys.slice(j)));
+  return [...head, ...ops, ...tail];
+}
+
+function lcsOps(x, y) {
+  const n = x.length, m = y.length;
+  const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--)
+    dp[i][j] = x[i] === y[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const ops = [];
+  let i = 0, j = 0;
+  while (i < n || j < m) {
+    if (i < n && j < m && x[i] === y[j]) { ops.push([" ", x[i]]); i++; j++; }
+    else if (i < n && (j === m || dp[i + 1][j] >= dp[i][j + 1])) { ops.push(["-", x[i]]); i++; }
+    else { ops.push(["+", y[j]]); j++; }
+  }
+  return ops;
+}
+
+function lineDiff(a, b) {
+  const ops = diffOps(a.split("\n"), b.split("\n"));
+  const keep = ops.map((o, k) => o[0] !== " " || ops.slice(Math.max(0, k - 1), k + 2).some((p) => p[0] !== " "));
+  let out = "", gap = false;
+  ops.forEach((o, k) => {
+    if (!keep[k]) { if (!gap) out += `<span class="faint">  ⋮</span>\n`; gap = true; return; }
+    gap = false;
+    out += `<span class="${o[0] === "-" ? "del" : o[0] === "+" ? "ins" : "faint"}">${o[0]} ${esc(o[1])}</span>\n`;
+  });
+  return out;
+}
+
+function renderModal() {
+  let el = $("#modal");
+  const m = M.open;
+  if (!m) { el?.remove(); return; }
+  if (!el) {
+    el = document.createElement("div");
+    el.id = "modal";
+    document.body.appendChild(el);
+    el.addEventListener("click", modalClick);
+    el.addEventListener("change", modalChange);
+  }
+  const title = m.kind === "file" ? `Delete ${esc(m.target)}?` : `Delete ${esc(stageName(m.target))}?`;
+  let opts = "";
+  if (m.kind === "stage") {
+    const st = IX.stages.get(m.target);
+    const kids = IX.children.get(m.target) || [];
+    const hasRules = st.rules || st.orthography || (m.opts.daughters === "delete" && descendants(m.target).some((d) => IX.stages.get(d).rules));
+    if (kids.length) opts += `<fieldset><legend>Its daughters (${kids.map((k) => esc(stageName(k))).join(", ")})</legend>
+      <label><input type="radio" name="daughters" value="reattach" ${m.opts.daughters === "reattach" ? "checked" : ""}> Attach them to ${esc(st.parent ? stageName(st.parent) : "nothing")}</label>
+      <label><input type="radio" name="daughters" value="delete" ${m.opts.daughters === "delete" ? "checked" : ""}> Delete them too (${descendants(m.target).length} stage${descendants(m.target).length === 1 ? "" : "s"})</label></fieldset>`;
+    if (hasRules) opts += `<fieldset><legend>Rules</legend>
+      <label><input type="radio" name="rules" value="remove" ${m.opts.rules === "remove" ? "checked" : ""}> Remove them (delete the file, or cut the segment and renumber the rest)</label>
+      <label><input type="radio" name="rules" value="keep" ${m.opts.rules === "keep" ? "checked" : ""}> Keep the rules files as they are</label></fieldset>`;
+  }
+  let body = "";
+  if (m.error) body += `<div class="box bad" style="white-space:pre-wrap">${esc(m.error)}</div>`;
+  if (m.plan) {
+    body += `<ul class="notes-list">${m.plan.notes.map((n) => `<li>${n}</li>`).join("")}</ul>`;
+    const refs = stageReferences(m.plan.gone);
+    if (refs.length) body += `<div class="box warn">Entries still refer to ${m.plan.gone.size === 1 ? "this stage" : "these stages"}: ${refs.map((r) =>
+      `${linkId(r.id)} <span class="faint">(${r.why.join(", ")})</span>`).join(", ")}. Change them first, or the project won't build and the delete is refused.</div>`;
+    for (const [f, t] of Object.entries(m.plan.writes)) {
+      const before = f.endsWith(".bsc") ? savedText(f) : srcText(f);
+      body += `<details ${f.endsWith(".bsc") ? "" : "open"}><summary class="mono" style="font-size:12.5px">${esc(f)}</summary><pre class="log diff">${lineDiff(before, t)}</pre></details>`;
+    }
+    if (m.previewing) body += `<p class="muted">Building a copy of the project…</p>`;
+    else if (m.preview) {
+      const r = m.preview;
+      if (!r.lexicon) body += `<div class="box bad">The project wouldn't build after this, so it can't be deleted yet.</div><pre class="log">${esc(r.stderr)}</pre>`;
+      else {
+        const { fresh, old } = splitMismatches(r);
+        const n = r.diff?.length ?? 0;
+        const goneN = (r.diff || []).filter((l) => /: gone \(was /.test(l)).length;
+        body += `<div class="box ${fresh.length ? "bad" : "warn"}">${n ? [goneN && `${goneN} form${goneN === 1 ? "" : "s"} removed`, n - goneN && `${n - goneN} form${n - goneN === 1 ? "" : "s"} changed`].filter(Boolean).join(", ") : "No forms change"}${fresh.length
+          ? `, ${fresh.length} new expectation mismatch${fresh.length === 1 ? "" : "es"}` : ""}${old.length ? ` <span class="muted">(${old.length} already failing)</span>` : ""}</div>`;
+        const changed = (r.diff || []).filter((l) => !/: gone \(was /.test(l));
+        if (changed.length) body += `<details><summary class="muted">${changed.length} changed form${changed.length === 1 ? "" : "s"}</summary><ul class="plain">${changed.slice(0, 300).map((l) => `<li>${linkDiffLine(l)}</li>`).join("")}</ul></details>`;
+        if (fresh.length) body += `<ul class="plain">${fresh.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>`;
+      }
+    }
+  }
+  const ok = m.plan && m.preview?.lexicon && !m.previewing;
+  el.innerHTML = `<div class="modal-back" data-m="cancel"></div>
+    <div class="modal" role="dialog" aria-modal="true" aria-label="${title}">
+      <h2 style="font-size:22px;margin-bottom:10px">${title}</h2>
+      ${opts}${body}
+      <div class="ebtns">
+        <button data-m="cancel">Cancel</button>
+        <span class="spacer"></span>
+        <button data-m="apply" class="danger-solid" ${ok ? "" : "disabled"}>Delete</button>
+      </div>
+    </div>`;
+}
+
+function modalClick(e) {
+  const act = e.target.closest("[data-m]")?.dataset.m;
+  if (act === "cancel") { M.open = null; renderModal(); }
+  else if (act === "apply" && M.open?.plan && M.open.preview?.lexicon) runChangeset(true);
+}
+
+function modalChange(e) {
+  if (!M.open || e.target.type !== "radio") return;
+  M.open.opts[e.target.name] = e.target.value;
+  replan();
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && M.open) { M.open = null; renderModal(); }
+});
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-del]");
+  if (b) openDelete(b.dataset.del, b.dataset.target);
+});
+
+// ---------------------------------------------------------------------------
+// Events
+
+window.addEventListener("hashchange", route);
+$("#stage").addEventListener("change", (e) => {
+  S.stage = e.target.value;
+  if (location.hash.startsWith("#/rules")) location.hash = "#/rules/" + encodeURIComponent(S.stage);
+  else route();
+});
+$("#q").addEventListener("input", (e) => {
+  S.query = e.target.value;
+  const cur = location.hash.match(/^#\/item\/(.+)$/);
+  renderList(cur ? decodeURIComponent(cur[1]) : null);
+});
+$("#q").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { const a = $("#list a"); if (a) location.hash = a.getAttribute("href"); }
+  if (e.key === "Escape") { e.target.value = ""; S.query = ""; route(); }
+});
+$("#kinds").addEventListener("click", (e) => {
+  const k = e.target.dataset?.kind;
+  if (!k) return;
+  S.kinds.has(k) ? S.kinds.delete(k) : S.kinds.add(k);
+  renderKinds();
+  route();
+});
+$("#view").addEventListener("click", (e) => {
+  const row = e.target.closest("tr.stage");
+  if (!row || e.target.closest("a")) return;
+  const k = row.dataset.key;
+  S.open.has(k) ? S.open.delete(k) : S.open.add(k);
+  route();
+});
+$("#rebuild").addEventListener("click", () => rebuild());
+$("#openfile").addEventListener("click", () => $("#file").click());
+$("#file").addEventListener("change", (e) => { if (e.target.files[0]) readFile(e.target.files[0]); });
+document.addEventListener("keydown", (e) => {
+  if (lexShortcut(e)) return;
+  const typing = ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement.tagName);
+  if (location.hash.startsWith("#/rules") && (e.metaKey || e.ctrlKey)) {
+    if (e.key === "s") { e.preventDefault(); return saveRules(); }
+    if (e.key === "Enter") { e.preventDefault(); return previewRules(); }
+  }
+  if (e.key === "/" && !typing) { e.preventDefault(); location.hash.startsWith("#/item") || (location.hash = "#/item"); $("#q").focus(); }
+  if ((e.metaKey || e.ctrlKey) && e.key === "b" && S.live && !S.building) { e.preventDefault(); rebuild(); }
+  if (typing) return;
+  if ((e.key === "j" || e.key === "k") && location.hash.startsWith("#/item")) {
+    const links = [...document.querySelectorAll("#list a")];
+    const i = links.findIndex((a) => a.classList.contains("sel"));
+    const n = links[Math.max(0, Math.min(links.length - 1, i + (e.key === "j" ? 1 : -1)))];
+    if (n) location.hash = n.getAttribute("href");
+  }
+});
+document.addEventListener("dragover", (e) => { e.preventDefault(); $("#drop")?.classList.add("over"); });
+document.addEventListener("dragleave", () => $("#drop")?.classList.remove("over"));
+document.addEventListener("drop", (e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) readFile(f); });
+
+boot();
+</script>
+</body>
+</html>
