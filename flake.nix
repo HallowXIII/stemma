@@ -46,6 +46,11 @@
         apps.default = flake-utils.lib.mkApp {
           drv = self.packages.${system}.default;
         };
+        # nix run .#server -- -d examples/echo
+        apps.server = flake-utils.lib.mkApp {
+          drv = self.packages.${system}.default;
+          name = "stemma-server";
+        };
 
         devShells.default = haskellPackages.shellFor {
           packages = p: [ p.stemma ];

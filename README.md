@@ -67,13 +67,15 @@ nixpkgs.overlays = [ inputs.stemma.overlays.default ];
 environment.systemPackages = [ pkgs.stemma ];  # home.packages for home-manager
 ```
 
-The installed package holds only the executable, so the closure has no GHC
-in it.
+The installed package holds only the executables (`stemma` and
+`stemma-server`), so the closure has no GHC in it.
 
-To browse a build, run the UI (needs Python 3, nothing else):
+To browse a build, run the UI server that comes with stemma:
 
 ```sh
-python3 ui/serve.py -d examples/echo         # http://127.0.0.1:8737
+stemma-server -d examples/echo                # http://127.0.0.1:8737
+cabal run stemma-server -- -d examples/echo   # from a checkout
+nix run .#server -- -d examples/echo
 ```
 
 It shows each entry's reflexes at every stage, with the rule-by-rule trace
@@ -102,7 +104,7 @@ file (with a Spelling toggle if the stage has an orthography), and *Whole
 file…* opens a complete file. A stage with no rules yet gets a form that
 creates its `.bsc` file, seeded with an existing categories block, and adds
 the `rules:` line to that stage in `family.yaml`. Only that line is added;
-comments and layout are kept, and the change is test-built on a copy first.
+comments and layout are kept, and the change is test-built in memory first.
 
 **Delete stage…** removes a stage from `family.yaml`. Its daughters can be
 reattached to its parent or deleted with it. Its rules can be kept, or
@@ -111,13 +113,14 @@ removed: a file of its own is deleted, and a segment of a shared file is cut
 **Delete file…** deletes a rules file and unhooks the stages that use it.
 Both show the exact edits and their effect on the lexicon first, and are
 refused while entries still refer to a stage being removed. Brassica itself
-checks the file as you type (via `stemma rules`). Beside each rule is the
+checks the file as you type. Beside each rule is the
 number of forms it changed in the last build, and rules that never apply
 are flagged; click a count to list the forms, before and after.
-**Preview** (⌘↵) builds a temporary copy of the project with your edit and
+**Preview** (⌘↵) builds the project with your edit, in memory, and
 shows which forms would change and which expectations would fail, without
-touching your files. **Save** (⌘S) writes the file and rebuilds. It uses `stemma` from `PATH`, then `result/bin/stemma`, then
-`cabal run` (override with `--stemma`). Without the server,
+touching your files. **Save** (⌘S) writes the file and rebuilds. The page is built into
+`stemma-server`; `--ui ui/index.html` serves the file instead, for working
+on the UI. Without the server,
 `ui/index.html` can open any `build/lexicon.json` read-only. Rule traces
 come from `build/trace.json`, which is loaded alongside it with `?src=`
 but not when you choose or drop a file.

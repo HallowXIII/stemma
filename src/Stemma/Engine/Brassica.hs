@@ -25,19 +25,17 @@ brassicaEngine = Engine
 
 type Statements = SoundChanges Expanded GraphemeList
 
-load :: FilePath -> RulesRef -> IO (Either T.Text Rules)
-load dir ref = do
-  bytes <- B.readFile (dir <> "/" <> rrFile ref)
-  pure $ do
-    text <- either (const (Left (here "not valid UTF-8"))) Right (decodeUtf8' bytes)
-    parsed <- either (Left . here . T.pack . errorBundlePretty) Right
-      (parseSoundChanges (T.unpack text))
-    expanded <- either (Left . here . expandError) Right (expandSoundChanges parsed)
-    (before, statements) <- selectSegment (rrSegment ref) expanded
-    pure Rules
-      { rulesGraphemes = map T.pack (activeGraphemes before statements)
-      , rulesApply = pure . map (evolve statements)
-      }
+load :: RulesRef -> B.ByteString -> Either T.Text Rules
+load ref bytes = do
+  text <- either (const (Left (here "not valid UTF-8"))) Right (decodeUtf8' bytes)
+  parsed <- either (Left . here . T.pack . errorBundlePretty) Right
+    (parseSoundChanges (T.unpack text))
+  expanded <- either (Left . here . expandError) Right (expandSoundChanges parsed)
+  (before, statements) <- selectSegment (rrSegment ref) expanded
+  pure Rules
+    { rulesGraphemes = map T.pack (activeGraphemes before statements)
+    , rulesApply = pure . map (evolve statements)
+    }
   where
     here msg = renderRulesRef ref <> ": " <> msg
 

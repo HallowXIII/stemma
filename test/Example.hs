@@ -4,16 +4,23 @@
 module Main (main) where
 
 import Control.Monad (forM_, unless)
+import Data.ByteString qualified as B
 import Data.Map.Strict qualified as Map
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
+import System.Directory (createDirectoryIfMissing)
 import System.Exit (exitFailure)
+import System.FilePath (takeDirectory, (</>))
+import System.IO.Temp (withSystemTempDirectory)
 
 import Stemma.Build
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
-import Stemma.Output (writeBuild)
+import Stemma.Output (formsTsv, writeBuild)
+import Stemma.Sources
 import Stemma.View
+
+import Server.StageRules (addStageRules)
 
 projects :: [FilePath]
 projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost"]
@@ -21,7 +28,64 @@ projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms"
 main :: IO ()
 main = do
   ok <- mapM check projects
-  unless (and ok) exitFailure
+  overlaid <- checkOverlay
+  stageRules <- checkStageRules
+  unless (and ok && overlaid && stageRules) exitFailure
+
+-- | An edit overlaid in memory builds the same forms as a copy of the
+-- project with the edit on disk, and a file deleted in memory stays
+-- deleted.
+checkOverlay :: IO Bool
+checkOverlay = withSystemTempDirectory "stemma-test" $ \tmp -> do
+  src <- readSources "examples/echo"
+  forM_ (Map.toList (srcFiles src)) $ \(f, b) -> do
+    createDirectoryIfMissing True (takeDirectory (tmp </> f))
+    B.writeFile (tmp </> f) b
+  let rules = "rules/pe-to-azal.bsc"
+      edited = maybe "" (<> "\na / o\n") (sourceFile rules src)
+  B.writeFile (tmp </> rules) edited
+  original <- forms =<< loadProject "examples/echo"
+  onDisk <- forms =<< loadProject tmp
+  inMemory <- forms =<< loadProjectWith (overlay (Map.singleton rules edited) []) "examples/echo"
+  deleted <- forms =<< loadProjectWith (overlay Map.empty [rules]) "examples/echo"
+  let failures =
+        [ "the edit should change some forms" | onDisk == original ]
+          ++ [ "an overlaid edit should build like the same edit on disk" | inMemory /= onDisk ]
+          ++ [ "a rules file deleted in memory should be missing"
+             | either (not . any ("no such rules file" `T.isInfixOf`)) (const True) deleted ]
+  forM_ failures $ \f -> TIO.putStrLn ("overlay: " <> f)
+  TIO.putStrLn (if null failures then "overlay: in-memory edits build like edits on disk" else "overlay: FAILED")
+  pure (null failures)
+  where
+    forms = either (pure . Left) (fmap (fmap formsTsv) . build brassicaEngine)
+
+-- | Giving a stage a rules file edits family.yaml as ui/serve.py did; the
+-- expected texts are what its add_stage_rules returned.
+checkStageRules :: IO Bool
+checkStageRules = do
+  let failures =
+        [ stage <> ": expected " <> T.pack (show want) <> ", got " <> T.pack (show got)
+        | (stage, input, want) <- cases
+        , let got = addStageRules input stage "rules/new.bsc"
+        , got /= want ]
+  forM_ failures $ \f -> TIO.putStrLn ("stage rules: " <> f)
+  TIO.putStrLn (if null failures then "stage rules: family.yaml edited as before" else "stage rules: FAILED")
+  pure (null failures)
+  where
+    family = T.unlines
+      [ "name: Test", "stages:", "  proto:", "    name: Proto", ""
+      , "  azal:", "    name: Azal", "    parent: proto   # a comment", "    # notes", "    abbr: Az"
+      , "  'wiyan':", "    name: Wiyan", "    rules: \"rules/w.bsc\""
+      , "  flow: {name: Flow}", "notation: {}" ]
+    notFound s = "couldn't find stage " <> s <> " in family.yaml (stages written in flow style, { ... }, aren't supported)"
+    cases =
+      [ ("azal", family, Right (T.replace "    parent: proto   # a comment\n" "    parent: proto   # a comment\n    rules: \"rules/new.bsc\"\n" family))
+      , ("proto", family, Right (T.replace "    name: Proto\n" "    name: Proto\n    rules: \"rules/new.bsc\"\n" family))
+      , ("wiyan", family, Left "wiyan already has rules in family.yaml")
+      , ("nope", family, Left (notFound "nope"))
+      , ("flow", family, Left (notFound "flow"))
+      , ("proto", "name: Test\n", Left "family.yaml has no top-level stages: block")
+      ]
 
 -- | Expectations must all hold. Warnings fail a fixture, but not the
 -- example, whose Wiyan stage has no rules yet.

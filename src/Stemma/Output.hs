@@ -13,6 +13,9 @@ module Stemma.Output
   , diffForms
   , renderChange
   , diffSummary
+  , buildReport
+  , lexiconJson
+  , traceJson
   , outlineJson
   ) where
 
@@ -299,6 +302,13 @@ diffSummary b = \case
     isGone = \case Gone {} -> True; _ -> False
     tshow :: Show a => a -> Text
     tshow = T.pack . show
+
+-- | What @build@ reports: the lines for stdout, and those for stderr
+-- (warnings, and @expect@s the build doesn't reproduce).
+buildReport :: Built -> Maybe [Change] -> ([Text], [Text])
+buildReport b diff =
+  ( diffSummary b diff
+  , map ("warning: " <>) (bWarnings b) ++ map ("MISMATCH: " <>) (checkExpectations b) )
 
 -- | The forms the text depends on: every @expect@, and every form quoted in
 -- notes. Notes that fail to render are skipped; the build reports them.

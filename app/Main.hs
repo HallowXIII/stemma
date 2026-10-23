@@ -12,7 +12,7 @@ import Stemma.Build
 import Stemma.Engine (Engine (..))
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
-import Stemma.Output (diffSummary, outlineJson, writeBuild)
+import Stemma.Output (buildReport, outlineJson, writeBuild)
 import Stemma.Query
 import Stemma.View
 
@@ -66,9 +66,9 @@ buildAnd dir cmd = do
     Build strict -> do
       diff <- writeBuild (dir </> "build") built >>= orDie
       let failed = checkExpectations built
-      forM_ (bWarnings built) $ \w -> TIO.hPutStrLn stderr ("warning: " <> w)
-      forM_ failed $ \f -> TIO.hPutStrLn stderr ("MISMATCH: " <> f)
-      mapM_ TIO.putStrLn (diffSummary built diff)
+          (out, err) = buildReport built diff
+      mapM_ (TIO.hPutStrLn stderr) err
+      mapM_ TIO.putStrLn out
       when (strict && (not (null failed) || not (null (bWarnings built)))) exitFailure
       unless (null failed) exitFailure
     Shifts from to -> do
