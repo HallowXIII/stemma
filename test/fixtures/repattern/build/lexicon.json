@@ -992,21 +992,27 @@
       "current": false,
       "id": "proto",
       "name": "Proto",
-      "parent": null
+      "orthography": null,
+      "parent": null,
+      "rules": null
     },
     {
       "abbr": null,
       "current": true,
       "id": "azal",
       "name": "Azal",
-      "parent": "proto"
+      "orthography": null,
+      "parent": "proto",
+      "rules": "rules/azal.bsc"
     },
     {
       "abbr": null,
       "current": true,
       "id": "wiyan",
       "name": "Wiyan",
-      "parent": "proto"
+      "orthography": null,
+      "parent": "proto",
+      "rules": "rules/wiyan.bsc"
     }
   ],
   "warnings": []

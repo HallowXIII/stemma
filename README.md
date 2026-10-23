@@ -70,6 +70,56 @@ environment.systemPackages = [ pkgs.stemma ];  # home.packages for home-manager
 The installed package holds only the executable, so the closure has no GHC
 in it.
 
+To browse a build, run the UI (needs Python 3, nothing else):
+
+```sh
+python3 ui/serve.py -d examples/echo         # http://127.0.0.1:8737
+```
+
+It shows each entry's reflexes at every stage, with the rule-by-rule trace
+for each stage and the form the regular development would have given. It
+also has paradigm tables, notes with linked form references, a dictionary
+per stage, a category-shift query, and the warnings, expectation
+mismatches and diff from the last build. **Rebuild** (⌘B) runs
+`stemma build`; tick **auto** to rebuild whenever a `.yaml` or `.bsc`
+file changes.
+
+Entries can be edited too. On an entry's page, **Edit** changes its form
+and gloss, and **YAML** edits its whole block (events, notes, categories,
+derivatives). **Delete** removes the entry's block, along with any
+derivatives nested in it, after a preview that shows what would go and
+what still refers to it. **+ New entry** adds a word to a lexicon file. **Preview**
+shows how the entry's reflexes would change at every stage, which other
+forms would change, and which expectations would newly fail. Edits change
+only the lines involved, so comments and layout are kept, and **Save**
+refuses anything that would stop the project building.
+
+The **Rules** tab edits the project's Brassica files, with a tab per
+stage laid out like the family tree. The first row holds the root's
+daughters, and choosing one opens a row for its own daughters, so each
+branch has its own layer. A stage's tab edits just its segment of the rules
+file (with a Spelling toggle if the stage has an orthography), and *Whole
+file…* opens a complete file. A stage with no rules yet gets a form that
+creates its `.bsc` file, seeded with an existing categories block, and adds
+the `rules:` line to that stage in `family.yaml`. Only that line is added;
+comments and layout are kept, and the change is test-built on a copy first.
+
+**Delete stage…** removes a stage from `family.yaml`. Its daughters can be
+reattached to its parent or deleted with it. Its rules can be kept, or
+removed: a file of its own is deleted, and a segment of a shared file is cut
+(keeping any `categories` blocks) with later `#N` references renumbered.
+**Delete file…** deletes a rules file and unhooks the stages that use it.
+Both show the exact edits and their effect on the lexicon first, and are
+refused while entries still refer to a stage being removed. Brassica itself
+checks the file as you type (via `stemma rules`). Beside each rule is the
+number of forms it changed in the last build, and rules that never apply
+are flagged; click a count to list the forms, before and after.
+**Preview** (⌘↵) builds a temporary copy of the project with your edit and
+shows which forms would change and which expectations would fail, without
+touching your files. **Save** (⌘S) writes the file and rebuilds. It uses `stemma` from `PATH`, then `result/bin/stemma`, then
+`cabal run` (override with `--stemma`). Without the server,
+`ui/index.html` can open any `build/lexicon.json` read-only.
+
 In Typst:
 
 ```typst

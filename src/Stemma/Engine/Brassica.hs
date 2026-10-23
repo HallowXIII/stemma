@@ -6,6 +6,7 @@ import Data.List (nub)
 import Data.Maybe (mapMaybe)
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8')
+import Text.Read (readMaybe)
 
 import Brassica.SoundChange
 
@@ -19,6 +20,7 @@ brassicaEngine = Engine
   , engineTokenise = \gs t ->
       either (Left . T.pack . errorBundlePretty) (Right . map T.pack)
         (tokeniseWord (map T.unpack gs) (T.unpack t))
+  , engineOutline = outline
   }
 
 type Statements = SoundChanges Expanded GraphemeList
@@ -46,8 +48,24 @@ load dir ref = do
            then Right (concat (take (n - 1) segs), segs !! (n - 1))
            else Left (here ("has only " <> T.pack (show (length segs)) <> " segment(s)"))
 
+outline :: T.Text -> Either OutlineError [[RuleStatement]]
+outline text = do
+  parsed <- either (parseError . errorBundlePretty) Right (parseSoundChanges (T.unpack text))
+  _ <- either (\e -> Left (OutlineError (expandError e) Nothing)) Right (expandSoundChanges parsed)
+  pure (map (map describe) (splitReports parsed))
+  where
+    describe st = case st of
+      RuleS _ -> RuleStatement "rule" (Just (T.pack (plaintext' st)))
+      FilterS _ -> RuleStatement "filter" (Just (T.pack (plaintext' st)))
+      _ -> RuleStatement "declaration" Nothing
+    -- megaparsec's message starts with "line:column:".
+    parseError msg = Left . OutlineError (T.pack msg) $
+      case T.splitOn ":" (T.pack (takeWhile (/= '\n') msg)) of
+        l : c : _ | Just l' <- readMaybe (T.unpack l), Just c' <- readMaybe (T.unpack c) -> Just (l', c')
+        _ -> Nothing
+
 -- | Split at @report@ statements (which are dropped).
-splitReports :: Statements -> [Statements]
+splitReports :: SoundChanges c d -> [SoundChanges c d]
 splitReports = go []
   where
     go acc [] = [reverse acc]

@@ -1054,7 +1054,9 @@
       "current": true,
       "id": "proto",
       "name": "Proto",
-      "parent": null
+      "orthography": null,
+      "parent": null,
+      "rules": null
     }
   ],
   "warnings": []

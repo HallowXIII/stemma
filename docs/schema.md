@@ -428,6 +428,8 @@ stemma -d DIR paradigm ROOT STAGE  the paradigm in force at a stage
 stemma -d DIR history ID STAGE     a form's history along one stage path
 stemma -d DIR trace ID [STAGE]     an item's rule-by-rule derivation
 stemma -d DIR shifts FROM TO     category shifts (* is a wildcard)
+stemma -d DIR rules FILE         parse a rules file (- for stdin); print its
+                                 segments and statements as JSON
 ```
 
 `paradigm` prints cell IDs and forms in paradigm order, with variants under
@@ -439,11 +441,18 @@ step. With no stage, `trace` covers the whole stage tree as before. The
 paradigm and history views show spelling and, where it differs, phonemic
 form.
 
+`rules` only parses the file (with Brassica), so it works even when the
+project doesn't build. A rule's `text` is what traces report when the rule
+applies. A parse error gives `ok: false` with the message, `line` and
+`column`, and exits with status 1.
+
 `build` writes to `DIR/build/`:
 
 - `lexicon.json` has every item, and for each stage: the forms, spelled
   forms, regular forms, category, events, and rule trace. Notes are
-  pre-resolved into runs. Read it in Typst with `typst/stemma.typ`.
+  pre-resolved into runs. Each stage carries its `rules` and
+  `orthography` references as written in `family.yaml`. Read it in Typst
+  with `typst/stemma.typ`, or browse it with `ui/` (see the README).
 - `forms.tsv` has one line per item and stage.
 - `diff.txt` lists what changed since the previous build (also printed).
 
