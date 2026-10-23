@@ -1043,14 +1043,18 @@
       "current": false,
       "id": "proto",
       "name": "Proto",
-      "parent": null
+      "orthography": null,
+      "parent": null,
+      "rules": null
     },
     {
       "abbr": null,
       "current": true,
       "id": "modern",
       "name": "Modern",
-      "parent": "proto"
+      "orthography": null,
+      "parent": "proto",
+      "rules": "rules/proto-to-modern.bsc"
     }
   ],
   "warnings": []

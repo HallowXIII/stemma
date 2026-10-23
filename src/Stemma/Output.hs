@@ -4,6 +4,7 @@ module Stemma.Output
   ( writeBuild
   , formsTsv
   , diffForms
+  , outlineJson
   ) where
 
 import Control.Monad (forM)
@@ -17,6 +18,8 @@ import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
+import Data.Text.Lazy qualified as TL
+import Data.Text.Lazy.Encoding qualified as TLE
 import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.FilePath ((</>))
 
@@ -58,7 +61,9 @@ lexiconJson b = do
     , "root" .= prRootStage proj
     , "stages" .= [ object
                       [ "id" .= s, "name" .= stName st, "abbr" .= stAbbr st
-                      , "parent" .= stParent st, "current" .= stCurrent st ]
+                      , "parent" .= stParent st, "current" .= stCurrent st
+                      , "rules" .= fmap renderRulesRef (stRules st)
+                      , "orthography" .= fmap renderRulesRef (stOrthography st) ]
                   | s <- bStageOrder b, let st = stages Map.! s ]
     , "items" .= object [Key.fromText (itId it) .= v | (it, v) <- items]
     , "paradigms" .= Map.map paradigmJson (prParadigms proj)
@@ -123,6 +128,16 @@ itemJson b it = do
     fateJson = \case
       Lost -> toJSON ("lost" :: Text)
       ReplacedBy x -> object ["replaced-by" .= x]
+
+-- | The result of 'engineOutline' as JSON, for @stemma rules@.
+outlineJson :: Either OutlineError [[RuleStatement]] -> Text
+outlineJson = TL.toStrict . TLE.decodeUtf8 . P.encodePretty' P.defConfig {P.confIndent = P.Spaces 2} . \case
+  Left OutlineError {..} -> object
+    [ "ok" .= False, "error" .= oeMessage
+    , "line" .= fmap fst oePosition, "column" .= fmap snd oePosition ]
+  Right segs -> object
+    [ "ok" .= True
+    , "segments" .= [[object ["kind" .= rsKind r, "text" .= rsText r] | r <- seg] | seg <- segs] ]
 
 paradigmJson :: ParadigmDef -> Value
 paradigmJson pf = object
