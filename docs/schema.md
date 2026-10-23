@@ -442,10 +442,25 @@ form.
 `build` writes to `DIR/build/`:
 
 - `lexicon.json` has every item, and for each stage: the forms, spelled
-  forms, regular forms, category, events, and rule trace. Notes are
-  pre-resolved into runs. Read it in Typst with `typst/stemma.typ`.
+  forms, regular forms and category. Notes are pre-resolved into runs.
+  Read it in Typst with `typst/stemma.typ`. Events and rule traces are
+  not written; `history` and `trace` show them.
 - `forms.tsv` has one line per item and stage.
-- `diff.txt` lists what changed since the previous build (also printed).
+- `diff.txt` lists what changed since the previous build.
+
+`lexicon.json` holds every cell at every stage, so it leaves out whatever
+can be inferred. Item fields that are null or empty are omitted, and
+`bound` is written only when true. In a reflex, `spelled` and `regular`
+are omitted when they equal `forms`, and `regular_spelled` when it equals
+`spelled`. A lost reflex has `"lost": true` and no `forms`; its
+`regular_spelled` defaults to `regular`. A stage whose reflex is the same
+as at its parent stage is omitted, so the reflex at a stage is the one at
+the nearest stage above it that has one, back to the stage where the item
+was formed. `stemma.typ` fills all of this in.
+
+`build` prints the changes when there are at most 20 of them. Otherwise it
+prints how many changed at each stage, and in full only the changes to
+forms that have an `expect` or are quoted in notes.
 
 ---
 

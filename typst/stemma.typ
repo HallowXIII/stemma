@@ -30,6 +30,38 @@
     out
   }
 
+  // An item, with the fields lexicon.json leaves out when empty.
+  let item(id) = {
+    let it = lex.items.at(id, default: none)
+    assert(it != none, message: "stemma: unknown item " + id)
+    (
+      bound: false, owner: none, gloss: none, source: none, paradigm: none,
+      variant: none, variant_of: none, notes: none,
+      cells: (), repatterns: (), category: (), fate: (:),
+    ) + it + (id: id)
+  }
+
+  // The reflex of an item at a stage, or none where the item doesn't exist.
+  // lexicon.json leaves out a stage whose reflex is the same as at its
+  // parent, and fields that repeat the forms.
+  let rx(it, stage) = {
+    let line = path(stage)
+    let from = line.position(s => s == it.formed)
+    if from == none { return none }
+    let r = line.slice(from).rev().map(s => it.reflexes.at(s, default: none)).find(r => r != none)
+    let lost = r.at("lost", default: false)
+    let forms = r.at("forms", default: none)
+    let spelled = r.at("spelled", default: forms)
+    let regular = r.at("regular", default: forms)
+    (
+      forms: forms,
+      spelled: spelled,
+      regular: regular,
+      regular_spelled: r.at("regular_spelled", default: if lost { regular } else { spelled }),
+      category: r.at("category", default: none),
+    )
+  }
+
   let style(forms, star) = {
     if forms == none or forms.len() == 0 { return [—] }
     let t = forms.join(" ~ ")
@@ -37,11 +69,10 @@
   }
 
   let reflex(id, ..args, phonemic: false, regular: false) = {
-    let item = lex.items.at(id, default: none)
-    assert(item != none, message: "stemma: unknown item " + id)
+    let it = item(id)
     let pos = args.pos()
-    let stage = if pos.len() > 0 { pos.at(0) } else { item.formed }
-    let r = item.reflexes.at(stage, default: none)
+    let stage = if pos.len() > 0 { pos.at(0) } else { it.formed }
+    let r = rx(it, stage)
     assert(r != none, message: "stemma: " + id + " has no reflex at " + stage)
     let star = stage == lex.root
     let forms = if regular {
@@ -55,9 +86,9 @@
   }
 
   let notes(id) = {
-    let item = lex.items.at(id)
-    if item.notes == none { return none }
-    for run in item.notes {
+    let it = item(id)
+    if it.notes == none { return none }
+    for run in it.notes {
       if "text" in run {
         // Single newlines from YAML block scalars are spaces; blank lines
         // are paragraph breaks.
@@ -67,19 +98,19 @@
   }
 
   let entry(id, stage) = {
-    let item = lex.items.at(id)
-    let r = item.reflexes.at(stage)
+    let it = item(id)
+    let r = rx(it, stage)
     // An entry with a paradigm is cited by its first cell.
-    let cited = if item.cells.len() > 0 { lex.items.at(item.cells.at(0)).reflexes.at(stage) } else { r }
+    let cited = if it.cells.len() > 0 { rx(item(it.cells.at(0)), stage) } else { r }
     let head = if cited.spelled != none { cited.spelled.join(" ~ ") } else { cited.forms.join(" ~ ") }
     // Etymology: the forms on the way here, from where the item was formed.
     let line = path(stage)
-    let from = line.position(s => s == item.formed)
+    let from = line.position(s => s == it.formed)
     // Nearest stage first; stages where the form did not change are skipped.
     let earlier = line.slice(from, line.len() - 1).rev()
     let shown = earlier.enumerate().filter(((k, s)) => {
       let next = if k + 1 < earlier.len() { earlier.at(k + 1) } else { none }
-      next == none or item.reflexes.at(s).forms != item.reflexes.at(next).forms
+      next == none or rx(it, s).forms != rx(it, next).forms
     }).map(((k, s)) => s)
     let chain = shown.map(s => {
       let info = stage-info.at(s)
@@ -89,10 +120,10 @@
     block(breakable: false, {
       strong(form-style(head))
       if r.category != none { [ #h(0.3em) #smallcaps(lower(r.category))] }
-      if item.gloss != none { [ #h(0.3em) "#item.gloss"] }
+      if it.gloss != none { [ #h(0.3em) "#it.gloss"] }
       if chain.len() > 0 { [ #h(0.3em) < #chain.join([ < ])] }
-      if item.source != none { [ (#item.source)] }
-      if item.notes != none { par(text(size: 0.9em, notes(id))) }
+      if it.source != none { [ (#it.source)] }
+      if it.notes != none { par(text(size: 0.9em, notes(id))) }
     })
   }
 
@@ -100,12 +131,13 @@
   // is always listed, since it is cited by its first cell.
   let dictionary(stage, kinds: ("root", "derivative"), bound: true) = {
     let ids = lex.order.filter(i => {
-      let it = lex.items.at(i)
-      (bound or not it.bound or it.cells.len() > 0) and it.kind in kinds and it.reflexes.at(stage, default: (forms: none)).forms != none
+      let it = item(i)
+      let r = rx(it, stage)
+      (bound or not it.bound or it.cells.len() > 0) and it.kind in kinds and r != none and r.forms != none
     })
     let key(i) = {
-      let it = lex.items.at(i)
-      let r = if it.cells.len() > 0 { lex.items.at(it.cells.at(0)).reflexes.at(stage) } else { it.reflexes.at(stage) }
+      let it = item(i)
+      let r = if it.cells.len() > 0 { rx(item(it.cells.at(0)), stage) } else { rx(it, stage) }
       if r.spelled != none { r.spelled.at(0, default: "") } else { "" }
     }
     for i in ids.sorted(key: key) { entry(i, stage) }
@@ -116,27 +148,27 @@
   // are not shown; a missing cell shows as —. Variants are shown under
   // their main cell.
   let paradigm(id, stage, rows: auto) = {
-    let item = lex.items.at(id)
-    assert(item.paradigm != none, message: "stemma: " + id + " has no paradigm")
+    let it = item(id)
+    assert(it.paradigm != none, message: "stemma: " + id + " has no paradigm")
     // The paradigm in force at the stage: the nearest repattern on the way
     // there, if any.
     let line = path(stage)
-    let pname = item.paradigm
+    let pname = it.paradigm
     let depth = -1
-    for rp in item.repatterns {
+    for rp in it.repatterns {
       let d = line.position(s => s == rp.at)
       if d != none and d > depth { pname = rp.paradigm; depth = d }
     }
     let pd = lex.paradigms.at(pname)
     let dims = pd.dimensions
     let form(cid) = {
-      let r = lex.items.at(cid, default: (reflexes: (:))).reflexes.at(stage, default: none)
+      let r = if cid in lex.items { rx(item(cid), stage) } else { none }
       if r == none or r.forms == none { [—] } else { reflex(cid, stage) }
     }
     // A cell, with its variants (CELL~label) below it.
     let cell(name) = {
       let cid = id + "." + name
-      let variants = item.cells.filter(c => c.starts-with(cid + "~"))
+      let variants = it.cells.filter(c => c.starts-with(cid + "~"))
       form(cid)
       for v in variants {
         linebreak()
@@ -144,7 +176,7 @@
       }
     }
     if dims.len() == 0 {
-      let names = item.cells.map(c => c.slice(id.len() + 1)).filter(c => not c.contains("~"))
+      let names = it.cells.map(c => c.slice(id.len() + 1)).filter(c => not c.contains("~"))
       return table(columns: 2, ..names.map(c => ([#c], cell(c))).flatten())
     }
     let r = if rows == auto { dims.len() - 1 } else { dims.position(d => d.name == rows) }

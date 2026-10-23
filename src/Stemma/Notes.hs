@@ -18,12 +18,14 @@ import Data.Text qualified as T
 
 import Stemma.Build
 import Stemma.Load
+import Stemma.Types (ItemId)
 
 data Run
   = RText Text
   | RForm
       { rfText :: Text
       , rfRef :: Text
+      , rfItem :: ItemId
       , rfStage :: Text
       , rfStar :: Bool
       }
@@ -70,6 +72,7 @@ resolve b raw = do
   pure RForm
     { rfText = T.intercalate " ~ " fs
     , rfRef = T.strip raw
+    , rfItem = iid
     , rfStage = stage
     , rfStar = stage == root
     }

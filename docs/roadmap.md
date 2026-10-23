@@ -116,7 +116,6 @@ stemma can detect them. One pass after each stage:
 |---|---|---|
 | 10 | `expect: { azal: { form: x, disputed: "typo?" } }`: warns instead of failing, and reports when it starts passing | S |
 | 7 | `-- include: file.bsc`, spliced in before the file goes to Brassica, so generated tables live in their own file. Stemma-level tables from data are not planned. | S |
-| §2 | First build prints "first build, N forms", not "no forms changed" | S |
 | §2 | `trace` separates graphemes (`ny·j`). Showing the matched element of a generated rule would need Brassica. | S |
 | §2 | `shifts` across derivation: compare a derivative's first category with its base's where it was formed | S |
 | §2 | Collation: `alphabet:` per stage, with a sort key written to `lexicon.json` | S |
@@ -127,8 +126,8 @@ stemma can detect them. One pass after each stage:
 
 ## Order
 
-1. Quick wins: expectation markers (10), the first-build message, trace
-   separators, and §E without categories.
+1. Quick wins: expectation markers (10), trace separators, and §E without
+   categories.
 2. §A, opt-in so the Echo example passes unchanged.
 3. §B, then §C, rewriting the Azal `verbs.yaml` from derivatives into a
    paradigm as the real-world test.
