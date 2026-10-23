@@ -316,7 +316,7 @@ kbd { font: 11px var(--mono); background: var(--sunk); border: 1px solid var(--l
 const S = {
   lex: null,          // lexicon.json
   stage: null,        // focus stage id
-  live: false,        // served by ui/serve.py
+  live: false,        // served by stemma-server
   kinds: new Set(["root", "derivative", "affix"]),
   query: "",
   open: new Set(),    // expanded trace rows, "item|stage"
@@ -597,7 +597,7 @@ function showDrop(msg) {
     <h2>Open a stemma build</h2>
     <p class="muted">${esc(msg || "Drop a build/lexicon.json here, or choose one.")}</p>
     <p><button class="primary" onclick="document.getElementById('file').click()">Choose lexicon.json…</button></p>
-    <p class="muted" style="font-size:13px">For live rebuilds, run<br><code>python3 ui/serve.py -d examples/echo</code></p>
+    <p class="muted" style="font-size:13px">For live rebuilds, run<br><code>stemma-server -d examples/echo</code></p>
   </div></div>`;
   $("#controls").hidden = !S.live;
 }
@@ -944,7 +944,7 @@ function viewBuild() {
   const mm = mismatches();
   let h = `<div class="wrap"><h2>Build</h2>`;
   if (S.live) h += `<p class="muted">Project: <span class="mono">${esc(S.lex.family)}</span> · ${S.stale ? `<span style="color:var(--warn)">sources changed since the last build</span>` : "up to date"}</p>`;
-  else h += `<p class="muted">Viewing a file. Run <span class="mono">python3 ui/serve.py -d &lt;project&gt;</span> for live rebuilds.</p>`;
+  else h += `<p class="muted">Viewing a file. Run <span class="mono">stemma-server -d &lt;project&gt;</span> for live rebuilds.</p>`;
 
   if (b) h += `<div class="box ${b.ok ? "good" : "bad"}">${b.ok ? "Build succeeded" : "Build failed" + (b.code != null ? ` (exit ${b.code})` : "")} at ${b.at.toLocaleTimeString()}</div>`;
 
@@ -1291,7 +1291,7 @@ async function renderRules(arg) {
     R.mounted = null;
     v.className = "";
     v.innerHTML = `<div class="wrap"><h2>Rules</h2><p class="muted">Editing rules needs the server: run
-      <span class="mono">python3 ui/serve.py -d &lt;project&gt;</span>.</p></div>`;
+      <span class="mono">stemma-server -d &lt;project&gt;</span>.</p></div>`;
     return;
   }
   if (!R.files) {
@@ -2070,7 +2070,7 @@ async function startCreate() {
 }
 
 function viewNew() {
-  if (!S.live) return `<div class="wrap"><h2>New entry</h2><p class="muted">Adding entries needs the server: run <span class="mono">python3 ui/serve.py -d &lt;project&gt;</span>.</p></div>`;
+  if (!S.live) return `<div class="wrap"><h2>New entry</h2><p class="muted">Adding entries needs the server: run <span class="mono">stemma-server -d &lt;project&gt;</span>.</p></div>`;
   const c = L.create;
   if (!c) { startCreate(); return ""; }
   const problem = createProblem();
