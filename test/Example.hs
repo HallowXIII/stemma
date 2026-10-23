@@ -24,7 +24,7 @@ import Stemma.View
 import Server.StageRules (addStageRules)
 
 projects :: [FilePath]
-projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost"]
+projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology"]
 
 main :: IO ()
 main = do

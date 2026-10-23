@@ -1,0 +1,14 @@
+affixes:
+  ZERO: { form: "" }
+  GEN:  { form: "*-i" }
+  PL:   { form: "*-ar" }
+
+paradigms:
+  noun:
+    cells:
+      - DIR: ZERO
+      - GEN: GEN
+      - PL: PL
+  # The same cells; a repattern target.
+  noun-new:
+    extends: noun

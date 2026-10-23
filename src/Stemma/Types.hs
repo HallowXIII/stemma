@@ -78,6 +78,8 @@ data Stage = Stage
   , stAbbr :: Maybe Text
   , stParent :: Maybe StageId
   , stRules :: Maybe RulesRef
+  , stMorphophonology :: Maybe RulesRef
+  -- ^ Rules for forms joined from parts out of this stage's forms.
   , stOrthography :: Maybe RulesRef
   , stCurrent :: Bool
   }
@@ -105,6 +107,7 @@ instance FromJSON Stage where
     stAbbr <- o .:? "abbr"
     stParent <- o .:? "parent"
     stRules <- o .:? "rules"
+    stMorphophonology <- o .:? "morphophonology"
     stOrthography <- o .:? "orthography"
     stCurrent <- o .:? "current" .!= False
     pure Stage {..}

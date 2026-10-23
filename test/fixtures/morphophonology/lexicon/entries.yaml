@@ -1,0 +1,29 @@
+# The bare cell takes the epenthetic vowel; the root and the suffixed
+# cells keep the cluster.
+- id: ačw
+  form: "*ačw"
+  gloss: "ash"
+  paradigm: noun
+  expect:
+    proto: { form: ačw, DIR: ačəw, GEN: ačwi, PL: ačwar }
+    modern: { form: ačw, DIR: ačew, GEN: ačwi }
+  derivatives:
+    # Built from a cell formed at the same stage, so it sees the cell
+    # after morphophonology.
+    - id: ashes
+      source: { base: ačw, cell: DIR }
+      gloss: "ashes"
+      expect: { proto: ačəw }
+
+# A repattern at modern joins the new stem with the forms entering modern,
+# so the cells go through proto's morphophonology; the entry's own new
+# stem is written, not joined, and does not.
+- id: kelw
+  form: "*kalw"
+  gloss: "smoke"
+  paradigm: noun
+  events:
+    - repattern: { at: modern, paradigm: noun-new, stem: "kelw" }
+  expect:
+    proto: { DIR: kaləw }
+    modern: { form: kelw, DIR: kelew, GEN: kelwi }

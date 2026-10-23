@@ -115,7 +115,8 @@ loadSources src = do
 -- | Every rules file the project refers to.
 projectRulesRefs :: Project -> Set RulesRef
 projectRulesRefs proj = Set.fromList $
-  concat [maybeToList (stRules st) ++ maybeToList (stOrthography st) | st <- Map.elems (famStages (prFamily proj))]
+  concat [ maybeToList (stRules st) ++ maybeToList (stMorphophonology st) ++ maybeToList (stOrthography st)
+         | st <- Map.elems (famStages (prFamily proj)) ]
     ++ [r | it <- Map.elems (prItems proj), Event {evKind = Loan _ _ (Just r)} <- itEvents it]
 
 assemble :: Sources -> Family -> Morphology -> [Entry] -> Either [Text] Project
