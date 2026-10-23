@@ -1,0 +1,8 @@
+categories
+C = p t k b d g m n l r s v č w
+V = a e i o u ə
+B = &+
+end
+
+; a final Cw cluster takes an epenthetic ə
+/ ə / C _ w #

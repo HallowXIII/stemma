@@ -1,0 +1,16 @@
+# Test fixture for morphophonology: epenthesis in forms built from parts,
+# but not in the roots they are built from.
+name: Morphophonology
+
+notation:
+  boundary: "+"
+
+stages:
+  proto:
+    name: Proto
+    morphophonology: rules/proto-morph.bsc
+  modern:
+    name: Modern
+    parent: proto
+    rules: rules/proto-to-modern.bsc
+    current: true

@@ -10,6 +10,11 @@
 -- 3. @irregular@ events override the rule output.
 -- 4. Items coined at this stage are built from the stage's final forms.
 --
+-- A form joined from parts goes through the morphophonology of the stage
+-- whose forms it is joined from: an item coined at a stage through that
+-- stage's, and one rebuilt by an event through the parent's, since events
+-- use the forms entering the stage.
+--
 -- The build runs twice: once as written, and once with every event and
 -- fate ignored. The second run gives the "regularly expected" forms that
 -- notes can refer to with @!@.
@@ -29,7 +34,7 @@ import Data.Either (partitionEithers)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Map.Lazy qualified as LMap
-import Data.List (intercalate)
+import Data.List (intercalate, partition)
 import Data.Maybe (fromMaybe, maybeToList)
 import Data.Set qualified as Set
 import Data.Text (Text)
@@ -45,8 +50,9 @@ data Origin = Inherited | Coined | Borrowed
 
 data Reflex = Reflex
   { rxInput :: Maybe Form
-  -- ^ What entered this stage's rules, after events. 'Nothing' for items
-  -- coined here.
+  -- ^ What entered this stage's rules, after events. For items coined
+  -- here, the joined form if it went through morphophonology, and
+  -- otherwise 'Nothing'.
   , rxRuleOutput :: [Form]
   -- ^ What the rules produced, before any @irregular@ override.
   , rxForms :: [Form]
@@ -128,6 +134,9 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
                   | c <- s : [c | (c, st) <- Map.toList stages, stParent st == Just s]
                   , Just ref <- [Map.lookup c stages >>= stRules]
                   , Just r <- [Map.lookup ref rules] ]
+        ++ maybe [] rulesGraphemes (morphophonologyOf s)
+
+    morphophonologyOf s = Map.lookup s stages >>= stMorphophonology >>= (`Map.lookup` rules)
 
     tokeniseAt s t
       | T.null (strip t) = Right []
@@ -151,7 +160,7 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
 
     stage :: Map StageId StageResults -> StageId -> IO (Either [Text] (StageResults, [Text]))
     stage results s = case Map.lookup s stages >>= stParent of
-      Nothing -> pure (coin results s Map.empty)
+      Nothing -> coin results s Map.empty
       Just p -> do
         let prev = fromMaybe Map.empty (Map.lookup p results)
             survivors =
@@ -163,9 +172,12 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
               [ (i, withItem i (foldl' (applyEvent s it loanForms inputs) (Right (f, [], Inherited))
                                        (zip [0 ..] (inputEvents s it))))
               | (i, it, f) <- survivors ]
-        case partitionEithers [ (,) i <$> v | (i, v) <- LMap.toList inputs ] of
+        joined <- case partitionEithers [ (,) i <$> v | (i, v) <- LMap.toList inputs ] of
           (errs@(_ : _), _) -> pure (Left errs)
-          ([], ok) -> do
+          ([], ok) -> rejoin p s ok
+        case joined of
+          Left errs -> pure (Left errs)
+          Right ok -> do
             evos <- case Map.lookup s stages >>= stRules >>= (`Map.lookup` rules) of
               Nothing -> pure [Evolution [f] [] | (_, (f, _, _)) <- ok]
               Just r -> rulesApply r [f | (_, (f, _, _)) <- ok]
@@ -177,10 +189,33 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
                     ws = concat [w | (_, _, w) <- rxs]
                     noRules = [ s <> ": no rules; forms are copied unchanged from " <> p
                               | mode == Actual, Nothing <- [Map.lookup s stages >>= stRules] ]
-                pure $ fmap (fmap ((noRules ++ ws) ++)) (coin results s res)
+                fmap (fmap (fmap ((noRules ++ ws) ++))) (coin results s res)
 
     inputEvents s it = [ev | ev <- eventsAt s it, not (isIrregular ev)]
     isIrregular ev = case evKind ev of Irregular {} -> True; _ -> False
+    isRebuild ev = case evKind ev of Rebuild {} -> True; Reform -> True; _ -> False
+
+    -- Items rebuilt from parts at s are joined from the forms entering s,
+    -- so they go through the morphophonology of its parent p. A written
+    -- root given a new stem is not joined from anything.
+    rejoin p s ok = case morphophonologyOf p of
+      Nothing -> pure (Right ok)
+      Just r -> do
+        let rebuilt i = let it = items Map.! i in
+              any isRebuild (inputEvents s it) && case itBuild it of BSource _ -> True; BForm _ -> False
+        evos <- rulesApply r [f | (i, (f, _, _)) <- ok, rebuilt i]
+        pure $ case partitionEithers (attach rebuilt ok evos) of
+          ([], ok') -> Right ok'
+          (errs, _) -> Left errs
+      where
+        attach rebuilt ((i, (f, descs, origin)) : rest) (evo : evos)
+          | rebuilt i = rejoined i f descs origin (evoOutputs evo) : attach rebuilt rest evos
+        attach rebuilt (x : rest) evos = Right x : attach rebuilt rest evos
+        attach _ [] _ = []
+        rejoined i _ _ _ [] = Left (i <> ": the morphophonology of " <> p <> " deleted the rebuilt form")
+        rejoined i f descs origin (f' : _)
+          | f == f' = Right (i, (f, descs, origin))
+          | otherwise = Right (i, (f', descs ++ ["morphophonology: " <> renderForm f <> " > " <> renderForm f'], origin))
 
     withItem i = either (Left . ((i <> ": ") <>)) Right
 
@@ -246,33 +281,62 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
               ++ [ i <> " at " <> s <> ": deleted by the rules" | mode == Actual, null forms ]
       pure (i, Reflex (Just inp) outs forms (evoSteps evo) descs' origin, warns)
 
-    -- Items coined at this stage, built from its final forms.
-    coin :: Map StageId StageResults -> StageId -> StageResults -> Either [Text] (StageResults, [Text])
-    coin results s available =
-      let here = [it | it <- Map.elems items, itStage it == s]
-          coined :: LMap.Map ItemId (Either Text Reflex)
-          coined = LMap.fromList [(itId it, withItem (itId it) (coinOne it)) | it <- here]
-          lookupForm x = case Map.lookup x available of
-            Just rx -> maybe (Left (x <> " was deleted by the rules at " <> s)) Right (headMay (rxForms rx))
-            Nothing -> case LMap.lookup x coined of
-              Just v -> v >>= maybe (Left (x <> " has no form")) Right . headMay . rxForms
-              Nothing -> Left (x <> " has no form at " <> s <> " (lost, or not yet formed?)")
-          coinOne it = do
-            (f, origin) <- case itBuild it of
-              BForm t -> (,Coined) <$> tokeniseAt s t
-              BSource (SLoan from x) ->
-                case Map.lookup from results >>= Map.lookup x >>= headMay . rxForms of
-                  Just f -> Right (f, Borrowed)
-                  Nothing -> Left ("loan: " <> x <> " has no form at " <> from)
-              BSource src -> (,Coined) <$> buildFrom (joinParts proj (itBound it)) lookupForm src
-            pure (Reflex Nothing [f] [f] [] [] origin)
-          ignored =
-            [ itId it <> ": events at " <> s <> " are ignored, since it is formed there"
-            | mode == Actual, it <- here, any ((== s) . evAt) (itEvents it) ]
-          (errs, ok) = partitionEithers [(,) i <$> v | (i, v) <- LMap.toList coined]
-      in if null errs
-           then Right (Map.union available (Map.fromList ok), ignored)
-           else Left errs
+    -- Items coined at this stage, built from its final forms. They are
+    -- built in rounds, each from the forms finished in the rounds before,
+    -- so that an item built from another one coined here sees it after
+    -- morphophonology.
+    coin :: Map StageId StageResults -> StageId -> StageResults -> IO (Either [Text] (StageResults, [Text]))
+    coin results s available = go available here
+      where
+        here = [it | it <- Map.elems items, itStage it == s]
+        hereIds = Set.fromList (map itId here)
+        ignored =
+          [ itId it <> ": events at " <> s <> " are ignored, since it is formed there"
+          | mode == Actual, it <- here, any ((== s) . evAt) (itEvents it) ]
+
+        go done [] = pure (Right (done, ignored ++ joinWarnings done))
+        go done todo = do
+          let waiting it = any (\d -> Set.member d hereIds && not (Map.member d done)) (itemDeps it)
+              (ready, rest) = partition (not . waiting) todo
+          case partitionEithers [withItem (itId it) ((itId it,) <$> coinOne done it) | it <- ready] of
+            (errs@(_ : _), _) -> pure (Left errs)
+            ([], _) | null ready -> pure (Left [itId it <> ": cannot be formed at " <> s | it <- rest])
+            ([], built) -> do
+              rxs <- joinCoined built
+              go (Map.union done (Map.fromList rxs)) rest
+
+        lookupForm done x = case Map.lookup x done of
+          Just rx -> maybe (Left (x <> " was deleted at " <> s)) Right (headMay (rxForms rx))
+          Nothing -> Left (x <> " has no form at " <> s <> " (lost, or not yet formed?)")
+
+        -- The form, its origin, and whether it was joined from parts.
+        coinOne done it = case itBuild it of
+          BForm t -> (,Coined,False) <$> tokeniseAt s t
+          BSource (SLoan from x) ->
+            case Map.lookup from results >>= Map.lookup x >>= headMay . rxForms of
+              Just f -> Right (f, Borrowed, False)
+              Nothing -> Left ("loan: " <> x <> " has no form at " <> from)
+          BSource src -> (,Coined,True) <$> buildFrom (joinParts proj (itBound it)) (lookupForm done) src
+
+        -- Joined forms go through the stage's morphophonology.
+        joinCoined built = do
+          evos <- case morphophonologyOf s of
+            Nothing -> pure []
+            Just r -> rulesApply r [f | (_, (f, _, True)) <- built]
+          pure (attach built evos)
+        attach ((i, (f, origin, True)) : rest) (evo : evos) =
+          let outs = evoOutputs evo
+          in (i, Reflex (Just f) outs outs (evoSteps evo) [] origin) : attach rest evos
+        attach ((i, (f, origin, _)) : rest) evos = (i, Reflex Nothing [f] [f] [] [] origin) : attach rest evos
+        attach [] _ = []
+
+        joinWarnings done = concat
+          [ [ i <> " at " <> s <> ": morphophonology gave several outputs ("
+                <> T.intercalate ", " (map renderForm (rxForms rx)) <> "); using the first"
+            | length (rxForms rx) > 1 ]
+              ++ [ i <> " at " <> s <> ": deleted by the morphophonology" | null (rxForms rx) ]
+          | mode == Actual, it <- here, let i = itId it
+          , Just rx <- [Map.lookup i done], Just _ <- [rxInput rx] ]
 
 buildFrom :: ([Form] -> Form) -> (ItemId -> Either Text Form) -> Source -> Either Text Form
 buildFrom join look = \case
@@ -372,7 +436,7 @@ boundaryWarnings proj rules = case famBoundary (prFamily proj) of
     [ s <> ": the boundary " <> b <> " is not declared in " <> renderRulesRef ref
         <> "; Brassica will replace it with U+FFFD"
     | (s, st) <- Map.toList (famStages (prFamily proj))
-    , Just ref <- [stRules st], Just r <- [Map.lookup ref rules]
+    , Just ref <- [stRules st, stMorphophonology st], Just r <- [Map.lookup ref rules]
     , let gs = rulesGraphemes r, not (null gs), b `notElem` gs ]
       ++
     [ itId it <> ": bound, but its form has no - to mark where it attaches"

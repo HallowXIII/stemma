@@ -25,6 +25,7 @@ stages:
   proto-echo:
     name: Proto-Echo
     abbr: PE               # used in etymologies
+    morphophonology: rules/pe-morph.bsc   # optional: for built forms (§2)
 
   old-azal:
     name: Old Azal
@@ -62,8 +63,9 @@ Adding a stage later is cheap. Insert a `report`, renumber the segments in
 
 ## 2. `morphology.yaml`: affixes and paradigms
 
-Morphology builds forms by plain concatenation. It does no phonology.
-Allomorphy that arises from sound change is left to the rules.
+Morphology builds forms by concatenation. Allomorphy that arises from
+sound change is left to the rules; what happens when the parts are put
+together, such as epenthesis, can go in a stage's morphophonology (below).
 
 ```yaml
 affixes:
@@ -218,6 +220,42 @@ as a union: `B = &+`.
 Rules that should apply across a boundary have to allow for it, for
 example with an optional `(+)`.
 
+### Morphophonology
+
+A stage's `morphophonology` (in `family.yaml`) is a rules file for forms
+**joined from parts**: cells and derivatives. Written forms, of roots and
+affixes, never go through it. This is where an alternation that belongs to
+the word rather than the root goes, such as an epenthetic vowel in the bare
+form of a root ending in a cluster:
+
+```yaml
+- id: ash
+  form: "*əčw"          # the root: ash.GEN is *əčw-i
+  paradigm: noun-c      # ash.SG.DIR is *əčw, and then *əčəw
+```
+
+```
+; rules/pe-morph.bsc
+/ ə / C _ w #
+```
+
+A form goes through the morphophonology of the stage whose forms it is
+joined from:
+
+- An item formed at stage S is built from S's final forms, and then goes
+  through S's morphophonology. That form is its form at S. Items built from
+  other items formed at S see them after morphophonology.
+- An item rebuilt by `reform` or `repattern` at S is joined from the forms
+  entering S, which are those of S's parent, so it goes through the parent's
+  morphophonology, and then S's rules. A `repattern` stem given to the entry
+  itself is written, not joined, so it does not.
+
+A stage without `morphophonology` joins forms unchanged; it is not
+inherited, so a stage whose morphophonology is still in force names the same
+file. The file declares the boundary like any rules file. `trace` shows the
+joined form as the input and the morphophonology's steps, or, for a
+rebuild, a `morphophonology:` event.
+
 ---
 
 ## 3. `lexicon/*.yaml`: entries
@@ -327,7 +365,8 @@ This is preferred over writing the output form: if you change what word-final
 - reform: { at: azal }
 ```
 
-This rebuilds the item from its `source`, using the forms entering azal.
+This rebuilds the item from its `source`, using the forms entering azal,
+and puts the result through the parent stage's morphophonology (§2).
 
 ### `repattern`
 
@@ -337,7 +376,8 @@ This rebuilds the item from its `source`, using the forms entering azal.
 
 The entry changes paradigm at this stage: every cell is rebuilt from the
 new paradigm's template, using the stem and the affixes' forms entering
-the stage, and then goes through the stage's rules. `stem` is written as at
+the stage, goes through the parent stage's morphophonology (§2), and then
+through the stage's rules. `stem` is written as at
 that stage and is optional; without it the entry's own form is used. With
 it, the bare entry takes the new stem too. The entry's own `cells` changes
 (§3) apply to the new paradigm as well, and a suppletive cell keeps its
@@ -461,7 +501,7 @@ applies. A parse error gives `ok: false` with the message, `line` and
 
 - `lexicon.json` has every item, and for each stage: the forms, spelled
   forms, regular forms and category. Notes are pre-resolved into runs.
-  Each stage carries its `rules` and `orthography` references as written
+  Each stage carries its `rules`, `morphophonology` and `orthography` references as written
   in `family.yaml`. Read it in Typst with `typst/stemma.typ`, or browse it
   with `ui/` (see the README).
 - `trace.json` has, for each item and stage, the events, the input to the

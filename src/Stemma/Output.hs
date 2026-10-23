@@ -102,6 +102,7 @@ lexiconJson b = do
                       [ "id" .= s, "name" .= stName st, "abbr" .= stAbbr st
                       , "parent" .= stParent st, "current" .= stCurrent st
                       , "rules" .= fmap renderRulesRef (stRules st)
+                      , "morphophonology" .= fmap renderRulesRef (stMorphophonology st)
                       , "orthography" .= fmap renderRulesRef (stOrthography st) ]
                   | s <- bStageOrder b, let st = stages Map.! s ]
     , "items" .= object [Key.fromText (itId it) .= v | (it, v) <- items]
