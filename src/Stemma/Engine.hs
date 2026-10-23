@@ -15,6 +15,7 @@ module Stemma.Engine
   , renderForm
   ) where
 
+import Data.ByteString (ByteString)
 import Data.Text (Text)
 import Data.Text qualified as T
 
@@ -66,8 +67,8 @@ data OutlineError = OutlineError
 
 data Engine = Engine
   { engineName :: Text
-  , engineLoad :: FilePath -> RulesRef -> IO (Either Text Rules)
-  -- ^ Load a rules reference, relative to the given project directory.
+  , engineLoad :: RulesRef -> ByteString -> Either Text Rules
+  -- ^ Load a rules reference, given the contents of its file.
   , engineTokenise :: [Text] -> Text -> Either Text Form
   -- ^ Split a written form into graphemes, given the known multigraphs.
   , engineOutline :: Text -> Either OutlineError [[RuleStatement]]

@@ -9,6 +9,8 @@ module Stemma.Load
   , Build (..)
   , ParadigmDef (..)
   , loadProject
+  , loadSources
+  , projectRulesRefs
   , categoryIn
   , isAncestorOrSelf
   , ancestorsOrSelf
@@ -16,20 +18,21 @@ module Stemma.Load
   ) where
 
 import Control.Applicative ((<|>))
-import Control.Monad (forM, forM_, unless, when)
+import Control.Monad (forM_, unless, when)
+import Data.ByteString (ByteString)
 import Data.Foldable (toList)
-import Data.List (isSuffixOf, nub, sort, sortOn)
+import Data.List (nub, sortOn)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (fromMaybe, listToMaybe, mapMaybe)
+import Data.Maybe (fromMaybe, listToMaybe, mapMaybe, maybeToList)
 import Data.Ord (Down (..))
+import Data.Set (Set)
 import Data.Set qualified as Set
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Yaml qualified as Y
-import System.Directory (doesDirectoryExist, doesFileExist, listDirectory)
-import System.FilePath ((</>))
 
+import Stemma.Sources
 import Stemma.Types
 
 data Project = Project
@@ -42,6 +45,9 @@ data Project = Project
   , prItemOrder :: [ItemId]
   -- ^ The order items were written in.
   , prParadigms :: Map Text ParadigmDef
+  , prSources :: Sources
+  -- ^ The files the project was loaded from. Rules files are read from
+  -- here when building.
   }
 
 data ItemKind = KRoot | KAffix | KDerivative | KCell
@@ -75,31 +81,39 @@ data Item = Item
 
 loadProject :: FilePath -> IO (Either [Text] Project)
 loadProject dir = do
-  fam <- decodeYaml (dir </> "family.yaml")
-  let morphFile = dir </> "morphology.yaml"
-  hasMorph <- doesFileExist morphFile
-  morph <- if hasMorph then decodeYaml morphFile else pure (Right (Morphology Map.empty Map.empty))
-  let lexDir = dir </> "lexicon"
-  hasLex <- doesDirectoryExist lexDir
-  lexFiles <- if hasLex
-    then map (lexDir </>) . sort . filter isYaml <$> listDirectory lexDir
-    else pure []
-  lexs <- forM lexFiles $ \f -> fmap (fromMaybe []) <$> decodeYaml f
-  pure $ do
-    family <- fam
-    morphology <- morph
-    entries <- concat <$> sequence lexs
-    assemble dir family morphology entries
+  src <- readSources dir
+  case loadSources src of
+    Left errs -> pure (Left errs)
+    -- A rules file outside the project isn't in the sources yet.
+    Right proj -> do
+      src' <- readExtra [rrFile r | r <- Set.toList (projectRulesRefs proj)] src
+      pure (Right proj {prSources = src'})
+
+-- | Load a project from files already in memory.
+loadSources :: Sources -> Either [Text] Project
+loadSources src = do
+  family <- fromMaybe (Left [T.pack (sourcePath src "family.yaml") <> ": not found"])
+    (decodeYaml "family.yaml")
+  morphology <- fromMaybe (Right (Morphology Map.empty Map.empty)) (decodeYaml "morphology.yaml")
+  entries <- concat <$> sequence
+    [ fromMaybe [] <$> decodeYaml' f b | (f, b) <- sourceFiles "lexicon" src, isYaml f ]
+  assemble src family morphology entries
   where
-    isYaml f = ".yaml" `isSuffixOf` f || ".yml" `isSuffixOf` f
+    isYaml f = any (`T.isSuffixOf` T.pack f) [".yaml", ".yml"]
+    decodeYaml f = decodeYaml' f <$> sourceFile f src
+    decodeYaml' :: Y.FromJSON a => FilePath -> ByteString -> Either [Text] a
+    decodeYaml' f b = case Y.decodeEither' b of
+      Left e -> Left [T.pack (sourcePath src f) <> ": " <> T.pack (Y.prettyPrintParseException e)]
+      Right a -> Right a
 
-decodeYaml :: Y.FromJSON a => FilePath -> IO (Either [Text] a)
-decodeYaml f = Y.decodeFileEither f >>= \case
-  Left e -> pure (Left [T.pack f <> ": " <> T.pack (Y.prettyPrintParseException e)])
-  Right a -> pure (Right a)
+-- | Every rules file the project refers to.
+projectRulesRefs :: Project -> Set RulesRef
+projectRulesRefs proj = Set.fromList $
+  concat [maybeToList (stRules st) ++ maybeToList (stOrthography st) | st <- Map.elems (famStages (prFamily proj))]
+    ++ [r | it <- Map.elems (prItems proj), Event {evKind = Loan _ _ (Just r)} <- itEvents it]
 
-assemble :: FilePath -> Family -> Morphology -> [Entry] -> Either [Text] Project
-assemble dir family morphology entries = do
+assemble :: Sources -> Family -> Morphology -> [Entry] -> Either [Text] Project
+assemble src family morphology entries = do
   (root, order) <- stageTree (famStages family)
   paradigms <- resolveParadigms (moParadigms morphology)
   let stages = famStages family
@@ -113,7 +127,7 @@ assemble dir family morphology entries = do
   let dupes = Map.keys (Map.filter (> 1) (Map.fromListWith (+) [(itId i, 1 :: Int) | i <- items]))
   unless (null dupes) $ Left ["duplicate id: " <> d | d <- dupes]
   let itemMap = Map.fromList [(itId i, i) | i <- items]
-      proj = Project dir family root order itemMap (map itId items) paradigms
+      proj = Project (srcDir src) family root order itemMap (map itId items) paradigms src
   validate proj
   pure proj
 

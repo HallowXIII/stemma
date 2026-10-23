@@ -37,6 +37,7 @@ import Data.Text qualified as T
 
 import Stemma.Engine
 import Stemma.Load
+import Stemma.Sources (sourceFile)
 import Stemma.Types
 
 data Origin = Inherited | Coined | Borrowed
@@ -72,8 +73,11 @@ data Mode = Actual | Regular
 
 build :: Engine -> Project -> IO (Either [Text] Built)
 build engine proj = do
-  loaded <- forM (Set.toList allRefs) $ \r ->
-    fmap (r,) <$> engineLoad engine (prDir proj) r
+  let loaded =
+        [ fmap (r,) $ case sourceFile (rrFile r) (prSources proj) of
+            Nothing -> Left (renderRulesRef r <> ": no such rules file")
+            Just bytes -> engineLoad engine r bytes
+        | r <- Set.toList (projectRulesRefs proj) ]
   case partitionEithers loaded of
     (errs@(_ : _), _) -> pure (Left errs)
     ([], rs) -> case stageOrder proj of
@@ -90,11 +94,6 @@ build engine proj = do
             spG <- spell proj rules g
             let built = Built proj order a g spA spG []
             pure (Right built {bWarnings = boundaryWarnings proj rules ++ wa ++ redundantIrregulars built})
-  where
-    stages = famStages (prFamily proj)
-    allRefs = Set.fromList $
-      concat [maybeToList (stRules st) ++ maybeToList (stOrthography st) | st <- Map.elems stages]
-        ++ [r | it <- Map.elems (prItems proj), Event {evKind = Loan _ _ (Just r)} <- itEvents it]
 
 -- | Parents first, and loan donors before recipients.
 stageOrder :: Project -> Either Text [StageId]
