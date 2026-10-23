@@ -4,6 +4,7 @@ version:            0.1.0
 synopsis:           Computed etymological lexicons for conlang families
 license:            BSD-3-Clause
 build-type:         Simple
+extra-source-files: ui/index.html
 
 common shared
   default-language: GHC2021
@@ -49,10 +50,38 @@ executable stemma
     , optparse-applicative
     , filepath
 
+executable stemma-server
+  import:           shared
+  hs-source-dirs:   server
+  main-is:          Main.hs
+  other-modules:
+    Server.Api
+    Server.Files
+    Server.StageRules
+  build-depends:
+      stemma
+    , aeson
+    , bytestring
+    , directory
+    , file-embed
+    , filepath
+    , http-types
+    , optparse-applicative
+    , scientific
+    , time
+    , wai
+    , warp
+
 test-suite example
   import:           shared
   type:             exitcode-stdio-1.0
-  hs-source-dirs:   test
+  hs-source-dirs:   test server
   main-is:          Example.hs
+  other-modules:
+    Server.StageRules
   build-depends:
       stemma
+    , bytestring
+    , directory
+    , filepath
+    , temporary

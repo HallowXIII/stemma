@@ -9,6 +9,7 @@ module Stemma.Load
   , Build (..)
   , ParadigmDef (..)
   , loadProject
+  , loadProjectWith
   , loadSources
   , projectRulesRefs
   , categoryIn
@@ -80,13 +81,18 @@ data Item = Item
   deriving (Show)
 
 loadProject :: FilePath -> IO (Either [Text] Project)
-loadProject dir = do
-  src <- readSources dir
+loadProject = loadProjectWith id
+
+-- | Load a project with its files changed first, to try an edit without
+-- writing it.
+loadProjectWith :: (Sources -> Sources) -> FilePath -> IO (Either [Text] Project)
+loadProjectWith change dir = do
+  src <- change <$> readSources dir
   case loadSources src of
     Left errs -> pure (Left errs)
     -- A rules file outside the project isn't in the sources yet.
     Right proj -> do
-      src' <- readExtra [rrFile r | r <- Set.toList (projectRulesRefs proj)] src
+      src' <- readExtra dir [rrFile r | r <- Set.toList (projectRulesRefs proj)] src
       pure (Right proj {prSources = src'})
 
 -- | Load a project from files already in memory.
