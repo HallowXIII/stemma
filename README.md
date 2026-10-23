@@ -118,7 +118,9 @@ are flagged; click a count to list the forms, before and after.
 shows which forms would change and which expectations would fail, without
 touching your files. **Save** (⌘S) writes the file and rebuilds. It uses `stemma` from `PATH`, then `result/bin/stemma`, then
 `cabal run` (override with `--stemma`). Without the server,
-`ui/index.html` can open any `build/lexicon.json` read-only.
+`ui/index.html` can open any `build/lexicon.json` read-only. Rule traces
+come from `build/trace.json`, which is loaded alongside it with `?src=`
+but not when you choose or drop a file.
 
 In Typst:
 

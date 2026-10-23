@@ -4,9 +4,9 @@
     python3 ui/serve.py -d examples/echo            # http://127.0.0.1:8737
     python3 ui/serve.py -d examples/echo --stemma "cabal run -v0 stemma --"
 
-Standard library only. The UI reads <dir>/build/lexicon.json and diff.txt;
-"Rebuild" runs `stemma -d <dir> build` and reports its output. The Rules
-tab reads and saves the project's .bsc files, outlines them with
+Standard library only. The UI reads <dir>/build/lexicon.json, trace.json and
+diff.txt; "Rebuild" runs `stemma -d <dir> build` and reports its output. The
+Rules tab reads and saves the project's .bsc files, outlines them with
 `stemma rules` (Brassica's parser), and previews an unsaved edit by building
 a temporary copy of the project. Lexicon entries in the YAML files can be
 edited, previewed and saved the same way. Binds to localhost only.
@@ -188,8 +188,10 @@ def make_handler(project, stemma):
             for k in ("stdout", "stderr"):
                 r[k] = r[k].replace(str(copy) + os.sep, "").replace(str(copy), ".")
             lex = copy / "build" / "lexicon.json"
+            trace = copy / "build" / "trace.json"
             diff = copy / "build" / "diff.txt"
             r["lexicon"] = json.loads(lex.read_text(encoding="utf-8")) if lex.exists() else None
+            r["traces"] = json.loads(trace.read_text(encoding="utf-8")) if trace.exists() else None
             r["diff"] = diff.read_text(encoding="utf-8").splitlines() if diff.exists() else None
         r["baseline_mismatches"] = baseline_mismatches()
         return r
@@ -223,6 +225,8 @@ def make_handler(project, stemma):
                 self.send_file(UI_DIR / "index.html", "text/html; charset=utf-8")
             elif route == "/api/lexicon":
                 self.send_file(build_dir / "lexicon.json", "application/json; charset=utf-8")
+            elif route == "/api/trace":
+                self.send_file(build_dir / "trace.json", "application/json; charset=utf-8")
             elif route == "/api/diff":
                 self.send_file(build_dir / "diff.txt", "text/plain; charset=utf-8")
             elif route == "/api/rules":

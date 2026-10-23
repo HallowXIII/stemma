@@ -2,7 +2,6 @@ module Main (main) where
 
 import Control.Monad (forM_, unless, when)
 import Data.Text (Text)
-import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
 import Options.Applicative
 import System.Exit (exitFailure)
@@ -13,7 +12,7 @@ import Stemma.Build
 import Stemma.Engine (Engine (..))
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
-import Stemma.Output (outlineJson, writeBuild)
+import Stemma.Output (diffSummary, outlineJson, writeBuild)
 import Stemma.Query
 import Stemma.View
 
@@ -47,7 +46,7 @@ main = do
                      <> help "Project directory")
       <*> hsubparser
         ( command "build" (info (Build <$> switch (long "strict" <> help "Fail on warnings too"))
-                                (progDesc "Compute all forms; write build/lexicon.json, forms.tsv and diff.txt"))
+                                (progDesc "Compute all forms; write build/lexicon.json, trace.json, forms.tsv and diff.txt"))
        <> command "shifts" (info (Shifts <$> strArgument (metavar "FROM") <*> strArgument (metavar "TO"))
                                  (progDesc "List category shifts matching FROM > TO (* is a wildcard)"))
        <> command "paradigm" (info (Paradigm <$> strArgument (metavar "ROOT") <*> strArgument (metavar "STAGE"))
@@ -69,9 +68,7 @@ buildAnd dir cmd = do
       let failed = checkExpectations built
       forM_ (bWarnings built) $ \w -> TIO.hPutStrLn stderr ("warning: " <> w)
       forM_ failed $ \f -> TIO.hPutStrLn stderr ("MISMATCH: " <> f)
-      if null diff
-        then TIO.putStrLn "no forms changed"
-        else TIO.putStr (T.unlines ("changed forms:" : map ("  " <>) diff))
+      mapM_ TIO.putStrLn (diffSummary built diff)
       when (strict && (not (null failed) || not (null (bWarnings built)))) exitFailure
       unless (null failed) exitFailure
     Shifts from to -> do

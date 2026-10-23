@@ -449,7 +449,14 @@ async function boot() {
   } catch { /* opened from file:// or a plain static server */ }
   const src = new URLSearchParams(location.search).get("src");
   if (src) {
-    try { const r = await fetch(src); if (r.ok) return setLexicon(await r.json()); } catch {}
+    try {
+      const r = await fetch(src);
+      if (r.ok) {
+        // trace.json sits next to lexicon.json in a build directory.
+        const t = await fetch(new URL("trace.json", new URL(src, location.href))).catch(() => null);
+        return setLexicon(await r.json(), t?.ok ? await t.json() : null);
+      }
+    } catch {}
   }
   showDrop();
 }
@@ -458,11 +465,13 @@ async function loadLive() {
   const r = await fetch("api/lexicon", { cache: "no-store" });
   if (!r.ok) { showDrop("No build yet. Press Rebuild."); return; }
   const lex = await r.json();
+  const t = await fetch("api/trace", { cache: "no-store" });
+  const traces = t.ok ? await t.json() : null;
   const d = await fetch("api/diff", { cache: "no-store" });
   S.diff = d.ok ? (await d.text()).split("\n").filter(Boolean) : null;
   if (R.files) await loadRules();
   if (L.sources) await loadSources();
-  setLexicon(lex);
+  setLexicon(lex, traces);
 }
 
 async function poll() {
@@ -515,7 +524,53 @@ function mismatches() {
   return (S.lastBuild?.stderr || "").split("\n").filter((l) => l.startsWith("MISMATCH: ")).map((l) => l.slice(10));
 }
 
-function setLexicon(lex) {
+// lexicon.json leaves out what can be inferred (docs/schema.md §8), and the
+// events, inputs, traces and origins come separately in trace.json. Put
+// both back, so the rest of the UI sees every field of every reflex at every
+// stage where the item exists. Without traces, those fields are empty.
+function expandLexicon(lex, traces) {
+  if (lex.expanded) return lex;
+  const parent = new Map(lex.stages.map((s) => [s.id, s.parent]));
+  for (const [id, it] of Object.entries(lex.items)) {
+    // A stage left out has the same reflex as its parent; stages are listed
+    // parents first.
+    const slim = {};
+    for (const s of lex.stages.map((st) => st.id)) {
+      const r = it.reflexes[s] ?? (s !== it.formed ? slim[parent.get(s)] : undefined);
+      if (r) slim[s] = r;
+    }
+    const reflexes = {};
+    for (const [s, r] of Object.entries(slim)) {
+      const lost = r.lost === true;
+      const forms = r.forms ?? null, spelled = r.spelled ?? forms, regular = r.regular ?? forms;
+      const t = traces?.[id]?.[s] ?? {};
+      reflexes[s] = {
+        forms, spelled, regular,
+        regular_spelled: r.regular_spelled ?? (lost ? regular : spelled),
+        category: r.category ?? null,
+        origin: lost ? null : t.origin ?? "inherited",
+        events: t.events ?? [], input: t.input ?? null, trace: t.trace ?? [],
+      };
+    }
+    lex.items[id] = {
+      bound: false, owner: null, gloss: null, source: null, paradigm: null,
+      variant: null, variant_of: null, notes: null,
+      cells: [], repatterns: [], category: [], fate: {},
+      ...it, id, reflexes,
+    };
+  }
+  lex.expanded = true;
+  return lex;
+}
+
+// A preview or changeset build from the server, with its lexicon expanded.
+function expandResult(result) {
+  if (result?.lexicon) expandLexicon(result.lexicon, result.traces);
+  return result;
+}
+
+function setLexicon(lex, traces) {
+  expandLexicon(lex, traces);
   const keepStage = S.lex && lex.stages.some((s) => s.id === S.stage) ? S.stage : null;
   S.lex = lex;
   IX = index(lex);
@@ -1134,7 +1189,7 @@ async function previewRules() {
   R.previewing = true;
   updateRules();
   try {
-    const result = await (await fetch("api/preview", { method: "POST", body: JSON.stringify({ file, content }) })).json();
+    const result = expandResult(await (await fetch("api/preview", { method: "POST", body: JSON.stringify({ file, content }) })).json());
     R.preview = { file, content, result };
   } finally {
     R.previewing = false;
@@ -1815,7 +1870,7 @@ async function previewEdit(e, file) {
   route();
   try {
     const content = editedText(e);
-    const result = await (await fetch("api/preview", { method: "POST", body: JSON.stringify({ file, content }) })).json();
+    const result = expandResult(await (await fetch("api/preview", { method: "POST", body: JSON.stringify({ file, content }) })).json());
     e.preview = { content, result };
   } catch (err) { e.error = String(err); }
   e.previewing = false;
@@ -2394,7 +2449,7 @@ async function runChangeset(apply) {
   renderModal();
   try {
     const r = await fetch("api/changeset", { method: "POST", body: changesetBody(apply) });
-    const res = await r.json();
+    const res = expandResult(await r.json());
     if (!r.ok) throw new Error(res.error || r.status);
     m.preview = res;
     if (apply && res.applied) {
