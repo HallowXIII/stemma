@@ -137,7 +137,7 @@
     F.ACC.PL: { at: french, stem: "long-", morph: [~, A.ACC.PL] }
   events:
     # lonc, not *loing: the nominative plural remade on the other cells
-    - analogy: { at: old-french, cell: M.NOM.PL, replace: { ɲ: n g }, model: "lonc" }
+    - analogy: { at: gallo-romance, cell: M.NOM.PL, replace: { ɲ: n g }, model: "lonc" }
   expect:
     old-spanish: { M.ACC.SG: lwéngo, F.ACC.SG: lwénga }
     spanish: { M.ACC.SG: lwéngo, F.ACC.SG: lwénga }
@@ -150,12 +150,8 @@
   category: [{ at: latin, is: ADJ }]
   paradigm: adj-o-a
   events:
-    # Spanish claro, not *llaro: semi-learned. An event at Old Spanish
-    # comes before kl- > ʎ- (FINDINGS.md), so these are irregular.
-    - irregular: { at: old-spanish, cell: M.ACC.SG, form: "kláɾo", reason: "semi-learned" }
-    - irregular: { at: old-spanish, cell: M.ACC.PL, form: "kláɾos", reason: "semi-learned" }
-    - irregular: { at: old-spanish, cell: F.ACC.SG, form: "kláɾa", reason: "semi-learned" }
-    - irregular: { at: old-spanish, cell: F.ACC.PL, form: "kláɾas", reason: "semi-learned" }
+    # Spanish claro, not *llaro: kl- restored after Latin clarus
+    - analogy: { at: old-spanish, replace: { ʎ: k l }, model: "Latin clarus" }
   expect:
     old-spanish: { M.ACC.SG: kláɾo, M.ACC.PL: kláɾos, F.ACC.SG: kláɾa }
     spanish: { M.ACC.SG: kláɾo, M.ACC.PL: kláɾos, F.ACC.SG: kláɾa, F.ACC.PL: kláɾas }
@@ -172,7 +168,7 @@
     M.ACC.PL: { at: french, base: siccus.M.ACC.SG, morph: ~ }
   events:
     # sec, not *seiz: the nominative plural remade on the other cells
-    - analogy: { at: old-french, cell: M.NOM.PL, replace: { ts: k }, model: "sec" }
+    - analogy: { at: gallo-romance, cell: M.NOM.PL, replace: { ts: k }, model: "sec" }
   expect:
     old-spanish: { M.ACC.SG: séko }
     spanish: { M.ACC.SG: séko, M.ACC.PL: sékos, F.ACC.SG: séka, F.ACC.PL: sékas }

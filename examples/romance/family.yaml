@@ -28,28 +28,45 @@ stages:
     parent: vulgar-latin
     rules: "rules/latin-to-wr.bsc#2"
 
+  # Reconstructed: Spanish before its first texts. Old Spanish begins after
+  # pl-, kl- > ʎ-, so that an event there can follow it (semi-learned claro).
+  ibero-romance:
+    name: Ibero-Romance
+    abbr: IR
+    parent: western-romance
+    rules: "rules/wr-to-spanish.bsc#1"
+
   old-spanish:
     name: Old Spanish
     abbr: OSp.
-    parent: western-romance
-    rules: "rules/wr-to-spanish.bsc#1"
+    parent: ibero-romance
+    rules: "rules/wr-to-spanish.bsc#2"
 
   spanish:
     name: Spanish
     abbr: Sp.
     parent: old-spanish
-    rules: "rules/wr-to-spanish.bsc#2"
+    rules: "rules/wr-to-spanish.bsc#3"
     current: true
+
+  # Reconstructed: French before its first texts. Old French begins after
+  # the voicing of p, t, k, so that an event there can follow it
+  # (semi-learned pueple).
+  gallo-romance:
+    name: Gallo-Romance
+    abbr: GR
+    parent: western-romance
+    rules: "rules/wr-to-french.bsc#1"
 
   old-french:
     name: Old French
     abbr: OF
-    parent: western-romance
-    rules: "rules/wr-to-french.bsc#1"
+    parent: gallo-romance
+    rules: "rules/wr-to-french.bsc#2"
 
   french:
     name: French
     abbr: Fr.
     parent: old-french
-    rules: "rules/wr-to-french.bsc#2"
+    rules: "rules/wr-to-french.bsc#3"
     current: true

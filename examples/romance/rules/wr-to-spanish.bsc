@@ -1,4 +1,5 @@
-; Western Romance > Old Spanish (Castilian, c. 1200) > Spanish.
+; Western Romance > Ibero-Romance (to pl-, kl- > ʎ-) > Old Spanish
+; (Castilian, c. 1200) > Spanish.
 
 categories
 B = &+
@@ -53,6 +54,10 @@ n n / ɲ / _
 j t / tʃ / _
 ; pl-, kl-, fl-
 [p k] l / ʎ / # _
+
+report
+
+; Ibero-Romance > Old Spanish
 kʷ / k / _ [i í j e é]
 kʷ / k w / _
 gʷ / g w / _

@@ -1,4 +1,5 @@
-; Western Romance > Old French (Francien, c. 1150) > French.
+; Western Romance > Gallo-Romance (to the voicing of p, t, k) > Old French
+; (Francien, c. 1150) > French.
 
 categories
 B = &+
@@ -32,6 +33,10 @@ s / / _ b
 ts / dz / V _ V
 v / / _ t
 f / v / l _
+
+report
+
+; Gallo-Romance > Old French
 g / j / V _ l
 [k g] / [tʃ dʒ] / _ [a á au áu]
 ; the infinitive's -e before the auxiliary in the future

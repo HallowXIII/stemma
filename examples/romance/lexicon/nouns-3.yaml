@@ -16,7 +16,7 @@
   events:
     # Castilian omne and Francien om, ome, without the diphthong of Leonese
     # uemne and OF huem: the word was often unstressed.
-    - analogy: { at: old-spanish, replace: { ɔ́: ó }, model: "unstressed use" }
+    - analogy: { at: ibero-romance, replace: { ɔ́: ó }, model: "unstressed use" }
     - analogy: { at: old-french, replace: { ɔ́: ɔ }, model: "unstressed use" }
     # omne kept while mn > mbr spread (nombre already by 1200)
     - irregular: { at: old-spanish, cell: ACC.SG, form: "ómne", reason: "conservative, beside nombre" }
@@ -50,7 +50,7 @@
   paradigm: noun-s
   events:
     # remade as an o-stem
-    - repattern: { at: old-spanish, paradigm: noun-o-rom, stem: "kɔ́rp-" }
+    - repattern: { at: ibero-romance, paradigm: noun-o-rom, stem: "kɔ́rp-" }
   expect:
     old-spanish: { ACC.SG: kwéɾpo, ACC.PL: kwéɾpos }
     spanish: { ACC.SG: kwéɾpo, ACC.PL: kwéɾpos }
@@ -64,7 +64,7 @@
   paradigm: noun-s
   events:
     # remade as an o-stem
-    - repattern: { at: old-spanish, paradigm: noun-o-rom, stem: "tɛ́mp-" }
+    - repattern: { at: ibero-romance, paradigm: noun-o-rom, stem: "tɛ́mp-" }
   expect:
     old-spanish: { ACC.SG: tjémpo, ACC.PL: tjémpos }
     spanish: { ACC.SG: tjémpo, ACC.PL: tjémpos }
@@ -317,7 +317,7 @@
     ACC.PL: { stem: "*flōr-" }
     GEN.PL: { stem: "*flōr-" }
     # flors: -s after the masculines
-    NOM.SG: { at: old-french, stem: "flór-", morph: [~, O.NOM.SG] }
+    NOM.SG: { at: gallo-romance, stem: "flór-", morph: [~, O.NOM.SG] }
   expect:
     old-spanish: { ACC.SG: flóɾ }
     spanish: { ACC.SG: flóɾ, ACC.PL: flóɾes }
@@ -336,7 +336,7 @@
     ACC.PL: { stem: "*kīwitāt-" }
     GEN.PL: { stem: "*kīwitāt-" }
     # citez: -s after the masculines
-    NOM.SG: { at: old-french, stem: "tsiβetád-", morph: [~, O.NOM.SG] }
+    NOM.SG: { at: gallo-romance, stem: "tsiβetád-", morph: [~, O.NOM.SG] }
   expect:
     old-spanish: { ACC.SG: tsibdád }
     spanish: { ACC.SG: θjudád, ACC.PL: θjudádes }
@@ -356,7 +356,7 @@
     GEN.PL: { stem: "*komit-" }
   events:
     # conde, not *cuende: unstressed as a title
-    - analogy: { at: old-spanish, replace: { ɔ́: ó }, model: "proclitic title" }
+    - analogy: { at: ibero-romance, replace: { ɔ́: ó }, model: "proclitic title" }
   expect:
     old-spanish: { ACC.SG: kónde, ACC.PL: kóndes }
     spanish: { ACC.SG: kónde, ACC.PL: kóndes }
@@ -416,11 +416,11 @@
   paradigm: noun-s
   cells:
     # nons: -s after the masculines
-    NOM.SG: { at: old-french, stem: "nóm-", morph: [~, O.NOM.SG] }
-    ACC.PL: { at: old-french, stem: "nóm-", morph: [~, O.ACC.PL] }
+    NOM.SG: { at: gallo-romance, stem: "nóm-", morph: [~, O.NOM.SG] }
+    ACC.PL: { at: gallo-romance, stem: "nóm-", morph: [~, O.ACC.PL] }
   events:
     # nombre, from the oblique nōmine
-    - repattern: { at: old-spanish, paradigm: noun-c-rom, stem: "nómen-" }
+    - repattern: { at: ibero-romance, paradigm: noun-c-rom, stem: "nómen-" }
   expect:
     old-spanish: { ACC.SG: nómbɾe, ACC.PL: nómbɾes }
     spanish: { ACC.SG: nómbɾe, ACC.PL: nómbɾes }
@@ -435,8 +435,8 @@
   fate: { spanish: { replaced-by: coratio } }
   cells:
     # cuers: -s after the masculines
-    NOM.SG: { at: old-french, stem: "kɔ́r-", morph: [~, O.NOM.SG] }
-    ACC.PL: { at: old-french, stem: "kɔ́r-", morph: [~, O.ACC.PL] }
+    NOM.SG: { at: gallo-romance, stem: "kɔ́r-", morph: [~, O.NOM.SG] }
+    ACC.PL: { at: gallo-romance, stem: "kɔ́r-", morph: [~, O.ACC.PL] }
   expect:
     old-spanish: { ACC.SG: kwéɾ }
     old-french: { NOM.SG: kwɛrs, ACC.SG: kwɛr, NOM.PL: kwɛr, ACC.PL: kwɛrs }

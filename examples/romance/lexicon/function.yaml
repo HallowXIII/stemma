@@ -44,8 +44,8 @@
   paradigm: ille
   cells:
     # Spanish el and él continue the nominative ille
-    ART.M.SG: { at: old-spanish, morph: [~, D.E] }
-    PRON.M.SG: { at: old-spanish, stem: "éll-", morph: [~, D.E.T] }
+    ART.M.SG: { at: ibero-romance, morph: [~, D.E] }
+    PRON.M.SG: { at: ibero-romance, stem: "éll-", morph: [~, D.E.T] }
   events:
     # il: the i of *illī (metaphony)
     - analogy: { at: old-french, cell: PRON.M.SG, replace: { é: í }, model: "the final -ī" }

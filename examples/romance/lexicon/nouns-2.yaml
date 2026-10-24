@@ -33,7 +33,7 @@
   paradigm: noun-o
   events:
     # fou, not *fuez: the nominative plural remade on the other cells
-    - analogy: { at: old-french, cell: NOM.PL, replace: { ts: g }, model: "fou" }
+    - analogy: { at: gallo-romance, cell: NOM.PL, replace: { ts: g }, model: "fou" }
   expect:
     old-spanish: { ACC.SG: fwégo, ACC.PL: fwégos }
     spanish: { ACC.SG: fwégo, ACC.PL: fwégos }
@@ -148,13 +148,8 @@
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   events:
-    # pueple, not *pueble: p kept under the influence of Latin populus.
-    # An event at Old French comes before its voicing, so these are
-    # irregular (FINDINGS.md).
-    - irregular: { at: old-french, cell: NOM.SG, form: "pwɛpləs", reason: "semi-learned, after Latin populus" }
-    - irregular: { at: old-french, cell: ACC.SG, form: "pwɛplə", reason: "semi-learned, after Latin populus" }
-    - irregular: { at: old-french, cell: NOM.PL, form: "pwɛplə", reason: "semi-learned, after Latin populus" }
-    - irregular: { at: old-french, cell: ACC.PL, form: "pwɛpləs", reason: "semi-learned, after Latin populus" }
+    # pueple, not *pueble: p kept under the influence of Latin populus
+    - analogy: { at: old-french, replace: { b: p }, model: "Latin populus" }
   expect:
     old-spanish: { ACC.SG: pwéblo, ACC.PL: pwéblos }
     spanish: { ACC.SG: pwéblo, ACC.PL: pwéblos }

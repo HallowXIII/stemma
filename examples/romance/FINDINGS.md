@@ -230,6 +230,12 @@ Found while building the full word list, batch by batch.
     one `analogy` do it, and probably *estoile* (finding 13) too. Worth
     adding once more such words show up.
 
+    **Done**: `gallo-romance` and `ibero-romance` now sit above Old French
+    and Old Spanish, ending after the voicing of *p t k* and after *pl-*,
+    *kl-* > *ʎ-*. *pueple* and Spanish *claro* are one analogy each.
+    *estoile* is not helped: it needs one of two *l*s removed, which
+    `replace` can't say at any stage (finding 13).
+
 16. **Lexical diffusion needs `irregular`.** *mn* > *mbr* had reached
     *nombre* by 1200 but not *omne*, so the rule is in both Spanish
     segments and *omne* is two `irregular`s. That is honest, but the
@@ -259,9 +265,13 @@ Found while building the full word list, batch by batch.
     come, a paradigm-level `at:` cell (or a `becomes` that re-forms only
     named cells) looks worth having.
 
-    Of the 24 `irregular`s so far, 12 are three semi-learned or dialectal
-    words (*estoile*, *pueple*, *claro*) that one analogy each would do
-    with an intermediate stage (finding 15).
+    **Done** (`e6fef74`): a paradigm cell can carry `at:` re-formings, for
+    every entry with the paradigm. Lexical cases like *chefs* stay on the
+    entry.
+
+    Of the 24 `irregular`s after batch 3, 12 were three semi-learned or
+    dialectal words (*estoile*, *pueple*, *claro*); with the intermediate
+    stages there are 16, four of them *estoile*.
 
 ## Data
 
