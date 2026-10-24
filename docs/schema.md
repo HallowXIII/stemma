@@ -3,8 +3,8 @@
 All files are YAML. IDs are short slugs, unique across the whole project.
 
 > **Quoting.** YAML reads a bare `N`, `Y`, `no`, `off` and so on as booleans.
-> Quote category tags like these: `is: "N"`. stemma reports an error if you
-> forget.
+> Quote category tags and ids like these: `is: "N"`, `id: "on"`. stemma
+> reports an error if you forget.
 
 ---
 
@@ -20,6 +20,7 @@ name: Echo
 notation:
   graphemes: [r₁, r₂]      # multigraphs in proto forms (optional)
   boundary: "+"            # morpheme boundary passed to the rules (optional; §2)
+  internal-boundaries: false   # none between joined parts (optional; §2)
 
 stages:
   proto-echo:
@@ -183,6 +184,26 @@ replaces would otherwise become itself.
     becomes: { azal: verb }              # Azal generalises the prefixes
 ```
 
+**Citation.** In a dictionary, an entry with a paradigm is cited by one of
+its cells: by default its first, or the cell its paradigm's `cite` names.
+`cite` is one cell, `~` for the bare form (the stem, which suits verbs
+with large paradigms), or a map from stages to either, each in force from
+its stage down:
+
+```yaml
+  noun-o:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
+```
+
+Where an entry changes paradigm (`becomes`, `repattern`), the citation
+follows the paradigm in force. An entry's own `cite` (§3) takes precedence
+over its paradigm's. `cite` is inherited through `extends`. Typst's `entry`
+and `ui/` show the cited cell as the headword, with its own etymology
+(*ómbre* < OSp. *ómne* < Lat. *\*hominem*). The build warns
+where an entry is cited by a cell that has no form, such as a lost
+nominative; the dictionary then falls back to the bare form. The bare
+form always evolves too, and is what `{homo @ spanish}` refers to.
+
 The dimensions are written to `lexicon.json`. In Typst,
 `paradigm(id, stage)` lays the cells out as a table, with one row per member
 of the last dimension (or of `rows: "number"`) and a column for each
@@ -238,6 +259,12 @@ as a union: `B = &+`.
 Rules that should apply across a boundary have to allow for it, for
 example with an optional `(+)`.
 
+Where boundaries only matter at the edges, as when they keep a bare affix
+from being stressed as a word, set `internal-boundaries: false`. Parts are
+then joined with no boundary between them, and any inside the parts are
+dropped, so the rules and the morphophonology see a joined form as one
+word. The boundaries at the edges of a bound result are kept, and a written
+form keeps any `-` written inside it until it is joined into something.
 ### Morphophonology
 
 A stage's `morphophonology` (in `family.yaml`) is a rules file for forms
@@ -368,16 +395,25 @@ has either a `form` (a root) or a `source` (a derivative).
 | `{ base: X, morph: A }` or `morph: [A, ~, B]` | X plus affixes, as a template (§2) |
 | `{ base: X, cell: C }` | an inflected form that took on a life of its own (*päällä*) |
 | `{ compound: [X, Y] }` | concatenation of the members' bare forms |
-| `{ loan: { from: STAGE, id: X } }` | a new word borrowed from another line |
+| `{ loan: { from: STAGE, id: X, adapt: FILE } }` | a new word borrowed from another line or an ancestor; `adapt` optional |
 
 A derivative's `stage` defaults to its parent entry's stage. Without a `category`,
 it takes the one its parent has at that stage. It is built
 from the forms **at the end of** that stage, after that stage's rules.
 Derivatives nest.
 
+**Loans.** A `loan` source makes a new word, beside anything inherited,
+such as a learned borrowing from Latin (French *fragile* beside inherited
+*frêle*). A `loan` event (§4) instead replaces the item's form. The donor's
+form is taken from the end of the `from` stage, which may be an ancestor,
+and run through `adapt` if given. The result is the word's form at its own
+stage: unlike a loan event, it does not go through that stage's rules, so
+the adaptation gives the stage's form. `trace` shows the donor's form and
+the adaptation's steps.
+
 **Changing cells.** `cells` changes the paradigm's cells for one entry,
-by name. A cell gets a different base (suppletion), different affixes, or
-both, and new names add cells or variants for this entry only:
+by name. A cell gets a different base (suppletion) or stem, different
+affixes, or both, and new names add cells or variants for this entry only:
 
 ```yaml
 - id: ego
@@ -390,6 +426,25 @@ both, and new names add cells or variants for this entry only:
 
 A suppletive base is a real dependency, so it appears in the cell's
 source and must exist where the cell is formed.
+
+**Stems.** `stem:` gives a cell a stem as written, in place of the entry's
+form, such as the oblique stem of a Latin third-declension noun:
+
+```yaml
+- id: homo
+  form: "*homō"
+  paradigm: noun-c                 # NOM.SG is the bare base
+  cells:
+    ACC.SG: { stem: "*homin-" }
+    NOM.PL: { stem: "*homin-" }
+```
+
+The stem is written as at the stage where the cells are formed, and
+evolves from there like a bound root, but it is not an item you can refer
+to: it never appears in the build products, and in `lexicon.json` the
+cell's `source` shows it as written. Cells with the same stem share it. A
+cell has `base` or `stem`, not both. With `at:` (below), the stem is
+written as entering that stage, like a `repattern` stem (§4).
 
 **Cells joined later.** With `at: S`, a cell is not part of the paradigm:
 it is joined at S, from the forms entering S, as a `repattern` joins
@@ -404,6 +459,9 @@ there instead.
   cells:
     NPST.1S>3S: { at: azal, morph: [SBJ.1S, OBJ.3S, ~, S.1S] }
 ```
+
+**Citation.** `cite`, as on a paradigm (§2), sets the cell this entry is
+cited by, over its paradigm's: `cite: ~` cites a verb by its stem.
 
 **Bound items.** `bound: true` marks an item that is not a word on its own:
 a bound root or stem. Affixes are bound by default. With a boundary symbol
@@ -448,6 +506,11 @@ analogy or a loan.
     model: "the plural -r (< *r₂)"
 ```
 
+Each key is one grapheme, and every occurrence of it is replaced. A
+replacement of several graphemes may be written with spaces between them
+(`{ a: a j }`), and an empty one deletes. A key that is not one grapheme at
+the stage is an error.
+
 This is preferred over writing the output form: if you change what word-final
 *r₂ becomes, the analogical form follows.
 
@@ -476,7 +539,7 @@ through the stage's rules and morphophonology. `stem` is written as at
 that stage and is optional; without it the entry's own form is used. With
 it, the bare entry takes the new stem too. The entry's own `cells` changes
 (§3) apply to the new paradigm as well, and a suppletive cell keeps its
-base.
+base, as a cell with its own `stem` keeps its stem.
 
 Cells that the new paradigm lacks are lost from this stage on. Cells that
 it has and the old one lacks are joined at this stage, the same way, and
@@ -599,7 +662,8 @@ applies. A parse error gives `ok: false` with the message, `line` and
   forms, regular forms and category. Notes are pre-resolved into runs.
   Each stage carries its `rules`, `morphophonology` and `orthography` references as written
   in `family.yaml`. An affix with allomorphs has them as written, under
-  `allomorphs`, by stage. Read it in Typst with `typst/stemma.typ`, or browse it
+  `allomorphs`, by stage. An entry with cells has `cite`: the item it is
+  cited by, at the stages where that changes, as for reflexes. Read it in Typst with `typst/stemma.typ`, or browse it
   with `ui/` (see the README).
 - `trace.json` has, for each item and stage, the events (and allomorph
   choices), the input to the
@@ -633,4 +697,3 @@ forms that have an `expect` or are quoted in notes.
   dictionary only if they are roots or derivatives.
 - When the rules give several outputs, the first one is used to build
   derivatives, and a warning is issued.
-- Loans by `source` cannot yet be adapted. Only loan events take `adapt`.

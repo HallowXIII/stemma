@@ -17,13 +17,15 @@ module Stemma.Load
   , ancestorsOrSelf
   , itemDeps
   , allomorphItems
+  , paradigmAt
+  , citedAt
   ) where
 
 import Control.Applicative ((<|>))
 import Control.Monad (forM_, unless, when)
 import Data.ByteString (ByteString)
 import Data.Foldable (toList)
-import Data.List (nub, sortOn)
+import Data.List (elemIndex, nub, sortOn)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Maybe (fromMaybe, listToMaybe, mapMaybe, maybeToList)
@@ -81,11 +83,15 @@ data Item = Item
   , itAllomorphs :: Map StageId [(Maybe Condition, ItemId)]
   -- ^ For an affix: its allomorphs from each stage on, each with its
   -- condition and the internal item that carries its form there.
+  , itInternal :: Bool
+  -- ^ Built like any item, but left out of the item order and the build
+  -- products: an allomorph, or a stem given to cells.
+  , itCite :: Maybe Cite
+  -- ^ The entry's own choice of the cell it is cited by.
   }
   deriving (Show)
 
--- | The internal items that carry an affix's allomorphs. They are built
--- like any item, but left out of the item order and the build products.
+-- | The internal items that carry an affix's allomorphs.
 allomorphItems :: Item -> [ItemId]
 allomorphItems it = [i | als <- Map.elems (itAllomorphs it), (_, i) <- als]
 
@@ -127,6 +133,7 @@ projectRulesRefs proj = Set.fromList $
   concat [ maybeToList (stRules st) ++ maybeToList (stMorphophonology st) ++ maybeToList (stOrthography st)
          | st <- Map.elems (famStages (prFamily proj)) ]
     ++ [r | it <- Map.elems (prItems proj), Event {evKind = Loan _ _ (Just r)} <- itEvents it]
+    ++ [r | it <- Map.elems (prItems proj), BSource (SLoan _ _ (Just r)) <- [itBuild it]]
 
 assemble :: Sources -> Family -> Morphology -> [Entry] -> Either [Text] Project
 assemble src family morphology entries = do
@@ -148,8 +155,7 @@ assemble src family morphology entries = do
   let dupes = Map.keys (Map.filter (> 1) (Map.fromListWith (+) [(itId i, 1 :: Int) | i <- items]))
   unless (null dupes) $ Left ["duplicate id: " <> d | d <- dupes]
   let itemMap = Map.fromList [(itId i, i) | i <- items]
-      internal = Set.fromList (concatMap allomorphItems items)
-      itemOrder = [itId i | i <- items, not (Set.member (itId i) internal)]
+      itemOrder = [itId i | i <- items, not (itInternal i)]
       proj = Project (srcDir src) family root order itemMap itemOrder paradigms src
   validate proj
   pure proj
@@ -180,7 +186,7 @@ flattenEntry
   :: Map StageId Stage -> StageId -> Map Text ParadigmDef
   -> ItemKind -> Maybe ItemId -> [CatShift] -> StageId -> Entry -> [Either [Text] Item]
 flattenEntry stages root paradigms kind owner ownerCat defStage e =
-  self : allomorphs ++ cells ++ derivs
+  self : allomorphs ++ stems ++ cells ++ derivs
   where
     eid = enId e
     stage = fromMaybe defStage (enStage e)
@@ -200,7 +206,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         (Just _, Just _) -> err "has both `form` and `source`"
       forM_ cellEvents $ \ev -> unless (cellOf ev `elem` cellNames) $
         err ("event targets unknown cell " <> cellOf ev)
-      when (T.any (== '~') eid) $ err "ids may not contain ~ (it is reserved for variants and allomorphs)"
+      when (T.any (== '~') eid) $ err "ids may not contain ~ (it is reserved for variants and internal items)"
       unless (Map.null (enAllomorphs e) || (kind == KAffix && owner == Nothing)) $
         err "only affixes can have allomorphs"
       forM_ (Map.toList (enAllomorphs e)) $ \(s, als) -> do
@@ -214,6 +220,10 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
           err (at <> ": only the last may have no condition (the elsewhere case)")
         when (any isAfter conds && any isBefore conds) $
           err (at <> ": `after` and `before` may not be mixed in one list")
+      forM_ (citeCells (enCite e)) $ \c -> unless (c `elem` cellNames) $
+        err ("cite names unknown cell " <> c)
+      forM_ (citeStages (enCite e)) $ \s -> unless (Map.member s stages) $
+        err ("cite at unknown stage " <> s)
       pure Item
         { itId = eid
         , itKind = kind
@@ -232,6 +242,8 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itRepatterns = [(evAt ev, p) | ev@Event {evKind = Repattern p _} <- events]
         , itAllomorphs = Map.mapWithKey (\s als -> [(alCondition a, allomorphId s n) | (n, a) <- numbered als])
                                         (enAllomorphs e)
+        , itInternal = False
+        , itCite = enCite e
         }
 
     isAfter = \case Just (After _) -> True; _ -> False
@@ -259,8 +271,40 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
           , itParadigm = Nothing
           , itRepatterns = []
           , itAllomorphs = Map.empty
+          , itInternal = True
+          , itCite = Nothing
           }
       | (s, als) <- Map.toList (enAllomorphs e), (n, a) <- numbered als ]
+
+    -- Each stem written on a cell is an item of its own, formed with the
+    -- paradigm's cells and used as their base, so that it evolves like a
+    -- bound root. Cells with the same stem share it. Cells joined later
+    -- (`at:`) take theirs as written instead, as a repattern stem.
+    stemTexts = nub [t | (_, ov) <- enCells e, coAt ov == Nothing, Just t <- [coStem ov]]
+    stemId t = eid <> "~stem~" <> T.pack (show (maybe 0 (+ 1) (elemIndex t stemTexts)))
+    stems =
+      [ Right Item
+          { itId = stemId t
+          , itKind = KRoot
+          , itOwner = Just eid
+          , itStage = either (const stage) id paradigmStage
+          , itBuild = BForm t
+          , itBound = True
+          , itGloss = Nothing
+          , itCategory = []
+          , itNotes = Nothing
+          , itEvents = []
+          , itFate = enFate e
+          , itExpect = Map.empty
+          , itCells = []
+          , itParadigm = Nothing
+          , itRepatterns = []
+          , itAllomorphs = Map.empty
+          , itInternal = True
+          , itCite = Nothing
+          }
+      | t <- stemTexts ]
+    cellBase ov = coBase ov <|> (stemId <$> coStem ov)
 
     (cellEvents, ownEvents) = partitionBy (\ev -> evCell ev /= Nothing) events
     cellOf ev = fromMaybe "" (evCell ev)
@@ -286,8 +330,8 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     entryCells = cellsOf paradigm
     change acc (c, ov) = case lookup c acc of
       Just (b, ps) ->
-        [(k, if k == c then (fromMaybe b (coBase ov), fromMaybe ps (coMorph ov)) else v) | (k, v) <- acc]
-      Nothing -> acc ++ [(c, (fromMaybe eid (coBase ov), fromMaybe [PBase] (coMorph ov)))]
+        [(k, if k == c then (fromMaybe b (cellBase ov), fromMaybe ps (coMorph ov)) else v) | (k, v) <- acc]
+      Nothing -> acc ++ [(c, (fromMaybe eid (cellBase ov), fromMaybe [PBase] (coMorph ov)))]
 
     -- Cells joined later than the paradigm: those that a repattern's
     -- paradigm has and the entry's own lacks, at the first repattern that
@@ -299,7 +343,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
              | (c, ov) <- enCells e, Just s <- [coAt ov], c `notElem` map fst entryCells ] )
     -- `at:` on a cell the paradigm has re-forms it there.
     reformedAt c =
-      [ Event s Nothing (Rebuild Nothing (fromMaybe eid (coBase ov)) (fromMaybe [PBase] (coMorph ov)) ("re-formed at " <> s))
+      [ Event s Nothing (Rebuild (coStem ov) (fromMaybe eid (coBase ov)) (fromMaybe [PBase] (coMorph ov)) ("re-formed at " <> s))
       | (c', ov) <- enCells e, c' == c, Just s <- [coAt ov] ]
     fst3 (a, _, _) = a
     cellNames = map fst entryCells ++ map fst3 later
@@ -312,22 +356,26 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
            ++ map (mkCell Nothing) entryCells
            ++ [mkCell (Just s) (c, bp) | (c, bp, s) <- later, Map.member s stages]
 
+    -- Where the paradigm's cells are formed.
+    paradigmStage
+      | isAncestorOrSelf stages pstage stage = Right stage
+      | isAncestorOrSelf stages stage pstage = Right pstage
+      | otherwise = err ("formed at " <> stage <> ", which is not on a line with paradigm stage " <> pstage)
+      where pstage = fromMaybe root (paradigm >>= pfStage)
+    atStem c = listToMaybe [t | (c', ov) <- enCells e, c' == c, Just _ <- [coAt ov], Just t <- [coStem ov]]
+
     mkCell born (c, (base, parts)) = do
-      let pstage = fromMaybe root (paradigm >>= pfStage)
       cstage <- case born of
         Just s
           | isAncestorOrSelf stages stage s -> Right s
           | otherwise -> err ("cell " <> c <> " is joined at " <> s <> ", which is not below " <> stage <> ", where the entry is formed")
-        Nothing
-          | isAncestorOrSelf stages pstage stage -> Right stage
-          | isAncestorOrSelf stages stage pstage -> Right pstage
-          | otherwise -> err ("formed at " <> stage <> ", which is not on a line with paradigm stage " <> pstage)
+        Nothing -> paradigmStage
       -- A cell joined later than the paradigm enters its stage by a
       -- rebuild, unless that is the root stage, where it is simply formed.
       let birth = case born of
             Just s | Just _ <- Map.lookup s stages >>= stParent
                    , s `notElem` [s' | (s', _, _, new) <- repatterns, Just _ <- [lookup c new]] ->
-                       [Event s Nothing (Rebuild Nothing base parts ("joined at " <> s))]
+                       [Event s Nothing (Rebuild (atStem c) base parts ("joined at " <> s))]
             _ -> []
           -- Nothing about stages above where the cell is joined.
           applies s = maybe True (\b -> isAncestorOrSelf stages b s) born
@@ -357,6 +405,8 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itParadigm = Nothing
         , itRepatterns = []
         , itAllomorphs = Map.empty
+        , itInternal = False
+        , itCite = Nothing
         }
 
     -- Each repattern: its stage, the new paradigm, the new stem, and the
@@ -400,7 +450,7 @@ itemDeps it = case itBuild it of
     SMorph b ps -> b : [a | PAffix a <- ps]
     SCell b c -> [b <> "." <> c]
     SCompound xs -> xs
-    SLoan _ x -> [x]
+    SLoan _ x _ -> [x]
 
 validate :: Project -> Either [Text] ()
 validate Project {..} = do
@@ -413,7 +463,7 @@ validate Project {..} = do
           ++ [s | Event {evKind = Loan s _ _} <- itEvents it]
           ++ Map.keys (itFate it) ++ Map.keys (itExpect it)
           ++ map csAt (itCategory it)
-          ++ [s | BSource (SLoan s _) <- [itBuild it]]
+          ++ [s | BSource (SLoan s _ _) <- [itBuild it]]
       itemRefs it =
         itemDeps it
           ++ [x | Event {evKind = Loan _ (Just x) _} <- itEvents it]
@@ -462,6 +512,7 @@ data ParadigmDef = ParadigmDef
   , pfCells :: [(Text, [Part])]
   , pfLost :: Map StageId [Text]
   , pfBecomes :: Map StageId Text
+  , pfCite :: Maybe Cite
   }
 
 resolveParadigms :: Map Text Paradigm -> Either [Text] (Map Text ParadigmDef)
@@ -496,6 +547,7 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
                 -- Not inherited: a paradigm that extends the one it
                 -- replaces would otherwise become itself.
                 , pdBecomes = pdBecomes p
+                , pdCite = pdCite p <|> pdCite b
                 }
 
     checkUnique what xs = case nub [x | x <- xs, length (filter (== x) xs) > 1] of
@@ -548,7 +600,9 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
       unless (null unmatched) $ Left ("lost names no cells: " <> T.intercalate ", " unmatched)
       let unknownTargets = [q | q <- Map.elems (pdBecomes p), not (Map.member q raw)]
       unless (null unknownTargets) $ Left ("becomes unknown paradigm: " <> T.intercalate ", " unknownTargets)
-      Right (ParadigmDef (pdStage p) dims kept (pdLost p) (pdBecomes p))
+      let uncited = [c | c <- citeCells (pdCite p), c `notElem` map fst kept]
+      unless (null uncited) $ Left ("cite names unknown cells: " <> T.intercalate ", " uncited)
+      Right (ParadigmDef (pdStage p) dims kept (pdLost p) (pdBecomes p) (pdCite p))
 
 -- | Does a @lost@ pattern cover this cell? A cell's variants go with it.
 lostBy :: Text -> Text -> Bool
@@ -560,3 +614,35 @@ override = foldl' $ \acc (k, v) ->
   if k `elem` map fst acc
     then [(k', if k' == k then v else v') | (k', v') <- acc]
     else acc ++ [(k, v)]
+
+-- | The cells a citation names.
+citeCells :: Maybe Cite -> [Text]
+citeCells = \case
+  Just (CiteAlways (Just c)) -> [c]
+  Just (CiteFrom m) -> [c | Just c <- Map.elems m]
+  _ -> []
+
+citeStages :: Maybe Cite -> [StageId]
+citeStages = \case
+  Just (CiteFrom m) -> Map.keys m
+  _ -> []
+
+-- | The paradigm in force for an entry at a stage: the one given by the
+-- nearest repattern on the path back to the root, or its own.
+paradigmAt :: Project -> Item -> StageId -> Maybe Text
+paradigmAt proj it s =
+  listToMaybe [p | d <- ancestorsOrSelf (famStages (prFamily proj)) s, Just p <- [lookup d (itRepatterns it)]]
+    <|> itParadigm it
+
+-- | The item an entry is cited by at a stage, as a headword: the cell its
+-- own @cite@ names, or else the one the paradigm in force there names, or
+-- else its first cell. An entry without cells, or cited by its bare form,
+-- is cited by itself.
+citedAt :: Project -> Item -> StageId -> ItemId
+citedAt proj it s = case itCells it of
+  [] -> itId it
+  first : _ -> maybe first (maybe (itId it) (\c -> itId it <> "." <> c)) (fromEntry <|> fromParadigm)
+  where
+    path = ancestorsOrSelf (famStages (prFamily proj)) s
+    fromEntry = itCite it >>= (`citations` path)
+    fromParadigm = paradigmAt proj it s >>= (`Map.lookup` prParadigms proj) >>= pfCite >>= (`citations` path)

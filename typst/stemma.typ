@@ -37,7 +37,7 @@
     (
       bound: false, owner: none, gloss: none, source: none, paradigm: none,
       variant: none, variant_of: none, notes: none,
-      cells: (), repatterns: (), category: (), fate: (:),
+      cells: (), repatterns: (), category: (), fate: (:), cite: (:),
     ) + it + (id: id)
   }
 
@@ -60,6 +60,14 @@
       regular_spelled: r.at("regular_spelled", default: if lost { regular } else { spelled }),
       category: r.at("category", default: none),
     )
+  }
+
+  // The item an entry is cited by at a stage, as a headword: lexicon.json's
+  // cite gives it where it changes. Where that has no form, the entry itself.
+  let head-item(it, stage) = {
+    let c = path(stage).rev().map(s => it.cite.at(s, default: none)).find(c => c != none)
+    let r = if c == none { none } else { rx(item(c), stage) }
+    if r == none or r.forms == none { it } else { item(c) }
   }
 
   let style(forms, star) = {
@@ -100,22 +108,23 @@
   let entry(id, stage) = {
     let it = item(id)
     let r = rx(it, stage)
-    // An entry with a paradigm is cited by its first cell.
-    let cited = if it.cells.len() > 0 { rx(item(it.cells.at(0)), stage) } else { r }
+    let hd = head-item(it, stage)
+    let cited = rx(hd, stage)
     let head = if cited.spelled != none { cited.spelled.join(" ~ ") } else { cited.forms.join(" ~ ") }
-    // Etymology: the forms on the way here, from where the item was formed.
+    // Etymology: the forms of the cited item on the way here, from where it
+    // was formed.
     let line = path(stage)
-    let from = line.position(s => s == it.formed)
+    let from = line.position(s => s == hd.formed)
     // Nearest stage first; stages where the form did not change are skipped.
     let earlier = line.slice(from, line.len() - 1).rev()
     let shown = earlier.enumerate().filter(((k, s)) => {
       let next = if k + 1 < earlier.len() { earlier.at(k + 1) } else { none }
-      next == none or rx(it, s).forms != rx(it, next).forms
+      next == none or rx(hd, s).forms != rx(hd, next).forms
     }).map(((k, s)) => s)
     let chain = shown.map(s => {
       let info = stage-info.at(s)
       let abbr = if info.abbr != none { info.abbr } else { info.name }
-      [#abbr #reflex(id, s)]
+      [#abbr #reflex(hd.id, s)]
     })
     block(breakable: false, {
       strong(form-style(head))
@@ -128,7 +137,7 @@
   }
 
   // Bound entries are cited with a hyphen (ber-). An entry with a paradigm
-  // is always listed, since it is cited by its first cell.
+  // is always listed, since it is cited by a cell (its `cite`).
   let dictionary(stage, kinds: ("root", "derivative"), bound: true) = {
     let ids = lex.order.filter(i => {
       let it = item(i)
@@ -137,7 +146,7 @@
     })
     let key(i) = {
       let it = item(i)
-      let r = if it.cells.len() > 0 { rx(item(it.cells.at(0)), stage) } else { rx(it, stage) }
+      let r = rx(head-item(it, stage), stage)
       if r.spelled != none { r.spelled.at(0, default: "") } else { "" }
     }
     for i in ids.sorted(key: key) { entry(i, stage) }

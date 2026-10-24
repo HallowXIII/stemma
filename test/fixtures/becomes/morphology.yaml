@@ -8,6 +8,7 @@ affixes:
 
 paradigms:
   verb-old:
+    cite: PST.1S
     cells:
       - NPST.1S: [~, S.1S]
       - PST.1S: [SBJ.1S, ~, PST]
@@ -15,6 +16,7 @@ paradigms:
   # Prefixes and suffixes everywhere; the archaic variant keeps the old
   # suffix, and is new at late.
   verb:
+    cite: NPST.1S
     cells:
       - NPST.1S: [SBJ.1S, ~, S.1S.SHORT]
       - NPST.1S~archaic: [SBJ.1S, ~, S.1S]

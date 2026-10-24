@@ -5,19 +5,28 @@ name: Romance
 notation:
   graphemes: [kʷ, ae, au, oe]
   boundary: "+"
+  internal-boundaries: false   # joined forms are one word to the rules
 
 stages:
   latin:
     name: Latin
     abbr: Lat.
 
+  # Spoken Latin: the loss of h, and the reduced forms of habēre that the
+  # future is built from.
+  vulgar-latin:
+    name: Vulgar Latin
+    abbr: VL
+    parent: latin
+    rules: "rules/latin-to-wr.bsc#1"
+
   # Shared by Spanish and French: stress, the vowel merger, the first
   # lenition.
   western-romance:
     name: Western Romance
     abbr: WR
-    parent: latin
-    rules: rules/latin-to-wr.bsc
+    parent: vulgar-latin
+    rules: "rules/latin-to-wr.bsc#2"
 
   old-spanish:
     name: Old Spanish

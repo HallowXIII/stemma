@@ -19,11 +19,11 @@ import Stemma.Types
 -- cells. Variants follow their main cell.
 paradigmView :: Built -> ItemId -> StageId -> Either [Text] [Text]
 paradigmView b i s = do
-  (it, path) <- selected b i s
+  (it, _) <- selected b i s
   pname <- maybe (Left [i <> " has no paradigm"]) Right (itParadigm it)
   unlessPresent b i s
-  let active = foldl' (\p stage -> fromMaybe p (lookup stage (itRepatterns it))) pname path
-      proj = bProject b
+  let proj = bProject b
+      active = fromMaybe pname (paradigmAt proj it s)
   pd <- maybe (Left ["unknown paradigm " <> active]) Right (Map.lookup active (prParadigms proj))
   let defined = map fst (pfCells pd)
       extra = [c | cid <- itCells it

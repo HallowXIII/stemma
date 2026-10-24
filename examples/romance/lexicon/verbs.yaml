@@ -23,8 +23,19 @@
   expect: { old-french: frajlə, french: fʁɛl }
   notes: |
     Cited in the accusative, which is what survives. Inherited in French as
-    {fragilis @ french}; French fragile (1370) and Spanish frágil are
-    learned, and not yet modelled (FINDINGS.md).
+    {fragilis @ french}, beside learned {fragile-fr @ french}. Spanish has
+    only the learned {fragil-es @ spanish}.
+  derivatives:
+    # Learned borrowings, taken from Latin as written.
+    - id: fragile-fr
+      source: { loan: { from: latin, id: fragilis, adapt: rules/learned-french.bsc } }
+      stage: french
+      notes: First attested in 1370.
+      expect: { french: fʁaʒil }
+    - id: fragil-es
+      source: { loan: { from: latin, id: fragilis, adapt: rules/learned-spanish.bsc } }
+      stage: spanish
+      expect: { spanish: fɾáxil }
 
 - id: cantare
   form: "*kant-"
@@ -109,8 +120,8 @@
   paradigm: verb-e
   events:
     # Reduced in auxiliary use, the source of the future endings.
-    - irregular: { at: western-romance, cell: PRS.1SG, form: "ájo", reason: "auxiliary reduction" }
-    - irregular: { at: western-romance, cell: PRS.3SG, form: "át", reason: "auxiliary reduction" }
+    - irregular: { at: vulgar-latin, cell: PRS.1SG, form: "ájo", reason: "auxiliary reduction" }
+    - irregular: { at: vulgar-latin, cell: PRS.3SG, form: "át", reason: "auxiliary reduction" }
   expect:
     old-spanish: { INF: aβéɾ, PRS.1SG: é, PRS.3SG: á }
     spanish:     { INF: abéɾ, PRS.1SG: é, PRS.3SG: á }

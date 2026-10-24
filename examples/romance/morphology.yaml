@@ -35,18 +35,22 @@ affixes:
   INF.E:    { form: "*-ēre" }
   PRS.3SG.E: { form: "*-et" }
 
-  # The Romance future: the infinitive plus the reduced present of habēre
-  # (Vulgar Latin *ajo, *at). Written stressed, since they kept their own
-  # stress when they became suffixes.
+  # The Romance future: the infinitive plus the reduced present of habēre,
+  # Vulgar Latin *ájo, *át. They keep the stress they have as words.
   FUT.1SG:
-    form: "*-ájo"
-    category: [{ at: latin, is: AUX }, { at: western-romance, is: FUT }]
+    source: { base: habere, cell: PRS.1SG }
+    stage: vulgar-latin
+    category: [{ at: vulgar-latin, is: AUX }, { at: western-romance, is: FUT }]
   FUT.3SG:
-    form: "*-át"
-    category: [{ at: latin, is: AUX }, { at: western-romance, is: FUT }]
+    source: { base: habere, cell: PRS.3SG }
+    stage: vulgar-latin
+    category: [{ at: vulgar-latin, is: AUX }, { at: western-romance, is: FUT }]
 
 paradigms:
+  # Latin nouns and adjectives are cited in the nominative, Romance ones in
+  # the accusative, which is what survives. The -wr paradigms inherit this.
   noun-o:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
     cells:
       - NOM.SG: O.NOM.SG
       - ACC.SG: O.ACC.SG
@@ -60,6 +64,7 @@ paradigms:
       french: ["NOM.*"]
 
   noun-a:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
     cells:
       - NOM.SG: A.NOM.SG
       - ACC.SG: A.ACC.SG
@@ -81,6 +86,7 @@ paradigms:
   # The base is the nominative singular; the other cells are built on the
   # oblique stem, given per entry.
   noun-c:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
     cells:
       - NOM.SG: ~
       - ACC.SG: C.ACC.SG
@@ -100,6 +106,7 @@ paradigms:
       french: ["NOM.*"]
 
   adj-o-a:
+    cite: { latin: M.NOM.SG, western-romance: M.ACC.SG }
     cells:
       - M.NOM.SG: O.NOM.SG
       - M.ACC.SG: O.ACC.SG

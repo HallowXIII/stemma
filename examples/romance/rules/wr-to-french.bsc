@@ -9,8 +9,6 @@ Stop = p b t d k g
 C = Stop kʷ f v s z m n l r j w β ʎ ɲ tʃ dʒ ts dz ʃ ʒ θ ð
 end
 
-+ / / [C V] _ [C V]
-
 [u ú] / [y ý] / _
 ; syncope of the post-tonic vowel of a proparoxytone
 [e i o u] / / Vs C _ C V C* #
@@ -57,7 +55,6 @@ V = Vu Vs N
 C = C ʁ
 end
 
-+ / / [C V] _ [C V]
 tʃ / ʃ / _
 dʒ / ʒ / _
 ts / s / _

@@ -32,7 +32,8 @@ main = do
   overlaid <- checkOverlay
   stageRules <- checkStageRules
   typst <- checkTypst
-  unless (and ok && overlaid && stageRules && typst) exitFailure
+  inputs <- checkInputs
+  unless (and ok && overlaid && stageRules && typst && inputs) exitFailure
 
 -- | @stemma typst@ writes the repository's stemma.typ, and a dictionary
 -- that finds the lexicon from wherever it is written.
@@ -169,6 +170,15 @@ viewFailures dir b
             && ordered "bes.NPST.1S" "bes.NPST.1S~archaic" bes
             && ordered "bes.PST.3P" "bes.PST.3P~dialectal" bes
           _ -> False) ]
+      ++ [ "an entry should be cited by its first cell by default, or as it says"
+         | [cite "ego" "proto", cite "bes" "proto"] /= ["ego.SG.DIR", "bes"] ]
+      ++ [ "cells with the same stem should share one internal item"
+         | [i | i <- Map.keys (prItems (bProject b)), "homo~" `T.isPrefixOf` i] /= ["homo~stem~1"]
+             || any ("~stem" `T.isInfixOf`) (prItemOrder (bProject b))
+             || any (any ("~stem" `T.isInfixOf`) . Map.keys) (Map.elems (bActual b)) ]
+  | dir == "test/fixtures/becomes" =
+      [ "the citation should follow the paradigm in force, unless the entry gives one: " <> T.pack (show cites)
+      | cites /= ["see.PST.1S", "see.NPST.1S", "see.PST.1S", "go.PST.1S", "go"] ]
   | dir == "test/fixtures/allomorphs" =
       [ "the affix's own reflex should list the allomorphs in force"
       | [spelledAt b False s "DAT" | s <- ["mid", "late", "other"]]
@@ -183,9 +193,40 @@ viewFailures dir b
              || any (any ("~" `T.isInfixOf`) . Map.keys) (Map.elems (bActual b)) ]
   | otherwise = []
   where
+    cite i s = maybe "" (\it -> citedAt (bProject b) it s) (Map.lookup i (prItems (bProject b)))
+    cites = [cite "see" "mid", cite "see" "late", cite "see" "other", cite "go" "mid", cite "go" "late"]
     respelled =b {bSpelled = Map.adjust (Map.insert "valyk.SG.DIR" ["written"]) "azal" (bSpelled b)}
     ordered mainCell variant xs = case (findIndex mainCell xs, findIndex variant xs) of
       (Just a, Just c) -> c == a + 1
       _ -> False
     findIndex needle xs = lookup needle
       (zip (map (T.takeWhile (/= ' ') . T.stripStart) (drop 1 xs)) [0 :: Int ..])
+
+-- | Input that would otherwise be silently misread: an id that YAML reads
+-- as a boolean, and an analogy key that is not one grapheme. A replacement
+-- may be written with spaces between its graphemes.
+checkInputs :: IO Bool
+checkInputs = do
+  onId <- buildWith "- id: on\n  form: \"*on\"\n"
+  onBase <- buildWith "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cells:\n    SG.DIR: { base: off }\n"
+  spaced <- buildWith "- id: ka\n  form: \"*ka\"\n  events:\n    - analogy: { at: azal, replace: { a: a i } }\n"
+  wide <- buildWith "- id: ka\n  form: \"*ka\"\n  events:\n    - analogy: { at: azal, replace: { ka: x } }\n"
+  uncited <- buildWith "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cite: NOPE\n"
+  let failures =
+        [ "an id read as a boolean should say so: " <> describe r
+        | r <- [onId, onBase], not (failsWith "read as a boolean; quote it" r) ]
+          ++ [ "a replacement with spaces should be split into graphemes: " <> describe spaced
+             | either (const True) (\b -> spelledAt b False "azal" "ka" /= Just ["kai"]) spaced ]
+          ++ [ "an analogy key of several graphemes should be an error: " <> describe wide
+             | not (failsWith "is not one grapheme" wide) ]
+          ++ [ "a citation naming an unknown cell should be an error: " <> describe uncited
+             | not (failsWith "cite names unknown cell NOPE" uncited) ]
+  forM_ failures $ \f -> TIO.putStrLn ("inputs: " <> f)
+  TIO.putStrLn (if null failures then "inputs: misread input is reported" else "inputs: FAILED")
+  pure (null failures)
+  where
+    buildWith entries = do
+      proj <- loadProjectWith (overlay (Map.singleton "lexicon/zz.yaml" entries) []) "test/fixtures/lost"
+      either (pure . Left) (build brassicaEngine) proj
+    describe = either (T.intercalate "; ") (\b -> "built, ka at azal is " <> T.pack (show (spelledAt b False "azal" "ka")))
+    failsWith msg = either (any (msg `T.isInfixOf`)) (const False)

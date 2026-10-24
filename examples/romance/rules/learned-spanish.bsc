@@ -1,0 +1,27 @@
+; Latin > Spanish in learned words: Latin stress, the accusative ending
+; goes, and Latin letters are read as Spanish ones. Only what the spike's
+; words need.
+
+categories
+Vs = a e i o u
+Vl = ā ē ī ō ū
+Ss = á é í ó ú
+Sl = ā́ ḗ ī́ ṓ ū́
+V = Vs Vl
+S = Ss Sl
+Stop = p b t d k g
+L = l r
+C = Stop f s h m n l r j w
+end
+
+; Latin stress, as in latin-to-wr.bsc
+V / S / # C* _ C* #
+Vl / Sl / _ C* V C* #
+Vs / Ss / _ C C C* V C* # // _ Stop L V C* #
+V / S / _ C* Vs (C) V C* # / _ C* Vs Stop L V C* #
+V / S / _ C* V C* # // S C* _
+
+[ā́ ḗ ī́ ṓ ū́ ā ē ī ō ū] / [á é í ó ú a e i o u]
+e m / / _ #
+r / ɾ / _
+g / x / _ [e i é í]

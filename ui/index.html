@@ -419,11 +419,14 @@ function categoryAt(it, s) {
   return null;
 }
 
-// Headword at a stage: an item with a paradigm is cited by its first cell.
-function headAt(it, stage) {
-  const cid = it.cells.length ? it.cells[0] : it.id;
-  return formsAt(cid, stage);
+// The item an entry is cited by at a stage, as stemma.typ's `entry` gives it:
+// lexicon.json's cite gives it where it changes. Where that has no form, the
+// entry itself.
+function headId(it, stage) {
+  const cid = path(stage).reverse().map((s) => it.cite?.[s]).find((c) => c != null);
+  return cid != null && formsAt(cid, stage) != null ? cid : it.id;
 }
+const headAt = (it, stage) => formsAt(headId(it, stage), stage);
 
 function irregularAt(r) { return r && r.forms != null && !same(r.forms, r.regular); }
 
@@ -849,13 +852,15 @@ function viewDict() {
   const entries = ids.map((id) => {
     const it = S.lex.items[id];
     const r = it.reflexes[stage];
+    // The etymology follows the item the entry is cited by.
+    const hid = headId(it, stage), h = S.lex.items[hid];
     const line = path(stage);
-    const earlier = line.slice(line.indexOf(it.formed), line.length - 1).reverse();
+    const earlier = line.slice(line.indexOf(h.formed), line.length - 1).reverse();
     const shown = earlier.filter((s, k) => {
       const next = earlier[k + 1];
-      return next == null || !same(it.reflexes[s]?.forms, it.reflexes[next]?.forms);
+      return next == null || !same(h.reflexes[s]?.forms, h.reflexes[next]?.forms);
     });
-    const chain = shown.map((s) => `${esc(stageAbbr(s))} ${fmt(formsAt(id, s), s)}`).join(" &lt; ");
+    const chain = shown.map((s) => `${esc(stageAbbr(s))} ${fmt(formsAt(hid, s), s)}`).join(" &lt; ");
     const hw = (headAt(it, stage) || []).join(" ~ ") + (it.bound && !it.cells.length ? "-" : "");
     return `<div class="e"><a href="${href(id)}" class="hw f">${esc(hw)}</a>
       ${r.category ? ` <span class="sc">${esc(r.category)}</span>` : ""}

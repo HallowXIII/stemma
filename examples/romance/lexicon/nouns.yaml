@@ -34,23 +34,17 @@
     old-french:  { NOM.SG: tʃjevrə, ACC.SG: tʃjevrə, NOM.PL: tʃjevrəs, ACC.PL: tʃjevrəs }
     french:      { ACC.SG: ʃɛvʁ, ACC.PL: ʃɛvʁ }
 
-# The oblique stem has to be an item of its own, since a cell can't be
-# given a written stem (FINDINGS.md).
-- id: homin
-  form: "*homin-"
-  gloss: "oblique stem of homō"
-
 - id: homo
   form: "*homō"
   gloss: "man, person"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
   cells:
-    ACC.SG: { base: homin }
-    GEN.SG: { base: homin }
-    NOM.PL: { base: homin }
-    ACC.PL: { base: homin }
-    GEN.PL: { base: homin }
+    ACC.SG: { stem: "*homin-" }
+    GEN.SG: { stem: "*homin-" }
+    NOM.PL: { stem: "*homin-" }
+    ACC.PL: { stem: "*homin-" }
+    GEN.PL: { stem: "*homin-" }
   events:
     # Castilian omne, without the diphthong of Leonese uemne.
     - analogy: { at: old-spanish, cell: ACC.SG, replace: { ɔ́: ó }, model: "unstressed use" }

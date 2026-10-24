@@ -9,3 +9,18 @@
     mid:   { NPST.1S: berne, PST.1S: biberga }
     late:  { NPST.1S: bibern, NPST.1S~archaic: biberni, PST.1S: bibergan, NPST.1S>3S: biabern }
     other: { NPST.1S: berme, PST.1S: biberka }
+
+# A stem of its own for the past, kept when the paradigm changes at late,
+# and a cell joined at late on a stem written as entering late.
+- id: go
+  form: "*tor-"
+  bound: true
+  paradigm: verb-old
+  cite: { late: ~ }                # the bare stem, from late on
+  cells:
+    PST.1S: { stem: "*tek-" }
+    NPST.1S>3S: { at: late, stem: "tag-", morph: [SBJ.1S, OBJ, ~, S.1S.SHORT] }
+  expect:
+    mid:   { NPST.1S: torne, PST.1S: bitegga }
+    late:  { NPST.1S: bitorn, NPST.1S~archaic: bitorni, PST.1S: biteggan, NPST.1S>3S: biatagn }
+    other: { PST.1S: bitekka }
