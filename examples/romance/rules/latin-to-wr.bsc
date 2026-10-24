@@ -14,6 +14,8 @@ S = Ss Sl
 Stop = p b t d k g kʷ gʷ
 L = l r
 C = Stop f s h m n l r j w z β ʎ ɲ ts dz
+; ° marks a clitic; it keeps stress off the word
+U = °
 end
 
 h / / _
@@ -35,7 +37,12 @@ V / S / _ C* Vs (C) V C* # / _ C* Vs Stop L V C* #
 ; otherwise the penult
 V / S / _ C* V C* # // S C* _
 
+; clitics stay unstressed
+° / / _
+
 ; --- Vowels ---
+; quem > quien: final m of a stressed monosyllable
+m / n / # C* S _ #
 m / / [V S] _ #
 ; final n of neuters in -men
 n / / V _ #

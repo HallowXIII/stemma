@@ -32,6 +32,19 @@ affixes:
   DIM:      { form: "*-icul-" }
   AUG:      { form: "*-ākeōn-" }
 
+  # ille. ° marks a clitic: it keeps the Latin stress rules off the word,
+  # and Western Romance drops it once stress is assigned.
+  D.UM:  { form: "*-um°" }
+  D.AM:  { form: "*-am°" }
+  D.A:   { form: "*-a°" }
+  D.E:   { form: "*-e°" }
+  D.I:   { form: "*-ī°" }
+  D.OS:  { form: "*-ōs°" }
+  D.AS:  { form: "*-ās°" }
+  # stressed
+  D.I.T: { form: "*-ī" }
+  D.E.T: { form: "*-e" }
+
   # first conjugation
   INF.A:
     form: "*-āre"
@@ -233,3 +246,67 @@ paradigms:
     cells:
       - ACC.SG: C.ACC.SG
       - ACC.PL: C.ACC.PL
+
+  # Third-declension adjectives: one form for both genders, as in OF grant.
+  adj-c:
+    cite: { latin: M.NOM.SG, western-romance: M.ACC.SG }
+    cells:
+      - M.NOM.SG: C.NOM.SG.IS
+      - M.ACC.SG: C.ACC.SG
+      - M.NOM.PL: C.NOM.PL
+      - M.ACC.PL: C.ACC.PL
+      - F.NOM.SG: C.NOM.SG.IS
+      - F.ACC.SG: C.ACC.SG
+      - F.NOM.PL: C.NOM.PL
+      - F.ACC.PL: C.ACC.PL
+    becomes: { western-romance: adj-c-wr }
+  adj-c-wr:
+    extends: adj-c
+    cells:
+      - M.NOM.PL: O.NOM.PL
+    lost:
+      old-spanish: ["*.NOM.*"]
+      french: ["*.NOM.*"]
+
+  # Personal pronouns: each cell has a stem of its own, by entry. The
+  # entry's form is the stressed object form.
+  pron:
+    cite: NOM
+    cells:
+      - NOM: ~
+      - TONIC: ~
+      - CLITIC: ~
+
+  # ille: articles, the stressed pronoun, and the object clitics.
+  ille:
+    cite: ART.M.SG
+    cells:
+      - ART.M.SG: D.UM
+      - ART.M.NOM.SG: D.I
+      - ART.F.SG: D.A
+      - ART.M.PL: D.OS
+      - ART.M.NOM.PL: D.I
+      - ART.F.PL: D.AS
+      - PRON.M.SG: D.I.T
+      - CLITIC.M: D.UM
+      - CLITIC.F: D.AM
+    lost:
+      old-spanish: ["*.NOM.*"]
+      french: ["*.NOM.*"]
+
+  # Numerals and other words with a nominative and an accusative.
+  case2:
+    cite: { latin: M.NOM, western-romance: M.ACC }
+    cells:
+      - M.NOM: ~
+      - M.ACC: ~
+    lost:
+      old-spanish: ["M.NOM"]
+      french: ["M.NOM"]
+
+  # Relative and interrogative qui.
+  rel:
+    cite: NOM
+    cells:
+      - NOM: ~
+      - ACC: ~

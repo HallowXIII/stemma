@@ -756,7 +756,7 @@ ego	mē	CLITIC	old-french	inherited	me	mə	high	https://en.wiktionary.org/wiki/m
 ego	ego	NOM	french	inherited	je	ʒə	high	https://fr.wiktionary.org/wiki/je	
 ego	mē	TONIC	french	inherited	moi	mwa	high	https://fr.wiktionary.org/wiki/moi	
 ego	mē	CLITIC	french	inherited	me	mə	high	standard	
-ego	ego	NOM	old-spanish	inherited	yo; hyo	ʝó	high	PidalCid §73.1 (égo yo hyo); PidalManual §93.1 (ego > VL eo > yo); Cid text 'yo'	initial palatal written ʝ to match modern Spanish; /jó/ is also defensible for 1200
+ego	ego	NOM	old-spanish	inherited	yo; hyo	jó	high	PidalCid §73.1 (égo yo hyo); PidalManual §93.1 (ego > VL eo > yo); Cid text 'yo'	initial palatal written ʝ to match modern Spanish; /jó/ is also defensible for 1200 [build: j, as OSp yerva; ʝ is modern]
 ego	mihi	TONIC	old-spanish	inherited	mi	mí	high	PidalCid §73.1 (mihi mi; always after a preposition: a mi); PidalManual §93.1 ('mi ó mihi da mi')	Pidal derives it from the dative, not from mē
 ego	mē	CLITIC	old-spanish	inherited	me	me	high	PidalCid §73.2 (mé me); PidalManual §94.1	apocopated m after a vowel in the Cid (nom, quem)
 ego	ego	NOM	spanish	inherited	yo	ʝó	high	standard	
@@ -823,9 +823,9 @@ unus	ūnum	M.ACC.SG	spanish	inherited	uno	úno	high	standard	un before a noun
 unus	ūnam	F.ACC.SG	spanish	inherited	una	úna	high	standard	
 duo	*duī	M.NOM	old-french	inherited	dui; doi	dui	medium	NyropII §481.2 (VL *dui > dui, doi; Li dui fer, Claris); https://en.wiktionary.org/wiki/deus (nom. dui < VL *duī)	dui and doi were used indifferently (NyropII). Falling diphthong ui assumed
 duo	duōs	M.ACC	old-french	inherited	deus; dous	dows	medium	NyropII §481.2 (duos > dous, deus; Entre les deus furceles, Roland 1294); https://en.wiktionary.org/wiki/deus (OF /deu̯s/)	written ou per CONVENTIONS (ō/ŭ diphthong); Wiktionary /deu̯s/. Also used for the feminine except in the East (does, doues)
-duo	duōs	M	french	inherited	deux	dø	high	NyropII §481.2c (only the oblique deus survives; spelling deux arbitrary)	liaison /døz/ not given
-duo	duōs	M	old-spanish	inherited	dos	dós	high	PidalManual §89.1 (duos, dos); PidalCid §68.1	feminine dues once in the Cid (255), otherwise dos for both genders (PidalCid §68.1 and the note to it); duas, dues in other 13th c. texts
-duo	duōs	M	spanish	inherited	dos	dós	high	standard	
+duo	duōs	M.ACC	french	inherited	deux	dø	high	NyropII §481.2c (only the oblique deus survives; spelling deux arbitrary)	liaison /døz/ not given [build: the cell of OF deus]
+duo	duōs	M.ACC	old-spanish	inherited	dos	dós	high	PidalManual §89.1 (duos, dos); PidalCid §68.1	feminine dues once in the Cid (255), otherwise dos for both genders (PidalCid §68.1 and the note to it); duas, dues in other 13th c. texts [build: the cell of OF deus]
+duo	duōs	M.ACC	spanish	inherited	dos	dós	high	standard	[build: the cell of OF deus]
 tres	trēs	-	old-french	inherited	trois; treis	trojs	medium	NyropII §481.3 (tres > treis, trois); https://en.wiktionary.org/wiki/trois (OF /ˈtɾoi̯s/; treis 12th c. or Anglo-Norman)	oj as for moi; /trejs/ for the older value. Nominative masculine trei/troi also exists (NyropII §481.3)
 tres	trēs	-	french	inherited	trois	tʁwa	high	standard	
 tres	trēs	-	old-spanish	inherited	tres	tɾés	high	PidalManual §89.1; PidalCid §68.1; Cid text 'tres'	

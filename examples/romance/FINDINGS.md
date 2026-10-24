@@ -237,6 +237,32 @@ Found while building the full word list, batch by batch.
     reason category on `irregular` (conservative, semi-learned, ...)
     would make the count meaningful.
 
+17. **Clitics need a marker.** Articles and object pronouns are
+    unstressed, but the Latin stress rules would stress *illum*, *mē*. The
+    example writes clitic affixes and stems with `°`, which keeps the
+    stress rules off them as an edge boundary does, and Western Romance
+    drops it. It works, but it is notation for what is a property of the
+    item: a `clitic: true` on an entry, affix or cell could add the mark
+    itself.
+
+18. **A cell can't have a stem and also be re-formed on one line.** One
+    override per cell, so where a cell continues different etyma on the
+    two lines (*mihi* > Spanish *mí*, *mē* > OF *moi*; *ille* > Spanish
+    *el*, *illum* > OF *le*), one of them has to be the entry's form or
+    the paradigm's template. *nomen* (finding 12) and *ego* are shaped
+    by this. Overrides keyed by line, or a list of `at:` re-formings per
+    cell, would lift it.
+
+19. **Plurals remade on the singular repeat.** French *chefs*, *secs*,
+    *neufs* are each an `at: french` re-form of the plural on the
+    singular cell, per entry. With the verbs' *-ons* and *-e* still to
+    come, a paradigm-level `at:` cell (or a `becomes` that re-forms only
+    named cells) looks worth having.
+
+    Of the 24 `irregular`s so far, 12 are three semi-learned or dialectal
+    words (*estoile*, *pueple*, *claro*) that one analogy each would do
+    with an intermediate stage (finding 15).
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.

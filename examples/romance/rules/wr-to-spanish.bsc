@@ -10,8 +10,6 @@ end
 
 ; voicing, before the syncope (comite > conde)
 [p t k kʷ] / [b d g gʷ] / V _ [V r l]
-; Latin d (pede > pie)
-ð / / _
 ; intervocalic j after a front vowel (digitus)
 j / / é _ e C V
 é e / é / _
@@ -22,6 +20,13 @@ j / / é _ e C V
 β / b / _ d
 m / n / _ d
 j / / # _ e
+; Latin d (pede > pie), but kept after a consonant (viride > verde)
+ð / d / C _
+ð / / _
+[ó o] l t / [ú u] tʃ / _
+k k / k / _
+t t / t / _
+p p / p / _
 ; omne > omre > ombre, spreading through the lexicon (nombre by 1200)
 n / ɾ / m _
 / b / m _ ɾ
@@ -36,6 +41,11 @@ au / o / _
 ; the infinitive's -e before the auxiliary in the future
 e / / _ Vs
 á j o / é / _ #
+; clitics: elle > el; illum > lo
+e / / V l l _ #
+l l / l / _ #
+e / / # _ l l V
+l l / l / # _
 ; palatals: Western Romance ʎ (filius, oculus) > ʒ, then ll > ʎ
 ʎ / ʒ / _
 l l / ʎ / _
@@ -43,6 +53,7 @@ n n / ɲ / _
 j t / tʃ / _
 ; pl-, kl-, fl-
 [p k] l / ʎ / # _
+kʷ / k / _ [i í j e é]
 kʷ / k w / _
 gʷ / g w / _
 t / / _ #

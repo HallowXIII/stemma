@@ -1,0 +1,225 @@
+# Adjectives. Expected forms are generated from attested.tsv by
+# research/expect.sh, which gives sources.
+
+- id: plenus
+  form: "*plēn-"
+  gloss: "full"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  expect:
+    old-spanish: { M.ACC.SG: ʎéno, M.ACC.PL: ʎénos, F.ACC.SG: ʎéna, F.ACC.PL: ʎénas }
+    spanish: { M.ACC.SG: ʎéno, M.ACC.PL: ʎénos, F.ACC.SG: ʎéna, F.ACC.PL: ʎénas }
+    old-french: { M.NOM.SG: plejns, M.ACC.SG: plejn, M.NOM.PL: plejn, M.ACC.PL: plejns, F.ACC.SG: plejnə, F.ACC.PL: plejnəs }
+    french: { M.ACC.SG: plɛ̃, M.ACC.PL: plɛ̃, F.ACC.SG: plɛn, F.ACC.PL: plɛn }
+
+- id: fragilis
+  form: "*fragil-"
+  gloss: "fragile, frail"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-c
+  fate: { old-spanish: lost }
+  events:
+    # fraile, without -s, like other adjectives in -e
+    - analogy: { at: old-french, cell: M.NOM.SG, replace: { s: "" }, model: "adjectives in -e" }
+  notes: |
+    Inherited in French as {fragilis @ french}, beside learned
+    {fragile-fr @ french}. Spanish has only the learned {fragil-es @ spanish}.
+  derivatives:
+    # Learned borrowings, taken from Latin as written.
+    - id: fragile-fr
+      source: { loan: { from: latin, id: fragilis.M.ACC.SG, adapt: rules/learned-french.bsc } }
+      stage: french
+      notes: First attested in 1370.
+      expect: { french: fʁaʒil }
+    - id: fragil-es
+      source: { loan: { from: latin, id: fragilis.M.ACC.SG, adapt: rules/learned-spanish.bsc } }
+      stage: spanish
+      expect: { spanish: fɾáxil }
+  expect:
+    old-french: { M.NOM.SG: frajlə, M.ACC.SG: frajlə, M.NOM.PL: frajlə, M.ACC.PL: frajləs, F.ACC.SG: frajlə, F.ACC.PL: frajləs }
+    french: { M.ACC.SG: fʁɛl, M.ACC.PL: fʁɛl, F.ACC.SG: fʁɛl, F.ACC.PL: fʁɛl }
+
+- id: bonus
+  form: "*bon-"
+  gloss: "good"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  events:
+    # Francien bon, not buen: unstressed before its noun
+    - analogy: { at: old-french, replace: { ɔ́: o }, model: "proclitic use" }
+  expect:
+    old-spanish: { M.ACC.SG: bwéno, M.ACC.PL: bwénos, F.ACC.SG: bwéna, F.ACC.PL: bwénas }
+    spanish: { M.ACC.SG: bwéno, M.ACC.PL: bwénos, F.ACC.SG: bwéna, F.ACC.PL: bwénas }
+    old-french: { M.NOM.SG: bons, M.ACC.SG: bon, M.NOM.PL: bon, M.ACC.PL: bons, F.ACC.SG: bonə, F.ACC.PL: bonəs }
+    french: { M.ACC.SG: bɔ̃, M.ACC.PL: bɔ̃, F.ACC.SG: bɔn, F.ACC.PL: bɔn }
+
+- id: novus
+  form: "*now-"
+  gloss: "new"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  cells:
+    # neufs: the plural remade on the singular
+    M.ACC.PL: { at: french, base: novus.M.ACC.SG, morph: ~ }
+  expect:
+    old-spanish: { M.ACC.SG: nwéβo, M.ACC.PL: nwéβos, F.ACC.PL: nwéβas }
+    spanish: { M.ACC.SG: nwébo, M.ACC.PL: nwébos, F.ACC.SG: nwéba, F.ACC.PL: nwébas }
+    old-french: { M.NOM.SG: nwɛs, M.ACC.SG: nwɛf, M.NOM.PL: nwɛf, M.ACC.PL: nwɛs, F.ACC.SG: nwɛvə, F.ACC.PL: nwɛvəs }
+    french: { M.ACC.SG: nœf, M.ACC.PL: nœf, F.ACC.SG: nœv, F.ACC.PL: nœv }
+
+- id: altus
+  form: "*alt-"
+  gloss: "high"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  events:
+    # haut: h- from Frankish *hauh
+    - analogy: { at: old-french, replace: { á: h á }, model: "Frankish *hauh" }
+  expect:
+    old-spanish: { M.ACC.SG: álto, M.ACC.PL: áltos, F.ACC.SG: álta, F.ACC.PL: áltas }
+    spanish: { M.ACC.SG: álto, M.ACC.PL: áltos, F.ACC.SG: álta, F.ACC.PL: áltas }
+    old-french: { M.NOM.SG: hawts, M.ACC.SG: hawt, M.NOM.PL: hawt, M.ACC.PL: hawts, F.ACC.SG: hawtə, F.ACC.PL: hawtəs }
+    french: { M.ACC.SG: o, M.ACC.PL: o, F.ACC.SG: ot, F.ACC.PL: ot }
+
+- id: grandis
+  form: "*grand-"
+  gloss: "big"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-c
+  cells:
+    # French feminine -e, after bonne
+    F.ACC.SG: { at: french, stem: "grand-", morph: [~, A.ACC.SG] }
+    F.ACC.PL: { at: french, stem: "grand-", morph: [~, A.ACC.PL] }
+  expect:
+    old-spanish: { M.ACC.SG: gɾánde, M.ACC.PL: gɾándes, F.ACC.SG: gɾánde, F.ACC.PL: gɾándes }
+    spanish: { M.ACC.SG: gɾánde, M.ACC.PL: gɾándes, F.ACC.SG: gɾánde, F.ACC.PL: gɾándes }
+    old-french: { M.NOM.SG: grants, M.ACC.SG: grant, M.NOM.PL: grant, M.ACC.PL: grants, F.ACC.SG: grant, F.ACC.PL: grants }
+    french: { M.ACC.SG: gʁɑ̃, M.ACC.PL: gʁɑ̃, F.ACC.SG: gʁɑ̃d, F.ACC.PL: gʁɑ̃d }
+
+- id: fortis
+  form: "*fort-"
+  gloss: "strong"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-c
+  cells:
+    # French feminine -e, after bonne
+    F.ACC.SG: { at: french, stem: "fɔrt-", morph: [~, A.ACC.SG] }
+    F.ACC.PL: { at: french, stem: "fɔrt-", morph: [~, A.ACC.PL] }
+  expect:
+    old-spanish: { M.ACC.SG: fwéɾte, M.ACC.PL: fwéɾtes, F.ACC.SG: fwéɾte, F.ACC.PL: fwéɾtes }
+    spanish: { M.ACC.SG: fwéɾte, M.ACC.PL: fwéɾtes, F.ACC.SG: fwéɾte, F.ACC.PL: fwéɾtes }
+    old-french: { M.NOM.SG: fɔrts, M.ACC.SG: fɔrt, M.NOM.PL: fɔrt, M.ACC.PL: fɔrts, F.ACC.SG: fɔrt, F.ACC.PL: fɔrts }
+    french: { M.ACC.SG: fɔʁ, M.ACC.PL: fɔʁ, F.ACC.SG: fɔʁt, F.ACC.PL: fɔʁt }
+
+- id: viridis
+  form: "*wirid-"
+  gloss: "green"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-c
+  cells:
+    # French feminine -e, after bonne
+    F.ACC.SG: { at: french, stem: "vert-", morph: [~, A.ACC.SG] }
+    F.ACC.PL: { at: french, stem: "vert-", morph: [~, A.ACC.PL] }
+  expect:
+    old-spanish: { M.ACC.SG: βéɾde }
+    spanish: { M.ACC.SG: béɾde, M.ACC.PL: béɾdes, F.ACC.SG: béɾde, F.ACC.PL: béɾdes }
+    old-french: { M.NOM.SG: verts, M.ACC.SG: vert, M.NOM.PL: vert, M.ACC.PL: verts, F.ACC.SG: vert, F.ACC.PL: verts }
+    french: { M.ACC.SG: vɛʁ, M.ACC.PL: vɛʁ, F.ACC.SG: vɛʁt, F.ACC.PL: vɛʁt }
+
+- id: longus
+  form: "*long-"
+  gloss: "long"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  cells:
+    # French feminine -e, after bonne
+    F.ACC.SG: { at: french, stem: "long-", morph: [~, A.ACC.SG] }
+    F.ACC.PL: { at: french, stem: "long-", morph: [~, A.ACC.PL] }
+  events:
+    # lonc, not *loing: the nominative plural remade on the other cells
+    - analogy: { at: old-french, cell: M.NOM.PL, replace: { ɲ: n g }, model: "lonc" }
+  expect:
+    old-spanish: { M.ACC.SG: lwéngo, F.ACC.SG: lwénga }
+    spanish: { M.ACC.SG: lwéngo, F.ACC.SG: lwénga }
+    old-french: { M.NOM.SG: lons, M.ACC.SG: lonk, M.NOM.PL: lonk, M.ACC.PL: lons, F.ACC.SG: londʒə, F.ACC.PL: londʒəs }
+    french: { M.ACC.SG: lɔ̃, M.ACC.PL: lɔ̃, F.ACC.SG: lɔ̃g, F.ACC.PL: lɔ̃g }
+
+- id: clarus
+  form: "*klār-"
+  gloss: "clear, bright"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  events:
+    # Spanish claro, not *llaro: semi-learned. An event at Old Spanish
+    # comes before kl- > ʎ- (FINDINGS.md), so these are irregular.
+    - irregular: { at: old-spanish, cell: M.ACC.SG, form: "kláɾo", reason: "semi-learned" }
+    - irregular: { at: old-spanish, cell: M.ACC.PL, form: "kláɾos", reason: "semi-learned" }
+    - irregular: { at: old-spanish, cell: F.ACC.SG, form: "kláɾa", reason: "semi-learned" }
+    - irregular: { at: old-spanish, cell: F.ACC.PL, form: "kláɾas", reason: "semi-learned" }
+  expect:
+    old-spanish: { M.ACC.SG: kláɾo, M.ACC.PL: kláɾos, F.ACC.SG: kláɾa }
+    spanish: { M.ACC.SG: kláɾo, M.ACC.PL: kláɾos, F.ACC.SG: kláɾa, F.ACC.PL: kláɾas }
+    old-french: { M.NOM.SG: klers, M.ACC.SG: kler, M.NOM.PL: kler, M.ACC.PL: klers, F.ACC.SG: klerə, F.ACC.PL: klerəs }
+    french: { M.ACC.SG: klɛʁ, M.ACC.PL: klɛʁ, F.ACC.SG: klɛʁ, F.ACC.PL: klɛʁ }
+
+- id: siccus
+  form: "*sikk-"
+  gloss: "dry"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  cells:
+    # secs: the plural remade on the singular
+    M.ACC.PL: { at: french, base: siccus.M.ACC.SG, morph: ~ }
+  events:
+    # sec, not *seiz: the nominative plural remade on the other cells
+    - analogy: { at: old-french, cell: M.NOM.PL, replace: { ts: k }, model: "sec" }
+  expect:
+    old-spanish: { M.ACC.SG: séko }
+    spanish: { M.ACC.SG: séko, M.ACC.PL: sékos, F.ACC.SG: séka, F.ACC.PL: sékas }
+    old-french: { M.NOM.SG: ses, M.ACC.SG: sek, M.NOM.PL: sek, M.ACC.PL: ses, F.ACC.SG: setʃə, F.ACC.PL: setʃəs }
+    french: { M.ACC.SG: sɛk, M.ACC.PL: sɛk, F.ACC.SG: sɛʃ, F.ACC.PL: sɛʃ }
+
+- id: malus
+  form: "*mal-"
+  gloss: "bad"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  events:
+    # mal, not *mel: after the adverb mal (male)
+    - analogy: { at: old-french, replace: { á: a }, model: "the adverb mal" }
+  expect:
+    old-spanish: { M.ACC.SG: málo, M.ACC.PL: málos, F.ACC.SG: mála, F.ACC.PL: málas }
+    spanish: { M.ACC.SG: málo, M.ACC.PL: málos, F.ACC.SG: mála, F.ACC.PL: málas }
+    old-french: { M.NOM.SG: maws, M.ACC.SG: mal, M.NOM.PL: mal, M.ACC.PL: maws, F.ACC.SG: malə, F.ACC.PL: maləs }
+    french: { M.ACC.SG: mal }
+
+- id: multus
+  form: "*mult-"
+  gloss: "much"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  expect:
+    old-spanish: { M.ACC.SG: mútʃo, M.ACC.PL: mútʃos, F.ACC.SG: mútʃa, F.ACC.PL: mútʃas }
+    spanish: { M.ACC.SG: mútʃo, M.ACC.PL: mútʃos, F.ACC.SG: mútʃa, F.ACC.PL: mútʃas }
+    old-french: { M.NOM.SG: mowts, M.ACC.SG: mowt, M.ACC.PL: mowts, F.ACC.SG: mowtə, F.ACC.PL: mowtəs }
+    french: { M.ACC.SG: mu }
+
+- id: largus
+  form: "*larg-"
+  gloss: "abundant; long (Spanish)"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  fate: { old-french: lost }
+  expect:
+    spanish: { M.ACC.SG: láɾgo, F.ACC.SG: láɾga }
+
+- id: malifatius
+  form: "*malifāti-"
+  gloss: "ill-fated; bad (French)"
+  category: [{ at: vulgar-latin, is: ADJ }]
+  paradigm: adj-o-a
+  stage: vulgar-latin
+  fate: { old-spanish: lost }
+  expect:
+    old-french: { M.ACC.SG: mawvajs }
+    french: { M.ACC.SG: movɛ, M.ACC.PL: movɛ, F.ACC.SG: movɛz, F.ACC.PL: movɛz }
