@@ -186,7 +186,7 @@ does instead, and what stemma could do about it.
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
-`attested-notes.md` lists where sources disagree. All 141 expected
+`research/*-notes.md` list where sources disagree. All 141 expected
 forms are reproduced. The main judgement calls:
 
 - **Sources.** The research couldn't reach Pope, Penny, Lloyd or Einhorn.
