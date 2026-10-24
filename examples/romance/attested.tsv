@@ -1698,7 +1698,7 @@ legere	legō	PRS.1SG	old-french	inherited	li	li	medium	https://en.wiktionary.org
 legere	legis	PRS.2SG	old-french	inherited	lis	lis	medium	https://en.wiktionary.org/wiki/lire#Old_French (conjugation table)	
 legere	legit	PRS.3SG	old-french	inherited	list	list	medium	https://en.wiktionary.org/wiki/lire#Old_French (conjugation table)	
 legere	legimus	PRS.1PL	old-french	analogical	lisons	lizons	medium	https://en.wiktionary.org/wiki/lire#Old_French (conjugation table); NyropII §44 (lire, lisoie made on dire, disoie)	stem lis- after dire, disons; -ons < *-umus spread from sumus (NyropII §55), not the regular reflex of the Latin 1pl ending
-legere	legitis	PRS.2PL	old-french	analogical	lisiez	liziets	low	https://en.wiktionary.org/wiki/lire#Old_French (conjugation table)	-iez after the palatal stem (Wiktionary); lisez also
+legere	legitis	PRS.2PL	old-french	analogical	lisiez	lizjets	low	https://en.wiktionary.org/wiki/lire#Old_French (conjugation table)	-iez after the palatal stem (Wiktionary); lisez also [build: ie as je, by the conventions]
 legere	legunt	PRS.3PL	old-french	analogical	lisent	lizənt	medium	https://en.wiktionary.org/wiki/lire#Old_French (conjugation table); NyropII §44	stem lis- after disent
 legere	legere habeō	FUT.1SG	old-french	inherited	lirai	liraj	low	https://en.wiktionary.org/wiki/lire#Old_French (conjugation table)	final ai kept as /aj/ as in the pilot; NyropI §200 has verb-final ai > [e] already in the 12th c.
 legere	legere habet	FUT.3SG	old-french	inherited	lira	lira	medium	https://en.wiktionary.org/wiki/lire#Old_French (conjugation table)	
@@ -1799,8 +1799,8 @@ sapere	sapit	PRS.3SG	french	inherited	sait	sɛ	high	standard; https://en.wiktion
 sapere	*sapēmus	PRS.1PL	french	analogical	savons	savɔ̃	high	standard; https://en.wiktionary.org/wiki/savoir#French	-ons < *-umus spread from sumus (NyropII §55), not the regular reflex of the Latin 1pl ending
 sapere	*sapētis	PRS.2PL	french	analogical	savez	save	high	standard; https://en.wiktionary.org/wiki/savoir#French	-ez < -ātis spread to the other conjugations; -ētis/-ĭtis/-ītis would not give -ez (NyropII §56-57)
 sapere	*sapunt	PRS.3PL	french	analogical	savent	sav	high	standard; NyropII §25	OF sevent; unstressed stem sav- generalised
-sapere	*sapēre habeō	FUT.1SG	french	inherited	saurai	soʁe	high	standard; https://en.wiktionary.org/wiki/savoir#French	
-sapere	*sapēre habet	FUT.3SG	french	inherited	saura	soʁa	high	standard; https://en.wiktionary.org/wiki/savoir#French	
+sapere	*sapēre habeō	FUT.1SG	french	inherited	saurai	sɔʁe	high	standard; https://en.wiktionary.org/wiki/savoir#French	[build: ɔ, as aurai]
+sapere	*sapēre habet	FUT.3SG	french	inherited	saura	sɔʁa	high	standard; https://en.wiktionary.org/wiki/savoir#French	[build: ɔ, as aurai]
 sapere	sapuit	PRET.3SG	french	analogical	sut	sy	high	standard; NyropII §195.2	u of the weak persons generalised (sout > sut)
 sapere	*sapūtum	PTCP	french	analogical	su	sy	high	standard; NyropII §92	VL analogical -ūtum participle (NyropII §92)
 cadere	*cadēre	INF	old-spanish	analogical	caer	kaéɾ	high	Cid text (caer ~3); PidalManual §110, §113.2 ('vulgar *cadére, por cadĕre')	conjugation shift -ĕre > -ēre; Hispano-Romance merged the two conjugations (PidalManual §110)
@@ -1867,7 +1867,7 @@ placere	placeō	PRS.1SG	old-french	inherited	plaz	plats	medium	https://en.wiktio
 placere	placēs	PRS.2SG	old-french	inherited	plais	plajs	medium	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	
 placere	placet	PRS.3SG	old-french	inherited	plaist	plajst	high	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table); TLFi https://www.cnrtl.fr/etymologie/plaire (1160-74 Wace 's'il vus plaist')	
 placere	placēmus	PRS.1PL	old-french	analogical	plaisons	plajzons	medium	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	-ons < *-umus spread from sumus (NyropII §55), not the regular reflex of the Latin 1pl ending
-placere	placētis	PRS.2PL	old-french	analogical	plaisiez	plajziets	low	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	-iez after the palatal stem; -ez < -ātis spread to the other conjugations; -ētis/-ĭtis/-ītis would not give -ez (NyropII §56-57)
+placere	placētis	PRS.2PL	old-french	analogical	plaisiez	plajzjets	low	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	-iez after the palatal stem; -ez < -ātis spread to the other conjugations; -ētis/-ĭtis/-ītis would not give -ez (NyropII §56-57) [build: ie as je, by the conventions]
 placere	placent	PRS.3PL	old-french	inherited	plaisent	plajzənt	medium	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	
 placere	placēre habeō	FUT.1SG	old-french	inherited	plairai	plajraj	low	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	final ai kept as /aj/ as in the pilot; NyropI §200 has verb-final ai > [e] already in the 12th c.
 placere	placēre habet	FUT.3SG	old-french	inherited	plaira	plajra	medium	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	

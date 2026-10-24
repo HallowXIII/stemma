@@ -19,12 +19,18 @@ l l / l / # _
 [e o] / ə / # C _ #
 j / dʒ / # _ V
 ; the infinitive's -e before the auxiliary in the future
-e / / _ Vs
+e / / r _ Vs
+; cells re-formed here are joined from Western Romance forms, so k and g
+; before a front vowel again (plaisir)
+k / dz / V _ [e i é í ɛ́]
+; s between vowels again (peser, from pēsāre)
+s / z / V _ V
 β / b / [r l] _
 β / v / _
 [u ú] / [y ý] / _
 ; syncope of the post-tonic vowel of a proparoxytone
-[e i o u] / / V C _ C V C* # / V s b _ C V C* # / V C C _ r V C* #
+[e i o u] / / V C _ C V C* # / V s b _ C V C* # / Vs C C _ r V C* #
+e / / V C C _ r Vs
 ; presbyter: prestre, provoire
 b / / s _ t
 s / / _ b
@@ -47,7 +53,7 @@ kʷ / k / _ [i í e é]
 kʷ / k w / _
 ; focus: g before a back vowel
 ɔ́ g / ó w / _ [o u i]
-g / / V _ [o u]
+g / / V _ [o u ý y]
 
 b / v / V _ [V r l]
 e / o / r _ v
@@ -56,31 +62,38 @@ e / o / r _ v
 r j / j r / _
 ɔ́ j / ý j / _
 ɔ́ / ó / _ [m n] C
-é / é j / _ C V / _ [Stop v] [r l] V / _ #  / _ C # // _ [ʎ j]
-ɛ́ / j é / _ C V / _ [Stop v] [r l] V / _ V / _ C #
-ɔ́ / w ɛ́ / _ C V / _ [Stop v] [r l] V / _ V / _ C #
-ó / ó w / _ C V / _ [Stop v] [r l] V / _ C # // _ [m n w]
+é / é j / _ C V / _ [Stop v ð] [r l] V / _ #  / _ C # // _ [ʎ j]
+ɛ́ / j é / _ C V / _ [Stop v ð] [r l] V / _ V / _ C #
+ɔ́ / w ɛ́ / _ C V / _ [Stop v ð] [r l] V / _ V / _ C #
+ó / ó w / _ C V / _ [Stop v ð] [r l] V / _ C # // _ [m n w]
 ; Bartsch's law
-á / j é / [tʃ dʒ j] _ C V / [tʃ dʒ j] _ [Stop v] [r l] V
+á / j é / [tʃ dʒ j dz] _ C V / [tʃ dʒ j dz] _ [Stop v ð] [r l] V
 á / á j / _ [m n] V
 á / á j / _ [ts dz]
-á / é / _ C V / _ [Stop v] [r l] V // _ j
-[áu au] / [ɔ́ ɔ] / _
+a / a j / _ dz
+á / é / _ C V / _ [Stop v ð] [r l] V // _ j
+[áu au] / [ɔ́ o] / _
 
 
 ; --- unstressed vowels ---
 a / ə / [tʃ dʒ] _ C V
 a / ə / V C* _ C* Vs
 a / ə / _ C* # // # l _ #
-[e i o] / ə / [Stop m β v] [r l n] _ (s) # / j l _ (s) # / m t _ (s) # / dz r _ (s) # / s r _ (s) #
+[e i o] / ə / [Stop m β v ð] [r l n] _ (s) # / j l _ (s) # / m t _ (s) # / dz r _ (s) # / s r _ (s) # / í j r _ (s) #
 ; the 3pl -ent
 [e o] / ə / _ n t #
 e r / r ə / [Stop] _ #
 [e i o u y] / / _ (C) # // # C _ (C) #
 o / / Vs j _ #
+; unstressed o in a closed syllable (dormir)
+o / ɔ / _ r C // _ r r
+; pretonic e in an open first syllable (tenir, peser; not seignor)
+e / ə / # C (r) _ C V / # C (r) _ [Stop v] [r l] V // _ ɲ
 [t d ð] / / V _ #
 k k / k / _
 t t / t / _
+t t / t / _
+z / s / _ t
 p p / p / _
 s s / s / _
 k / / _ tʃ
@@ -90,18 +103,21 @@ k / / _ tʃ
 v / / w _
 [d ð] / / [V j] _ V
 d r / r r / V _ Vs
-d r / r / [Vs j] _
+[d ð] r / r / [Vs j] _
 ð r / r r / _
 ð / / [V j] _ t
 ð / / [V j] _ #
+m / / r _ [s t] #
 m / n / _ t
-dz / j / _ C
+d j / j / V _
+dz / j / _ C // _ j
 dz / j / í _
 j / / [i í] _
 j j / j / _
+dz / z / _ [V j]
 dz / / _ s #
 dz / s / j _ #
-[b d g v ð dz] / [p t k f t ts] / _ (s) #
+[b d g v ð dz z] / [p t k f t ts s] / _ (s) #
 ; anz, filz, ueuz
 / t / n n _ s #
 / t / ʎ _ s #
@@ -110,15 +126,14 @@ ts / / _ s #
 l l / l / _
 n n / n / _
 r r / r / _ (s) #
-m / n / _ s #
+m / n / V _ s #
 m n / m / _
 / d / n _ r
 / t / s _ r
 v / / _ t #
 d / / _ t #
 ; pretonic e in an open first syllable (tenir, tenons), a in hiatus (eü)
-e / ə / # [t v d] _ C Vs
-e / ə / # s _ r Vs
+[v β] / / [a e o ə] _ ý
 [a o] / ə / _ ý
 e / ə / _ Vs
 ; l before a consonant
@@ -144,14 +159,19 @@ C = C ʁ
 end
 
 h / / _
+; e before a final t in a monosyllable (mets, set; not -ez, pied, les)
+e / ɛ / # C _ [t s] (s) # // # l _
+e / ɛ / _ t r
 tʃ / ʃ / _
 k w / k / _ a
 dʒ / ʒ / _
 ts / s / _
 dz / z / _
 ; pourrai, mourir
-o / u / _ r
+o / u / _ r [V r]
 j / / [ʃ ʒ] _ // _ e n
+j / / z _
+o / w / _ i
 e / ɛ / _ r r
 ; mourrai keeps its rr (courrai too), pourrai doesn't
 r r / r / _ // m u _
@@ -177,9 +197,11 @@ r / / V C* e _ #
 ; pretonic o (soleil), before the o from aw (mauvais)
 o / ɔ / _ C V // _ j
 ; diphthongs
+a j / ɛ / _ r
 a j / e / _ C V
 a j / ɛ / _
 e j / ɛ / _ n
+v / / j _ r
 o j / w a j / _ V
 o j / w a / _
 ɛ a w / o / _

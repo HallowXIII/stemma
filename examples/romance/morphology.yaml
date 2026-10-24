@@ -100,6 +100,8 @@ affixes:
   # Romance: the Gallo-Roman preterites -at (OF chanta), -it
   PRET.3SG.GR: { form: "-át", stage: western-romance }
   PRET.3SG.GR.I: { form: "-ít", stage: western-romance }
+  # OF -iét (vendié), from Vulgar Latin *-ēdit
+  PRET.3SG.GR.E: { form: "-ɛ́t", stage: western-romance }
 
   # The Romance future: the infinitive plus the reduced present of habēre,
   # Vulgar Latin *ájo, *át. They keep the stress they have as words.
@@ -279,7 +281,8 @@ paradigms:
       - PRS.3PL: [PRS.3PL.C, { at: vulgar-latin, morph: [~, PRS.3PL.E] }]
       - FUT.1SG: { at: western-romance, morph: [~, INF.C, FUT.1SG] }
       - FUT.3SG: { at: western-romance, morph: [~, INF.C, FUT.3SG] }
-      - PRET.3SG: PRET.3SG.S
+      # Spanish weak -ió (vendió), from the fourth conjugation
+      - PRET.3SG: [PRET.3SG.S, { at: ibero-romance, morph: [~, PRET.3SG.I] }]
       - PTCP: [PTCP.U, { at: ibero-romance, morph: [~, PTCP.I] }]
 
   verb-i:
@@ -426,6 +429,7 @@ paradigms:
   verb-c-s:
     extends: verb-c
     cells:
+      - PRET.3SG: PRET.3SG.S
       - PTCP: PTCP.S
 
   # Suppletive verbs: every cell is built on a stem or base of its own.

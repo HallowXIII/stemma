@@ -306,6 +306,24 @@ Found while building the full word list, batch by batch.
     *dicere*, *esse* (*fémos*, *dimes*, *somes*), which the handbooks also
     treat word by word.
 
+22. **An event sees the form entering its stage, not leaving it.** Most of
+    the inline rules in batch 5 had to be written against the form before
+    the stage's own rules: OSp *cadrá* inserts its *d* before *r* is a tap,
+    OF *chierrai* rewrites *ka* before it is *tʃa*, *plaist* supplies the
+    *j* that the stage's *ai* rule would have made. It works, but the rule
+    reads oddly; an event that applies after the stage's rules (`after:
+    true`, say) would let it be written against the form it corrects.
+
+23. **Some sound changes are lexical.** Spanish *veer* > *ver* but not
+    *creer*; *lees* lost its *j*, *reyes* didn't; OF *plaist* but *fait*;
+    French *mets*, *sais* /ɛ/ but *-ez* /e/. Each is an inline-rule event on
+    the words that have it rather than a rule, which is the honest model:
+    the build can't tell them from regular change otherwise.
+
+    `irregular` count after batch 5: 52. The 13 added are again strong
+    perfects (*crut*, *but*, *lut*, *chut*, *sot*, *plot*) and a few forms
+    of defective verbs.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.

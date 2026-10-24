@@ -13,17 +13,20 @@ end
 ; before a front vowel again (fazer, re-formed on the second conjugation)
 k / dz / V _ [e i é í ɛ́ j]
 k / ts / _ [e i é í ɛ́ j]
-g / j / _ [e i é í ɛ́]
-b / β / V _ V
+g / j / _ [e i é í ɛ́ j]
+j j / j / _
+b / β / V _ [V j]
+d / ð / V _ V
+[d ð] j / j / V _
 ; final unstressed i (venīs > vienes)
 i / e / _ (C) #
 ; the infinitive's -e before the auxiliary in the future
-e / / _ Vs
+e / / r _ Vs
 ; voicing, before the syncope (comite > conde)
 [p t k kʷ] / [b d g gʷ] / V _ [V r l]
 ; intervocalic j after a front vowel (digitus)
 j / / é _ e C V
-é e / é / _
+é e / é / _ d
 ; syncope of the post-tonic vowel of a proparoxytone
 [e i o u] / / Vs C _ C V C* #
 ; intertonic vowels (civitatem > cibdad)
@@ -42,7 +45,7 @@ p p / p / _
 ; the future: venrá > verná
 n r / r n / V _ Vs
 ; yod raising (murió)
-o / u / _ r j
+o / u / _ r (m) j
 n / ɾ / m _
 / b / m _ ɾ
 ; diphthongisation, in open and closed syllables alike, but not before a
@@ -56,7 +59,8 @@ n / ɾ / m _
 ú e / w é / _
 áu / ó / _
 au / o / _
-á j o / é / _ #
+; *ajo (habēre, the future), not cayo
+á j o / é / [# r n] _ #
 ; clitics: elle > el; illum > lo
 e / / V l l _ #
 l l / l / _ #
@@ -107,7 +111,5 @@ z / s / _
 i b / j u / _ d
 j / ʝ / V _ V
 [ts dz] / θ / _
-; veer > ver, vees > ves, vió
-e é / é / _
-é e / é / _
+; vió
 í o / j ó / # C _ #

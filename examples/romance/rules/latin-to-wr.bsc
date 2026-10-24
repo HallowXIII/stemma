@@ -64,11 +64,16 @@ end
 ; prothesis before s and a stop
 / e / # _ s [p t k]
 s / z / W _ W
+; ns > s, after the voicing: Spanish pesar keeps its s (OF peser voices it
+; again)
+n s / s / _
 ; palatalisation and yod
 ; between vowels, voiced (dezir, plaisir); tj stays voiceless (cabeça)
 k / dz / W _ [e i é í ɛ́ j]
 k / ts / _ [e i é í ɛ́ j]
 g / j / _ [e i é í ɛ́]
+; Latin g between vowels, before a back vowel (legō > leo)
+g / / W _ [o u ó ú]
 l j / ʎ / _
 n j / ɲ / _
 k t / j t / _
