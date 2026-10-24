@@ -66,6 +66,8 @@ Adding a stage later is cheap. Insert a `report`, renumber the segments in
 Morphology builds forms by concatenation. Allomorphy that arises from
 sound change is left to the rules; what happens when the parts are put
 together, such as epenthesis, can go in a stage's morphophonology (below).
+Once a split an affix went through is no longer phonology, it can be
+declared as allomorphs (below).
 
 ```yaml
 affixes:
@@ -263,6 +265,59 @@ morphophonology's steps after the rules' (for a form formed at the stage,
 after the joined form as its input), or, for a rebuild through the
 parent's, a `morphophonology:` event.
 
+### Allomorphs
+
+An affix's form at a stage is its written form run through the rules on
+its own. In a cell joined early that doesn't matter, since the rules see
+the whole word. But a form joined later, such as a derivative formed at a
+later stage or a `repattern`, gets the affix's out-of-context reflex. When
+sound change has split an affix into reflexes that its own rules can't
+derive any more, declare them:
+
+```yaml
+affixes:
+  DAT:
+    form: "*-ɣxə"
+    allomorphs:
+      old-azal:                                      # from this stage on
+        - { after: [ā, ē, ī, ō, ū, ai, au], form: "-hhə" }
+        - { after: [a, e, i, o, u, ə], form: "-ː" }
+        - { form: "-ā" }                             # elsewhere
+```
+
+- **Scope.** The allomorphs given at stage S are used in forms joined from
+  the forms of S or of a stage below it: items formed there, and `reform`
+  or `repattern` at a stage below S, since those join from the forms
+  entering the stage. Cells joined before S keep their history, and other
+  lines of descent use the ordinary reflex. A stage below S may give its own
+  list, which replaces S's from there on.
+- **Choice.** The first allomorph whose condition fits is used. `after:`
+  lists the graphemes the parts before the affix may end with, and
+  `before:` the graphemes the parts after it may start with. Empty parts
+  and boundaries are skipped, so in `[PL, DAT]` the dative sees the end of
+  the plural, not of the stem. An allomorph without a condition is the
+  elsewhere case and must come last. If none fits, the build fails. One
+  list may not mix `after:` and `before:`.
+- **Order.** Affixes with `after:` lists are chosen first, from left to
+  right, each seeing the allomorphs chosen before it. Then those with
+  `before:` lists are chosen from right to left, seeing everything after
+  them as chosen. So a suffix sees an earlier prefix's ordinary form, and a
+  prefix sees every suffix as chosen.
+- **Evolution.** Each allomorph is written as at S and evolves through the
+  later stages' rules, like any affix form. A list's graphemes are compared
+  as written, with the stage's multigraphs as one grapheme each, so a list
+  inherited by a later stage may need giving again once sound changes alter
+  the inventory. The build warns when a stage that the affix is joined from
+  has no form with one of a list's graphemes. It also warns about a list
+  without an elsewhere case.
+- **The affix itself.** Wherever allomorphs are in force, the affix's own
+  reflex lists them (*-hhə ~ -ː ~ -ā*), since its form evolved on its own
+  never occurs. `trace` shows each choice as an event in the joined form,
+  e.g. `DAT: -ā (elsewhere, after r)`.
+
+Each allomorph is carried by an internal item, `DAT~old-azal~1` and so on,
+which never appears in the build products. So ids may not contain `~`.
+
 ---
 
 ## 3. `lexicon/*.yaml`: entries
@@ -373,7 +428,9 @@ This is preferred over writing the output form: if you change what word-final
 ```
 
 This rebuilds the item from its `source`, using the forms entering azal,
-and puts the result through the parent stage's morphophonology (§2).
+and puts the result through the parent stage's morphophonology (§2). Since
+those are the parent's forms, the allomorphs in force at the parent are
+chosen (§2).
 
 ### `repattern`
 
@@ -383,7 +440,8 @@ and puts the result through the parent stage's morphophonology (§2).
 
 The entry changes paradigm at this stage: every cell is rebuilt from the
 new paradigm's template, using the stem and the affixes' forms entering
-the stage, goes through the parent stage's morphophonology (§2), and then
+the stage (choosing the parent stage's allomorphs, §2), goes through the
+parent stage's morphophonology (§2), and then
 through the stage's rules and morphophonology. `stem` is written as at
 that stage and is optional; without it the entry's own form is used. With
 it, the bare entry takes the new stem too. The entry's own `cells` changes
@@ -509,9 +567,11 @@ applies. A parse error gives `ok: false` with the message, `line` and
 - `lexicon.json` has every item, and for each stage: the forms, spelled
   forms, regular forms and category. Notes are pre-resolved into runs.
   Each stage carries its `rules`, `morphophonology` and `orthography` references as written
-  in `family.yaml`. Read it in Typst with `typst/stemma.typ`, or browse it
+  in `family.yaml`. An affix with allomorphs has them as written, under
+  `allomorphs`, by stage. Read it in Typst with `typst/stemma.typ`, or browse it
   with `ui/` (see the README).
-- `trace.json` has, for each item and stage, the events, the input to the
+- `trace.json` has, for each item and stage, the events (and allomorph
+  choices), the input to the
   stage's rules, the rule trace and the origin, for `ui/`. Typst doesn't
   need it. A stage is left out when it has none of these, and so is an item
   with no stages left; `origin` is left out when it is `inherited`.

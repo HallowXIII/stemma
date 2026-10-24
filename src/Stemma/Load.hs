@@ -16,6 +16,7 @@ module Stemma.Load
   , isAncestorOrSelf
   , ancestorsOrSelf
   , itemDeps
+  , allomorphItems
   ) where
 
 import Control.Applicative ((<|>))
@@ -77,8 +78,16 @@ data Item = Item
   , itParadigm :: Maybe Text
   , itRepatterns :: [(StageId, Text)]
   -- ^ Stages where the entry changes paradigm, and the new paradigm.
+  , itAllomorphs :: Map StageId [(Maybe Condition, ItemId)]
+  -- ^ For an affix: its allomorphs from each stage on, each with its
+  -- condition and the internal item that carries its form there.
   }
   deriving (Show)
+
+-- | The internal items that carry an affix's allomorphs. They are built
+-- like any item, but left out of the item order and the build products.
+allomorphItems :: Item -> [ItemId]
+allomorphItems it = [i | als <- Map.elems (itAllomorphs it), (_, i) <- als]
 
 loadProject :: FilePath -> IO (Either [Text] Project)
 loadProject = loadProjectWith id
@@ -134,7 +143,9 @@ assemble src family morphology entries = do
   let dupes = Map.keys (Map.filter (> 1) (Map.fromListWith (+) [(itId i, 1 :: Int) | i <- items]))
   unless (null dupes) $ Left ["duplicate id: " <> d | d <- dupes]
   let itemMap = Map.fromList [(itId i, i) | i <- items]
-      proj = Project (srcDir src) family root order itemMap (map itId items) paradigms src
+      internal = Set.fromList (concatMap allomorphItems items)
+      itemOrder = [itId i | i <- items, not (Set.member (itId i) internal)]
+      proj = Project (srcDir src) family root order itemMap itemOrder paradigms src
   validate proj
   pure proj
 
@@ -164,7 +175,7 @@ flattenEntry
   :: Map StageId Stage -> StageId -> Map Text ParadigmDef
   -> ItemKind -> Maybe ItemId -> [CatShift] -> StageId -> Entry -> [Either [Text] Item]
 flattenEntry stages root paradigms kind owner ownerCat defStage e =
-  self : cells ++ derivs
+  self : allomorphs ++ cells ++ derivs
   where
     eid = enId e
     stage = fromMaybe defStage (enStage e)
@@ -184,6 +195,20 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         (Just _, Just _) -> err "has both `form` and `source`"
       forM_ cellEvents $ \ev -> unless (cellOf ev `elem` map fst entryCells) $
         err ("event targets unknown cell " <> cellOf ev)
+      when (T.any (== '~') eid) $ err "ids may not contain ~ (it is reserved for variants and allomorphs)"
+      unless (Map.null (enAllomorphs e) || (kind == KAffix && owner == Nothing)) $
+        err "only affixes can have allomorphs"
+      forM_ (Map.toList (enAllomorphs e)) $ \(s, als) -> do
+        let at = "allomorphs at " <> s
+            conds = map alCondition als
+        unless (Map.member s stages) $ err (at <> ": unknown stage")
+        unless (isAncestorOrSelf stages stage s) $
+          err (at <> ": " <> s <> " is not at or below " <> stage <> ", where the affix is formed")
+        when (null als) $ err (at <> ": the list is empty")
+        when (any (== Nothing) (drop 1 (reverse conds))) $
+          err (at <> ": only the last may have no condition (the elsewhere case)")
+        when (any isAfter conds && any isBefore conds) $
+          err (at <> ": `after` and `before` may not be mixed in one list")
       pure Item
         { itId = eid
         , itKind = kind
@@ -200,7 +225,37 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itCells = [eid <> "." <> c | (c, _) <- entryCells]
         , itParadigm = enParadigm e
         , itRepatterns = [(evAt ev, p) | ev@Event {evKind = Repattern p _} <- enEvents e]
+        , itAllomorphs = Map.mapWithKey (\s als -> [(alCondition a, allomorphId s n) | (n, a) <- numbered als])
+                                        (enAllomorphs e)
         }
+
+    isAfter = \case Just (After _) -> True; _ -> False
+    isBefore = \case Just (Before _) -> True; _ -> False
+
+    -- Each allomorph is an item formed at its stage from its written form,
+    -- so that it evolves like any affix. It goes where the affix goes.
+    numbered = zip [1 :: Int ..]
+    allomorphId s n = eid <> "~" <> s <> "~" <> T.pack (show n)
+    allomorphs =
+      [ Right Item
+          { itId = allomorphId s n
+          , itKind = KAffix
+          , itOwner = Just eid
+          , itStage = s
+          , itBuild = BForm (alForm a)
+          , itBound = True
+          , itGloss = Nothing
+          , itCategory = []
+          , itNotes = Nothing
+          , itEvents = []
+          , itFate = enFate e
+          , itExpect = Map.empty
+          , itCells = []
+          , itParadigm = Nothing
+          , itRepatterns = []
+          , itAllomorphs = Map.empty
+          }
+      | (s, als) <- Map.toList (enAllomorphs e), (n, a) <- numbered als ]
 
     (cellEvents, ownEvents) = partitionBy (\ev -> evCell ev /= Nothing) (enEvents e)
     cellOf ev = fromMaybe "" (evCell ev)
@@ -251,6 +306,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itCells = []
         , itParadigm = Nothing
         , itRepatterns = []
+        , itAllomorphs = Map.empty
         }
 
     -- Each repattern: its stage, the new paradigm, the new stem, and the

@@ -35,8 +35,8 @@ import Data.Either (partitionEithers)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Map.Lazy qualified as LMap
-import Data.List (intercalate, partition)
-import Data.Maybe (fromMaybe, maybeToList)
+import Data.List (intercalate, nub, partition)
+import Data.Maybe (fromMaybe, listToMaybe, maybeToList)
 import Data.Set qualified as Set
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -59,7 +59,8 @@ data Reflex = Reflex
   , rxForms :: [Form]
   , rxSteps :: [Step]
   , rxEvents :: [Text]
-  -- ^ Descriptions of the events applied at this stage.
+  -- ^ Descriptions of the events applied at this stage, and of the
+  -- allomorphs chosen in a form joined here.
   , rxOrigin :: Origin
   }
 
@@ -96,11 +97,14 @@ build engine proj = do
         case (actual, regular) of
           (Left e, _) -> pure (Left e)
           (_, Left e) -> pure (Left e)
-          (Right (a, wa), Right (g, _)) -> do
+          (Right (a0, wa), Right (g0, _)) -> do
+            let a = presentAllomorphs proj a0
+                g = presentAllomorphs proj g0
             spA <- spell proj rules a
             spG <- spell proj rules g
             let built = Built proj order a g spA spG []
-            pure (Right built {bWarnings = boundaryWarnings proj rules ++ wa ++ redundantIrregulars built})
+            pure (Right built {bWarnings = boundaryWarnings proj rules ++ wa ++ redundantIrregulars built
+                                             ++ allomorphWarnings built})
 
 -- | Parents first, and loan donors before recipients.
 stageOrder :: Project -> Either Text [StageId]
@@ -241,6 +245,14 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
 
     withItem i = either (Left . ((i <> ": ") <>)) Right
 
+    -- A source joined from the forms of stage s, choosing allomorphs; also
+    -- the choices made.
+    joinFrom s bound look src = do
+      ids <- sourceParts src
+      forms <- traverse look ids
+      (forms', chosen) <- chooseAllomorphs proj s look (zip (map Just ids) forms)
+      pure (joinParts proj bound forms', chosen)
+
     -- Donor forms for loan events at this stage, adapted if requested.
     donorForms results s survivors = fmap Map.fromList $ fmap concat $
       forM survivors $ \(i, it) -> forM [ (k, ev) | (k, ev) <- zip [0 :: Int ..] (inputEvents s it) ] $ \(k, ev) ->
@@ -268,20 +280,24 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
           src <- case itBuild it of
             BSource src -> Right src
             BForm _ -> Left "reform: item has no source to rebuild from"
-          f' <- buildFrom (joinParts proj (itBound it)) (entering "reform") src
-          pure (f', descs ++ ["re-formed"], origin)
+          (f', chosen) <- joinFrom parent (itBound it) (entering "reform") src
+          pure (f', descs ++ ["re-formed"] ++ chosen, origin)
         Rebuild stem base parts desc -> do
           baseForm <- maybe (entering "repattern" base) (tokeniseAt s) stem
-          f' <- joinParts proj (itBound it) <$> forM parts (\case
-            PBase -> Right baseForm
-            PAffix a -> entering "repattern" a)
-          pure (f', descs ++ [desc], origin)
+          slots <- forM parts (\case
+            PBase -> Right (maybe (Just base) (const Nothing) stem, baseForm)
+            PAffix a -> (Just a,) <$> entering "repattern" a)
+          (fs, chosen) <- chooseAllomorphs proj parent (entering "repattern") slots
+          pure (joinParts proj (itBound it) fs, descs ++ [desc] ++ chosen, origin)
         Repattern {} -> pure (f, descs, origin)
         Loan from _ _ -> do
           f' <- fromMaybe (Left "loan: missing donor") (Map.lookup (itId it, k) loanForms)
           pure (f', descs ++ ["borrowed from " <> from], Borrowed)
         Irregular {} -> pure (f, descs, origin)
       where
+        -- Events join from the forms entering this stage, which are the
+        -- parent's, so the parent's allomorphs are in force.
+        parent = fromMaybe s (Map.lookup s stages >>= stParent)
         -- Forms entering this stage, after their own events.
         entering what x = case LMap.lookup x inputs of
           Just v -> (\(g, _, _) -> g) <$> v
@@ -318,7 +334,7 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
 
         go done [] = pure (Right (done, ignored ++ joinWarnings done))
         go done todo = do
-          let waiting it = any (\d -> Set.member d hereIds && not (Map.member d done)) (itemDeps it)
+          let waiting it = any (\d -> Set.member d hereIds && not (Map.member d done)) (coinDeps it)
               (ready, rest) = partition (not . waiting) todo
           case partitionEithers [withItem (itId it) ((itId it,) <$> coinOne done it) | it <- ready] of
             (errs@(_ : _), _) -> pure (Left errs)
@@ -327,29 +343,34 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
               rxs <- joinCoined built
               go (Map.union done (Map.fromList rxs)) rest
 
+        -- An item also waits for the allomorphs of the affixes it is
+        -- built from.
+        coinDeps it = itemDeps it ++ concat [allomorphItems dep | d <- itemDeps it, Just dep <- [Map.lookup d items]]
+
         lookupForm done x = case Map.lookup x done of
           Just rx -> maybe (Left (x <> " was deleted at " <> s)) Right (headMay (rxForms rx))
           Nothing -> Left (x <> " has no form at " <> s <> " (lost, or not yet formed?)")
 
-        -- The form, its origin, and whether it was joined from parts.
+        -- The form, the allomorphs chosen, its origin, and whether it was
+        -- joined from parts.
         coinOne done it = case itBuild it of
-          BForm t -> (,Coined,False) <$> tokeniseAt s t
+          BForm t -> (,[],Coined,False) <$> tokeniseAt s t
           BSource (SLoan from x) ->
             case Map.lookup from results >>= Map.lookup x >>= headMay . rxForms of
-              Just f -> Right (f, Borrowed, False)
+              Just f -> Right (f, [], Borrowed, False)
               Nothing -> Left ("loan: " <> x <> " has no form at " <> from)
-          BSource src -> (,Coined,True) <$> buildFrom (joinParts proj (itBound it)) (lookupForm done) src
+          BSource src -> (\(f, chosen) -> (f, chosen, Coined, True)) <$> joinFrom s (itBound it) (lookupForm done) src
 
         -- Joined forms go through the stage's morphophonology.
         joinCoined built = do
           evos <- case morphophonologyOf s of
             Nothing -> pure []
-            Just r -> rulesApply r [f | (_, (f, _, True)) <- built]
+            Just r -> rulesApply r [f | (_, (f, _, _, True)) <- built]
           pure (attach built evos)
-        attach ((i, (f, origin, True)) : rest) (evo : evos) =
+        attach ((i, (f, chosen, origin, True)) : rest) (evo : evos) =
           let outs = evoOutputs evo
-          in (i, Reflex (Just f) outs outs (evoSteps evo) [] origin) : attach rest evos
-        attach ((i, (f, origin, _)) : rest) evos = (i, Reflex Nothing [f] [f] [] [] origin) : attach rest evos
+          in (i, Reflex (Just f) outs outs (evoSteps evo) chosen origin) : attach rest evos
+        attach ((i, (f, chosen, origin, _)) : rest) evos = (i, Reflex Nothing [f] [f] [] chosen origin) : attach rest evos
         attach [] _ = []
 
         joinWarnings done = concat
@@ -360,14 +381,112 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
           | mode == Actual, it <- here, let i = itId it
           , Just rx <- [Map.lookup i done], Just _ <- [rxInput rx] ]
 
-buildFrom :: ([Form] -> Form) -> (ItemId -> Either Text Form) -> Source -> Either Text Form
-buildFrom join look = \case
-  SBase b -> join . pure <$> look b
-  SMorph b ps -> join <$> traverse (look . part) ps
-    where part = \case PBase -> b; PAffix a -> a
-  SCell b c -> join . pure <$> look (b <> "." <> c)
-  SCompound xs -> join <$> traverse look xs
+-- | The items a source is joined from, in order.
+sourceParts :: Source -> Either Text [ItemId]
+sourceParts = \case
+  SBase b -> Right [b]
+  SMorph b ps -> Right [case p of PBase -> b; PAffix a -> a | p <- ps]
+  SCell b c -> Right [b <> "." <> c]
+  SCompound xs -> Right xs
   SLoan _ _ -> Left "a loan source cannot be rebuilt"
+
+-- | The allomorphs of an item in force in a form joined from the forms of
+-- a stage: those given at the nearest stage on the path back to the root.
+allomorphsFor :: Project -> StageId -> Item -> Maybe (StageId, [(Maybe Condition, ItemId)])
+allomorphsFor proj s it = listToMaybe
+  [ (d, als)
+  | d <- ancestorsOrSelf (famStages (prFamily proj)) s
+  , Just als <- [Map.lookup d (itAllomorphs it)] ]
+
+-- | Replace the form of each part that has allomorphs in force at stage s
+-- (the stage whose forms are joined) by the first allomorph whose
+-- condition fits. Parts with @after@ conditions are chosen first, from left
+-- to right, each seeing the parts before it as chosen so far; then parts
+-- with @before@ conditions, from right to left, seeing everything after
+-- them as chosen. Empty parts and boundaries are skipped, as 'joinParts'
+-- skips them. Also returns a description of each choice.
+chooseAllomorphs
+  :: Project -> StageId -> (ItemId -> Either Text Form) -> [(Maybe ItemId, Form)]
+  -> Either Text ([Form], [Text])
+chooseAllomorphs proj s look parts = do
+  let sets = [(k, it, set) | (k, (Just i, _)) <- zip [0 :: Int ..] parts, Just it <- [Map.lookup i (prItems proj)]
+                           , Just set <- [allomorphsFor proj s it]]
+      (befores, afters) = partition (\(_, _, (_, als)) -> any (isBefore . fst) als) sets
+  (fs, chosenA) <- foldM (choose False) (map snd parts, []) afters
+  (fs', chosenB) <- foldM (choose True) (fs, []) (reverse befores)
+  pure (fs', chosenA ++ reverse chosenB)
+  where
+    isBefore = \case Just (Before _) -> True; _ -> False
+    segments = filter ((/= famBoundary (prFamily proj)) . Just) . concat
+    choose before (fs, chosen) (k, it, (d, als)) = do
+      let neighbour
+            | before = headMay (segments (drop (k + 1) fs))
+            | otherwise = headMay (reverse (segments (take k fs)))
+      case [(c, x) | (c, x) <- als, fits c neighbour] of
+        (c, x) : _ -> do
+          f <- look x
+          let side = if before then "before " else "after "
+              why = case c of
+                Just _ -> maybe "" (side <>) neighbour
+                Nothing -> "elsewhere" <> maybe "" ((", " <>) . (side <>)) neighbour
+          pure ( [if j == k then f else g | (j, g) <- zip [0 ..] fs]
+               , chosen ++ [itId it <> ": " <> showForm proj f <> " (" <> why <> ")"] )
+        [] -> Left (itId it <> ": none of the allomorphs given at " <> d <> " fits "
+                    <> maybe ("with nothing " <> (if before then "after" else "before") <> " it")
+                             ((if before then "before " else "after ") <>) neighbour
+                    <> ", and there is no elsewhere case")
+    fits Nothing _ = True
+    fits (Just (After gs)) (Just g) = g `elem` gs
+    fits (Just (Before gs)) (Just g) = g `elem` gs
+    fits _ Nothing = False
+
+-- | Wherever an affix has allomorphs in force, its own reflex lists them:
+-- its form evolved on its own never occurs. The internal items that carry
+-- the allomorphs are then dropped.
+presentAllomorphs :: Project -> Map StageId StageResults -> Map StageId StageResults
+presentAllomorphs proj = Map.mapWithKey $ \s res ->
+  let listed i rx = case Map.lookup i (prItems proj) >>= allomorphsFor proj s of
+        Just (_, als)
+          | fs@(_ : _) <- nub (concat [rxForms a | (_, x) <- als, Just a <- [Map.lookup x res]]) ->
+              rx {rxForms = fs}
+        _ -> rx
+  in Map.filterWithKey (\i _ -> not (Set.member i internal)) (Map.mapWithKey listed res)
+  where
+    internal = Set.fromList (concatMap allomorphItems (Map.elems (prItems proj)))
+
+-- | Allomorph lists without an elsewhere case, and conditions that can never
+-- fit at a stage the affix is joined from, since no form there has the
+-- grapheme.
+allomorphWarnings :: Built -> [Text]
+allomorphWarnings b =
+  [ itId it <> ": the allomorphs at " <> d <> " have no elsewhere case"
+  | it <- affixes, (d, als) <- Map.toList (itAllomorphs it), all ((/= Nothing) . fst) als ]
+    ++
+  [ itId it <> ": no form at " <> s <> " has " <> g <> ", so the condition on it in the allomorphs at "
+      <> d <> " never fits there"
+  | it <- affixes
+  , s <- bStageOrder b
+  , itId it `elem` Map.findWithDefault [] s joinedFrom
+  , Just (d, als) <- [allomorphsFor proj s it]
+  , g <- nub [g | (Just c, _) <- als, g <- case c of After gs -> gs; Before gs -> gs]
+  , not (Set.member g (inventory s)) ]
+  where
+    proj = bProject b
+    items = Map.elems (prItems proj)
+    affixes = [it | it <- items, not (Map.null (itAllomorphs it))]
+    parentOf s = Map.lookup s (famStages (prFamily proj)) >>= stParent
+    sourceOf it = [ps | BSource src <- [itBuild it], Right ps <- [sourceParts src]]
+    -- The items joined from each stage's forms: by items formed there, and
+    -- by events at the stages below it.
+    joinedFrom = Map.fromListWith (++) $
+      [(itStage it, ps) | it <- items, ps <- sourceOf it]
+        ++ [ (p, ps)
+           | it <- items, Event {evAt, evKind} <- itEvents it, Just p <- [parentOf evAt]
+           , ps <- case evKind of
+               Reform -> sourceOf it
+               Rebuild _ _ parts _ -> [[a | PAffix a <- parts]]
+               _ -> [] ]
+    inventory s = Set.fromList (concat [concat (rxForms rx) | rx <-maybe [] Map.elems (Map.lookup s (bActual b))])
 
 -- | Concatenate the parts of a built form. With a boundary symbol, the
 -- parts are joined with exactly one boundary between them, empty parts

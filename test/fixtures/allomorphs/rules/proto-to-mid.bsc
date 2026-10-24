@@ -1,0 +1,11 @@
+extra +
+
+categories
+C = k l n r w x h
+V = a e i o u
+end
+
+; o is raised before x, which is then lost after a vowel and is k elsewhere
+o / u / _ (+) x
+x / / V (+) _
+x / k
