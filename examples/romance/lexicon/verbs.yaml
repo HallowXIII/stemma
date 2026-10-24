@@ -1,0 +1,118 @@
+- id: plenus
+  form: "*plēn-"
+  gloss: "full"
+  category: [{ at: latin, is: ADJ }]
+  paradigm: adj-o-a
+  expect:
+    old-spanish: { M.ACC.SG: ʎéno, M.ACC.PL: ʎénos, F.ACC.SG: ʎéna, F.ACC.PL: ʎénas }
+    spanish:     { M.ACC.SG: ʎéno, M.ACC.PL: ʎénos, F.ACC.SG: ʎéna, F.ACC.PL: ʎénas }
+    old-french:
+      M.NOM.SG: plejns
+      M.ACC.SG: plejn
+      M.NOM.PL: plejn
+      M.ACC.PL: plejns
+      F.ACC.SG: plejnə
+      F.ACC.PL: plejnəs
+    french:      { M.ACC.SG: plɛ̃, M.ACC.PL: plɛ̃, F.ACC.SG: plɛn, F.ACC.PL: plɛn }
+
+- id: fragilis
+  form: "*fragilem"
+  gloss: "fragile, frail"
+  category: [{ at: latin, is: ADJ }]
+  fate: { old-spanish: lost }
+  expect: { old-french: frajlə, french: fʁɛl }
+  notes: |
+    Cited in the accusative, which is what survives. Inherited in French as
+    {fragilis @ french}; French fragile (1370) and Spanish frágil are
+    learned, and not yet modelled (FINDINGS.md).
+
+- id: cantare
+  form: "*kant-"
+  gloss: "sing"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  cells:
+    # chant > chante, after verbs with a supporting -e (12th–16th c.)
+    PRS.1SG: { at: french, morph: [~, PRS.3SG.A] }
+  events:
+    - analogy: { at: old-french, cell: PRS.1PL, replace: { á: ó }, model: "*sumus" }
+  expect:
+    old-spanish:
+      INF: kantáɾ
+      PRS.1SG: kánto
+      PRS.2SG: kántas
+      PRS.3SG: kánta
+      PRS.1PL: kantámos
+      PRS.2PL: kantádes
+      PRS.3PL: kántan
+      FUT.1SG: kantaɾé
+      FUT.3SG: kantaɾá
+    spanish:
+      INF: kantáɾ
+      PRS.1SG: kánto
+      PRS.2SG: kántas
+      PRS.3SG: kánta
+      PRS.1PL: kantámos
+      PRS.2PL: kantájs
+      PRS.3PL: kántan
+      FUT.1SG: kantaɾé
+      FUT.3SG: kantaɾá
+    old-french:
+      INF: tʃanter
+      PRS.1SG: tʃant
+      PRS.2SG: tʃantəs
+      PRS.3SG: tʃantə
+      PRS.1PL: tʃantons
+      PRS.2PL: tʃantets
+      PRS.3PL: tʃantənt
+      FUT.1SG: tʃantəraj
+      FUT.3SG: tʃantəra
+    french:
+      INF: ʃɑ̃te
+      PRS.1SG: ʃɑ̃t
+      PRS.2SG: ʃɑ̃t
+      PRS.3SG: ʃɑ̃t
+      PRS.1PL: ʃɑ̃tɔ̃
+      PRS.2PL: ʃɑ̃te
+      PRS.3PL: ʃɑ̃t
+      FUT.1SG: ʃɑ̃tʁe
+      FUT.3SG: ʃɑ̃tʁa
+
+- id: amare
+  form: "*am-"
+  gloss: "love"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  cells:
+    PRS.1SG: { at: french, morph: [~, PRS.3SG.A] }
+  events:
+    - analogy: { at: old-french, cell: PRS.1PL, replace: { á: ó }, model: "*sumus" }
+    # The stem-stressed aim- is generalised (by Middle French).
+    - analogy: { at: french, cell: INF, replace: { a: aj }, model: "aime" }
+    - analogy: { at: french, cell: PRS.1SG, replace: { a: aj }, model: "aime" }
+    - analogy: { at: french, cell: PRS.1PL, replace: { a: aj }, model: "aime" }
+    - analogy: { at: french, cell: PRS.2PL, replace: { a: aj }, model: "aime" }
+  expect:
+    old-spanish:
+      { INF: amáɾ, PRS.1SG: ámo, PRS.2SG: ámas, PRS.3SG: áma, PRS.1PL: amámos, PRS.2PL: amádes, PRS.3PL: áman }
+    spanish:
+      { INF: amáɾ, PRS.1SG: ámo, PRS.2SG: ámas, PRS.3SG: áma, PRS.1PL: amámos, PRS.2PL: amájs, PRS.3PL: áman }
+    old-french:
+      { INF: amer, PRS.1SG: ajm, PRS.2SG: ajməs, PRS.3SG: ajmə, PRS.1PL: amons, PRS.2PL: amets, PRS.3PL: ajmənt }
+    french:
+      { INF: eme, PRS.1SG: ɛm, PRS.2SG: ɛm, PRS.3SG: ɛm, PRS.1PL: emɔ̃, PRS.2PL: eme, PRS.3PL: ɛm }
+
+- id: habere
+  form: "*hab-"
+  gloss: "have"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-e
+  events:
+    # Reduced in auxiliary use, the source of the future endings.
+    - irregular: { at: western-romance, cell: PRS.1SG, form: "ájo", reason: "auxiliary reduction" }
+    - irregular: { at: western-romance, cell: PRS.3SG, form: "át", reason: "auxiliary reduction" }
+  expect:
+    old-spanish: { INF: aβéɾ, PRS.1SG: é, PRS.3SG: á }
+    spanish:     { INF: abéɾ, PRS.1SG: é, PRS.3SG: á }
+    old-french:  { INF: avojr, PRS.1SG: aj, PRS.3SG: a }
+    french:      { INF: avwaʁ, PRS.1SG: e, PRS.3SG: a }

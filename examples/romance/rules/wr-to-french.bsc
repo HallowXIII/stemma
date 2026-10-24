@@ -1,0 +1,84 @@
+; Western Romance > Old French (Francien, c. 1150) > French.
+
+categories
+B = &+
+Vu = a e i o u y ə ɛ ɔ au
+Vs = á é ɛ́ í ó ɔ́ ú ý áu
+V = Vu Vs
+Stop = p b t d k g
+C = Stop kʷ f v s z m n l r j w β ʎ ɲ tʃ dʒ ts dz ʃ ʒ θ ð
+end
+
++ / / [C V] _ [C V]
+
+[u ú] / [y ý] / _
+; syncope of the post-tonic vowel of a proparoxytone
+[e i o u] / / Vs C _ C V C* #
+g / j / V _ l
+[k g] / [tʃ dʒ] / _ [a á au áu]
+; the infinitive's -e before the auxiliary in the future
+e / / _ Vs
+
+; --- stressed vowels in open syllables ---
+ɛ́ / j é / _ C V / _ Stop [r l] V / _ V
+ɔ́ / w ɛ́ / _ C V / _ Stop [r l] V / _ V // _ [m n]
+é / é j / _ C V / _ Stop [r l] V
+; Bartsch's law
+á / j é / [tʃ dʒ j] _ C V / [tʃ dʒ j] _ Stop [r l] V
+á / á j / _ [m n] V
+á / é / _ C V / _ Stop [r l] V // _ j
+
+; --- unstressed vowels ---
+a / ə / V C* _ C* Vs
+a / ə / _ C* #
+[e i o] / ə / [Stop m β] [r l n] _ (s) # / j l _ (s) #
+[e i o u y] / / _ (C) #
+o / / Vs j _ #
+
+; --- consonants ---
+[β b] / v / V _ [V r]
+[d] / [t] / _ (s) #
+m / n / _ s #
+m n / m / _
+
+; stress is predictable from here on
+[á é ɛ́ í ó ɔ́ ú ý] / [a e ɛ i o ɔ u y] / _
+; 12th century
+t / / V _ #
+e j / o j / _ // _ n
+
+report
+
+; Old French > French
+
+categories
+N = ɑ̃ ɛ̃ ɔ̃ œ̃
+V = Vu Vs N
+C = C ʁ
+end
+
++ / / [C V] _ [C V]
+tʃ / ʃ / _
+dʒ / ʒ / _
+ts / s / _
+j / / [ʃ ʒ] _
+r r / r / _
+; nasal vowels, before a nasal that ends the syllable
+[a e o ɔ] / [ɑ̃ ɑ̃ ɔ̃ ɔ̃] / _ [m n] [C #]
+e j / ɛ̃ / _ n [C #]
+[m n] / / N _
+; final consonants and schwa
+ə n t / ə / _ #
+t s / / e _ #
+[s t] / / _ #
+r / / e _ #
+ə / / _ #
+ə / / V C _ C V
+; diphthongs
+a j / e / _ #
+a j / e / _ C V
+a j / ɛ / _
+e j / ɛ / _ n
+o j / w a / _
+e / ɛ / _ C C* #
+r / ʁ / _

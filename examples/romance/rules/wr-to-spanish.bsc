@@ -1,0 +1,43 @@
+; Western Romance > Old Spanish (Castilian, c. 1200) > Spanish.
+
+categories
+B = &+
+Vu = a e i o u au
+Vs = á é ɛ́ í ó ɔ́ ú áu
+V = Vu Vs
+C = p b t d k g kʷ f s z m n l r R ɾ j w β ʎ ɲ tʃ ts dz ʃ ʒ
+end
+
++ / / [C V] _ [C V]
+
+; syncope of the post-tonic vowel of a proparoxytone
+[e i o u] / / Vs C _ C V C* #
+; diphthongisation, in open and closed syllables alike
+ɛ́ / j é / _
+ɔ́ / w é / _
+áu / ó / _
+au / o / _
+; the infinitive's -e before the auxiliary in the future
+e / / _ Vs
+á j o / é / _ #
+; pl-, kl-, fl-
+[p k f] l / ʎ / # _
+t / / _ #
+; apocope after a single dental or alveolar
+e / / V [d l n r s z] _ #
+; tap and trill
+r r / R / _
+r / ɾ / _ // # _
+ɾ / r / [n l s] _
+R / r / _
+
+report
+
+; Old Spanish > Spanish
+; omne > omre > ombre
+n / ɾ / m _
+/ b / m _ ɾ
+β / b / _
+; -ades > -áis
+d / / V _ e s #
+e / j / Vs _ s #

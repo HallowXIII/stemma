@@ -1,0 +1,46 @@
+# SPIKE: a few words from Latin to Spanish and French, to find out what
+# stemma needs before the Romance example can replace Echo. See FINDINGS.md.
+name: Romance
+
+notation:
+  graphemes: [kʷ, ae, au, oe]
+  boundary: "+"
+
+stages:
+  latin:
+    name: Latin
+    abbr: Lat.
+
+  # Shared by Spanish and French: stress, the vowel merger, the first
+  # lenition.
+  western-romance:
+    name: Western Romance
+    abbr: WR
+    parent: latin
+    rules: rules/latin-to-wr.bsc
+
+  old-spanish:
+    name: Old Spanish
+    abbr: OSp.
+    parent: western-romance
+    rules: "rules/wr-to-spanish.bsc#1"
+
+  spanish:
+    name: Spanish
+    abbr: Sp.
+    parent: old-spanish
+    rules: "rules/wr-to-spanish.bsc#2"
+    current: true
+
+  old-french:
+    name: Old French
+    abbr: OF
+    parent: western-romance
+    rules: "rules/wr-to-french.bsc#1"
+
+  french:
+    name: French
+    abbr: Fr.
+    parent: old-french
+    rules: "rules/wr-to-french.bsc#2"
+    current: true

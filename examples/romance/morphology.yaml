@@ -1,0 +1,141 @@
+# Latin endings are fused number-case markers, so the paradigms list their
+# cells rather than giving dimensions. The genitive is there to be lost.
+
+affixes:
+  # second declension
+  O.NOM.SG: { form: "*-us" }
+  O.ACC.SG: { form: "*-um" }
+  O.GEN.SG: { form: "*-ī" }
+  O.NOM.PL: { form: "*-ī" }
+  O.ACC.PL: { form: "*-ōs" }
+  O.GEN.PL: { form: "*-ōrum" }
+  # first declension
+  A.NOM.SG: { form: "*-a" }
+  A.ACC.SG: { form: "*-am" }
+  A.GEN.SG: { form: "*-ae" }
+  A.NOM.PL: { form: "*-ae" }
+  A.ACC.PL: { form: "*-ās" }
+  A.GEN.PL: { form: "*-ārum" }
+  # third declension
+  C.ACC.SG: { form: "*-em" }
+  C.GEN.SG: { form: "*-is" }
+  C.NOM.PL: { form: "*-ēs" }
+  C.ACC.PL: { form: "*-ēs" }
+  C.GEN.PL: { form: "*-um" }
+
+  # first conjugation
+  INF.A:    { form: "*-āre" }
+  PRS.1SG:  { form: "*-ō" }
+  PRS.2SG.A: { form: "*-ās" }
+  PRS.3SG.A: { form: "*-at" }
+  PRS.1PL.A: { form: "*-āmus" }
+  PRS.2PL.A: { form: "*-ātis" }
+  PRS.3PL.A: { form: "*-ant" }
+  # second conjugation
+  INF.E:    { form: "*-ēre" }
+  PRS.3SG.E: { form: "*-et" }
+
+  # The Romance future: the infinitive plus the reduced present of habēre
+  # (Vulgar Latin *ajo, *at). Written stressed, since they kept their own
+  # stress when they became suffixes.
+  FUT.1SG:
+    form: "*-ájo"
+    category: [{ at: latin, is: AUX }, { at: western-romance, is: FUT }]
+  FUT.3SG:
+    form: "*-át"
+    category: [{ at: latin, is: AUX }, { at: western-romance, is: FUT }]
+
+paradigms:
+  noun-o:
+    cells:
+      - NOM.SG: O.NOM.SG
+      - ACC.SG: O.ACC.SG
+      - GEN.SG: O.GEN.SG
+      - NOM.PL: O.NOM.PL
+      - ACC.PL: O.ACC.PL
+      - GEN.PL: O.GEN.PL
+    lost:
+      western-romance: ["GEN.*"]
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  noun-a:
+    cells:
+      - NOM.SG: A.NOM.SG
+      - ACC.SG: A.ACC.SG
+      - GEN.SG: A.GEN.SG
+      - NOM.PL: A.NOM.PL
+      - ACC.PL: A.ACC.PL
+      - GEN.PL: A.GEN.PL
+    becomes: { western-romance: noun-a-wr }
+  # The nominative plural takes the accusative -ās.
+  noun-a-wr:
+    extends: noun-a
+    cells:
+      - NOM.PL: A.ACC.PL
+    lost:
+      western-romance: ["GEN.*"]
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  # The base is the nominative singular; the other cells are built on the
+  # oblique stem, given per entry.
+  noun-c:
+    cells:
+      - NOM.SG: ~
+      - ACC.SG: C.ACC.SG
+      - GEN.SG: C.GEN.SG
+      - NOM.PL: C.NOM.PL
+      - ACC.PL: C.ACC.PL
+      - GEN.PL: C.GEN.PL
+    becomes: { western-romance: noun-c-wr }
+  # Masculines take the second-declension nominative plural -ī (OF ome).
+  noun-c-wr:
+    extends: noun-c
+    cells:
+      - NOM.PL: O.NOM.PL
+    lost:
+      western-romance: ["GEN.*"]
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  adj-o-a:
+    cells:
+      - M.NOM.SG: O.NOM.SG
+      - M.ACC.SG: O.ACC.SG
+      - M.NOM.PL: O.NOM.PL
+      - M.ACC.PL: O.ACC.PL
+      - F.NOM.SG: A.NOM.SG
+      - F.ACC.SG: A.ACC.SG
+      - F.NOM.PL: A.NOM.PL
+      - F.ACC.PL: A.ACC.PL
+    becomes: { western-romance: adj-o-a-wr }
+  adj-o-a-wr:
+    extends: adj-o-a
+    cells:
+      - F.NOM.PL: A.ACC.PL
+    lost:
+      old-spanish: ["*.NOM.*"]
+      french: ["*.NOM.*"]
+
+  verb-a:
+    cells:
+      - INF: INF.A
+      - PRS.1SG: PRS.1SG
+      - PRS.2SG: PRS.2SG.A
+      - PRS.3SG: PRS.3SG.A
+      - PRS.1PL: PRS.1PL.A
+      - PRS.2PL: PRS.2PL.A
+      - PRS.3PL: PRS.3PL.A
+    becomes: { western-romance: verb-a-wr }
+  verb-a-wr:
+    extends: verb-a
+    cells:
+      - FUT.1SG: [~, INF.A, FUT.1SG]
+      - FUT.3SG: [~, INF.A, FUT.3SG]
+
+  verb-e:
+    cells:
+      - INF: INF.E
+      - PRS.1SG: PRS.1SG
+      - PRS.3SG: PRS.3SG.E
