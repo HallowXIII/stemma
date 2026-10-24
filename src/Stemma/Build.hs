@@ -13,7 +13,8 @@
 -- A form joined from parts goes through the morphophonology of the stage
 -- whose forms it is joined from: an item coined at a stage through that
 -- stage's, and one rebuilt by an event through the parent's, since events
--- use the forms entering the stage.
+-- use the forms entering the stage. Joined forms inherited by a stage also
+-- go through its morphophonology, after its rules.
 --
 -- The build runs twice: once as written, and once with every event and
 -- fate ignored. The second run gives the "regularly expected" forms that
@@ -181,7 +182,8 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
             evos <- case Map.lookup s stages >>= stRules >>= (`Map.lookup` rules) of
               Nothing -> pure [Evolution [f] [] | (_, (f, _, _)) <- ok]
               Just r -> rulesApply r [f | (_, (f, _, _)) <- ok]
-            let inherited = zipWith (inheritedReflex s) ok evos
+            evos' <- remorph s ok evos
+            let inherited = zipWith (inheritedReflex s) ok evos'
             case partitionEithers inherited of
               (errs@(_ : _), _) -> pure (Left errs)
               ([], rxs) -> do
@@ -216,6 +218,26 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
         rejoined i f descs origin (f' : _)
           | f == f' = Right (i, (f, descs, origin))
           | otherwise = Right (i, (f', descs ++ ["morphophonology: " <> renderForm f <> " > " <> renderForm f'], origin))
+
+    -- Inherited forms joined from parts go through the stage's
+    -- morphophonology after its rules, as forms coined here do.
+    remorph s ok evos = case morphophonologyOf s of
+      Nothing -> pure evos
+      Just r -> do
+        let flagged = [(isJoined i origin, evo) | ((i, (_, _, origin)), evo) <- zip ok evos]
+        mevos <- rulesApply r (concat [evoOutputs evo | (True, evo) <- flagged])
+        pure (attach flagged mevos)
+      where
+        attach ((True, evo) : rest) mevos =
+          let (mine, others) = splitAt (length (evoOutputs evo)) mevos
+          in Evolution (concatMap evoOutputs mine) (evoSteps evo ++ concatMap evoSteps (take 1 mine))
+               : attach rest others
+        attach ((False, evo) : rest) mevos = evo : attach rest mevos
+        attach [] _ = []
+        isJoined i origin = origin /= Borrowed && case itBuild (items Map.! i) of
+          BSource (SLoan _ _) -> False
+          BSource _ -> True
+          BForm _ -> False
 
     withItem i = either (Left . ((i <> ": ") <>)) Right
 

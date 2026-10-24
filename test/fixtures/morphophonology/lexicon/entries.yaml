@@ -1,12 +1,13 @@
 # The bare cell takes the epenthetic vowel; the root and the suffixed
-# cells keep the cluster.
+# cells keep the cluster. At modern, the cells inherited from proto go
+# through modern's morphophonology (GEN -ī).
 - id: ačw
   form: "*ačw"
   gloss: "ash"
   paradigm: noun
   expect:
     proto: { form: ačw, DIR: ačəw, GEN: ačwi, PL: ačwar }
-    modern: { form: ačw, DIR: ačew, GEN: ačwi }
+    modern: { form: ačw, DIR: ačew, GEN: ačwī }
   derivatives:
     # Built from a cell formed at the same stage, so it sees the cell
     # after morphophonology.
@@ -16,8 +17,8 @@
       expect: { proto: ačəw }
 
 # A repattern at modern joins the new stem with the forms entering modern,
-# so the cells go through proto's morphophonology; the entry's own new
-# stem is written, not joined, and does not.
+# so the cells go through proto's morphophonology, and then modern's; the
+# entry's own new stem is written, not joined, and goes through neither.
 - id: kelw
   form: "*kalw"
   gloss: "smoke"
@@ -26,4 +27,10 @@
     - repattern: { at: modern, paradigm: noun-new, stem: "kelw" }
   expect:
     proto: { DIR: kaləw }
-    modern: { form: kelw, DIR: kelew, GEN: kelwi }
+    modern: { form: kelw, DIR: kelew, GEN: kelwī }
+
+# A written root never goes through morphophonology.
+- id: tari
+  form: "*tari"
+  gloss: "pebble"
+  expect: { modern: tari }

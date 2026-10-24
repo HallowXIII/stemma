@@ -239,22 +239,29 @@ form of a root ending in a cluster:
 / ə / C _ w #
 ```
 
-A form goes through the morphophonology of the stage whose forms it is
-joined from:
+Every form joined from parts goes through the morphophonology of each
+stage it has a form at:
 
 - An item formed at stage S is built from S's final forms, and then goes
   through S's morphophonology. That form is its form at S. Items built from
   other items formed at S see them after morphophonology.
+- An item inherited by S goes through S's rules and then S's
+  morphophonology. So a stage can have morphophonology of its own for
+  cells built at an earlier stage: the cells of a paradigm built at
+  Proto-Echo go through Old Azal's when they reach Old Azal, while the
+  roots they are built from do not.
 - An item rebuilt by `reform` or `repattern` at S is joined from the forms
   entering S, which are those of S's parent, so it goes through the parent's
-  morphophonology, and then S's rules. A `repattern` stem given to the entry
-  itself is written, not joined, so it does not.
+  morphophonology, then S's rules and S's morphophonology. A `repattern`
+  stem given to the entry itself is written, not joined, so it does not.
 
-A stage without `morphophonology` joins forms unchanged; it is not
+An `irregular` form replaces the result, morphophonology included. A stage
+without `morphophonology` passes joined forms on unchanged; it is not
 inherited, so a stage whose morphophonology is still in force names the same
 file. The file declares the boundary like any rules file. `trace` shows the
-joined form as the input and the morphophonology's steps, or, for a
-rebuild, a `morphophonology:` event.
+morphophonology's steps after the rules' (for a form formed at the stage,
+after the joined form as its input), or, for a rebuild through the
+parent's, a `morphophonology:` event.
 
 ---
 
@@ -377,7 +384,7 @@ and puts the result through the parent stage's morphophonology (§2).
 The entry changes paradigm at this stage: every cell is rebuilt from the
 new paradigm's template, using the stem and the affixes' forms entering
 the stage, goes through the parent stage's morphophonology (§2), and then
-through the stage's rules. `stem` is written as at
+through the stage's rules and morphophonology. `stem` is written as at
 that stage and is optional; without it the entry's own form is used. With
 it, the bare entry takes the new stem too. The entry's own `cells` changes
 (§3) apply to the new paradigm as well, and a suppletive cell keeps its
