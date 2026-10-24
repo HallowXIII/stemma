@@ -97,13 +97,9 @@ affixes:
   PTCP.U:   { form: "*-ūtum" }
   # strong participles, on a stem of their own (fact-um)
   PTCP.S:   { form: "*-um" }
-  # Romance: the Gallo-Roman preterite -at (OF chanta), and the Spanish
-  # 2pl, which lost its d in the verb only (cantáis, but ciudades).
+  # Romance: the Gallo-Roman preterites -at (OF chanta), -it
   PRET.3SG.GR: { form: "-át", stage: western-romance }
   PRET.3SG.GR.I: { form: "-ít", stage: western-romance }
-  PRS.2PL.SP.A: { form: "-ájs", stage: old-spanish }
-  PRS.2PL.SP.E: { form: "-éjs", stage: old-spanish }
-  PRS.2PL.SP.I: { form: "-ís", stage: old-spanish }
 
   # The Romance future: the infinitive plus the reduced present of habēre,
   # Vulgar Latin *ájo, *át. They keep the stress they have as words.
@@ -231,13 +227,16 @@ paradigms:
   # the Spanish 2pl, Spanish -ido. The future is joined at Western Romance.
   verb-a:
     cite: INF
+    # The Spanish 2pl lost its d in the verb only (cantáis, but ciudades).
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl" }
     cells:
       - INF: INF.A
       - PRS.1SG: [PRS.1SG, { at: french, morph: [~, PRS.3SG.A] }]
       - PRS.2SG: PRS.2SG.A
       - PRS.3SG: PRS.3SG.A
       - PRS.1PL: [PRS.1PL.A, { at: gallo-romance, morph: [~, PRS.1PL.O] }]
-      - PRS.2PL: [PRS.2PL.A, { at: spanish, morph: [~, PRS.2PL.SP.A] }]
+      - PRS.2PL: PRS.2PL.A
       - PRS.3PL: PRS.3PL.A
       - FUT.1SG: { at: western-romance, morph: [~, INF.A, FUT.1SG] }
       - FUT.3SG: { at: western-romance, morph: [~, INF.A, FUT.3SG] }
@@ -246,13 +245,16 @@ paradigms:
 
   verb-e:
     cite: INF
+    # The Spanish 2pl lost its d in the verb only (cantáis, but ciudades).
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl" }
     cells:
       - INF: INF.E
       - PRS.1SG: PRS.1SG.E
       - PRS.2SG: PRS.2SG.E
       - PRS.3SG: PRS.3SG.E
       - PRS.1PL: [PRS.1PL.E, { at: gallo-romance, morph: [~, PRS.1PL.O] }]
-      - PRS.2PL: [PRS.2PL.E, { at: gallo-romance, morph: [~, PRS.2PL.A] }, { at: spanish, morph: [~, PRS.2PL.SP.E] }]
+      - PRS.2PL: [PRS.2PL.E, { at: gallo-romance, morph: [~, PRS.2PL.A] }]
       - PRS.3PL: PRS.3PL.E
       - FUT.1SG: { at: western-romance, morph: [~, INF.E, FUT.1SG] }
       - FUT.3SG: { at: western-romance, morph: [~, INF.E, FUT.3SG] }
@@ -263,13 +265,16 @@ paradigms:
   # its stem stress in French (vendre).
   verb-c:
     cite: INF
+    # The Spanish 2pl lost its d in the verb only (cantáis, but ciudades).
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl" }
     cells:
       - INF: [INF.C, { at: ibero-romance, morph: [~, INF.E] }]
       - PRS.1SG: PRS.1SG
       - PRS.2SG: PRS.2SG.C
       - PRS.3SG: PRS.3SG.C
       - PRS.1PL: [PRS.1PL.C, { at: gallo-romance, morph: [~, PRS.1PL.O] }, { at: ibero-romance, morph: [~, PRS.1PL.E] }]
-      - PRS.2PL: [PRS.2PL.C, { at: gallo-romance, morph: [~, PRS.2PL.A] }, { at: ibero-romance, morph: [~, PRS.2PL.E] }, { at: spanish, morph: [~, PRS.2PL.SP.E] }]
+      - PRS.2PL: [PRS.2PL.C, { at: gallo-romance, morph: [~, PRS.2PL.A] }, { at: ibero-romance, morph: [~, PRS.2PL.E] }]
       # Vulgar Latin -ent, before stress is assigned (dizen, dient)
       - PRS.3PL: [PRS.3PL.C, { at: vulgar-latin, morph: [~, PRS.3PL.E] }]
       - FUT.1SG: { at: western-romance, morph: [~, INF.C, FUT.1SG] }
@@ -279,13 +284,15 @@ paradigms:
 
   verb-i:
     cite: INF
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "í d e s / í s / _ #", model: "the 2pl" }
     cells:
       - INF: INF.I
       - PRS.1SG: PRS.1SG.I
       - PRS.2SG: PRS.2SG.I
       - PRS.3SG: PRS.3SG.C
       - PRS.1PL: [PRS.1PL.I, { at: gallo-romance, morph: [~, PRS.1PL.O] }]
-      - PRS.2PL: [PRS.2PL.I, { at: gallo-romance, morph: [~, PRS.2PL.A] }, { at: spanish, morph: [~, PRS.2PL.SP.I] }]
+      - PRS.2PL: [PRS.2PL.I, { at: gallo-romance, morph: [~, PRS.2PL.A] }]
       - PRS.3PL: PRS.3PL.I
       - FUT.1SG: { at: western-romance, morph: [~, INF.I, FUT.1SG] }
       - FUT.3SG: { at: western-romance, morph: [~, INF.I, FUT.3SG] }
@@ -407,10 +414,12 @@ paradigms:
   # Third-conjugation verbs that join the fourth in Spanish (decir).
   verb-c-ir:
     extends: verb-c-s
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "í d e s / í s / _ #", model: "the 2pl" }
     cells:
       - INF: [INF.C, { at: ibero-romance, morph: [~, INF.I] }]
       - PRS.1PL: [PRS.1PL.C, { at: gallo-romance, morph: [~, PRS.1PL.O] }, { at: ibero-romance, morph: [~, PRS.1PL.I] }]
-      - PRS.2PL: [PRS.2PL.C, { at: gallo-romance, morph: [~, PRS.2PL.A] }, { at: ibero-romance, morph: [~, PRS.2PL.I] }, { at: spanish, morph: [~, PRS.2PL.SP.I] }]
+      - PRS.2PL: [PRS.2PL.C, { at: gallo-romance, morph: [~, PRS.2PL.A] }, { at: ibero-romance, morph: [~, PRS.2PL.I] }]
 
   # Third-conjugation verbs with a strong perfect and participle (fizo,
   # hecho), kept in Spanish.

@@ -98,7 +98,7 @@
     PRET.3SG: { stem: "*wīd-" }
     # veo, voi: *vedo, without the yod of videō
     PRS.1SG: [~, PRS.1SG]
-    PRS.2PL: [{ at: spanish, stem: "βe-", morph: [~, PRS.2PL.SP.E] }, { at: french, stem: "voj-", morph: [~, PRS.2PL.A] }]
+    PRS.2PL: { at: french, stem: "voj-", morph: [~, PRS.2PL.A] }
     # French voyons, on the stem of voi
     PRS.1PL: { at: french, stem: "voj-", morph: [~, PRS.1PL.O] }
     # Spanish visto, from *vīstum
@@ -121,8 +121,7 @@
     # puedo, without the yod of *poteō
     PRS.1SG: [~, PRS.1SG]
     PRET.3SG: { stem: "*pot-", morph: [~, PRET.3SG.T] }
-    # Spanish podéis: the 2pl on the stem as it is in Old Spanish
-    PRS.2PL: [{ at: spanish, stem: "pod-", morph: [~, PRS.2PL.SP.E] }, { at: french, stem: "puv-", morph: [~, PRS.2PL.A] }]
+    PRS.2PL: { at: french, stem: "puv-", morph: [~, PRS.2PL.A] }
     # French pouvoir, pouvons, pouvez, peuvent: v from the imperfect
     # pouvoie and from mouvoir
     INF: { at: french, stem: "puv-", morph: [~, INF.E] }
@@ -220,7 +219,7 @@
     PTCP: { stem: "*fakt-" }
     # Spanish hacemos, hacéis, remade on the infinitive
     PRS.1PL: [{ at: spanish, stem: "fadz-", morph: [~, PRS.1PL.E] }, { at: french, stem: "fəz-", morph: [~, PRS.1PL.O] }]
-    PRS.2PL: { at: spanish, stem: "fadz-", morph: [~, PRS.2PL.SP.E] }
+    PRS.2PL: { at: spanish, stem: "fadz-", morph: [~, PRS.2PL.E] }
     # French fais, on fais (2sg)
     PRS.1SG: { at: french, base: facere.PRS.2SG, morph: ~ }
   events:
@@ -253,8 +252,6 @@
     PRET.3SG: { stem: "*dīks-" }
     # *dīctum, with the ī of dīcere
     PTCP: { stem: "*dīkt-" }
-    # Spanish decís
-    PRS.2PL: { at: spanish, stem: "dedz-", morph: [~, PRS.2PL.SP.I] }
     # French disons, on the stem of disent
     PRS.1PL: { at: french, stem: "diz-", morph: [~, PRS.1PL.O] }
     # French disent

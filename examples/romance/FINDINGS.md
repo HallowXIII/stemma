@@ -214,6 +214,9 @@ Found while building the full word list, batch by batch.
     isn't expressible, so the four Old French cells are `irregular`. The
     inline-rule analogy from finding 4 would do it in one event.
 
+    **Done** (`954d17f`): an analogy can take `rule:`. *estoile* is one
+    analogy at Gallo-Romance, `l l / l / _`.
+
 14. **A cell couldn't be re-formed on one its stage loses.** French *prêtre*
     continues the cas sujet, so the oblique cells are re-formed at French
     on `presbyter.NOM.SG`, which French loses. The rebuild failed with
@@ -288,6 +291,10 @@ Found while building the full word list, batch by batch.
     Brassica rule (finding 4), which a paradigm could declare as well as
     an entry, would do the 2pl for every verb as `d e s / j s / _ #`, and
     *estoile* too.
+
+    **Done** (`954d17f`): analogies can take `rule:`, and paradigms can
+    list `events`. The Spanish 2pl is one event per conjugation, and no
+    verb needs its stem written out for it. `irregular` count: 39.
 
 21. **Smaller things the verbs needed, fixed.** An entry's `at:` replaces
     the paradigm's re-forming at that stage only (`bba9a7c`); a cell the

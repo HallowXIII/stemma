@@ -134,10 +134,7 @@
     # estrella: r from astrum
     - analogy: { at: old-spanish, replace: { t: t r }, model: "astrum" }
     # estoile: from a Gallo-Roman *stēla with a single l
-    - irregular: { at: old-french, cell: NOM.SG, form: "estojlə", reason: "Gallo-Roman *stēla" }
-    - irregular: { at: old-french, cell: ACC.SG, form: "estojlə", reason: "Gallo-Roman *stēla" }
-    - irregular: { at: old-french, cell: NOM.PL, form: "estojləs", reason: "Gallo-Roman *stēla" }
-    - irregular: { at: old-french, cell: ACC.PL, form: "estojləs", reason: "Gallo-Roman *stēla" }
+    - analogy: { at: gallo-romance, rule: "l l / l / _", model: "Gallo-Roman *stēla" }
   expect:
     old-spanish: { ACC.SG: estɾéʎa, ACC.PL: estɾéʎas }
     spanish: { ACC.SG: estɾéʎa, ACC.PL: estɾéʎas }
