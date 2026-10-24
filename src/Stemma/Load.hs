@@ -398,6 +398,9 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
             [ Event s Nothing (Rebuild (if b == eid then stem else Nothing) b ps ("repatterned as " <> pname))
             | (s, pname, stem, new) <- repatterns, applies s, Just (b, ps) <- [lookup c new] ]
               ++ reformedAt c
+              -- An analogy without `cell:` reaches every cell, after the
+              -- cell's re-formings and before its own events.
+              ++ [ev | ev@Event {evKind = Analogy {}} <- ownEvents, applies (evAt ev)]
               ++ [ev | ev <- cellEvents, evCell ev == Just c]
         , itFate = Map.filterWithKey (\s _ -> applies s && Just s /= born) $ Map.unions
             [ enFate e

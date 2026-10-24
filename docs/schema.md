@@ -492,10 +492,12 @@ stemma shifts DEF '*'         # everything a definite marker turned into
 ## 4. Events
 
 Each event is written under the entry it affects, with `cell:` if it
-affects only one paradigm cell. `at: S` means the event applies to the form
-**entering** stage S's rules. The only exception is `irregular`, which
-replaces S's output. So later sound laws still act on the result of an
-analogy or a loan.
+affects only one paradigm cell. An `analogy` without `cell:` affects the
+entry and every cell (after any re-forming of the cell at that stage);
+the other events without it affect the entry's own form. `at: S` means
+the event applies to the form **entering** stage S's rules. The only
+exception is `irregular`, which replaces S's output. So later sound laws
+still act on the result of an analogy or a loan.
 
 ### `analogy`
 

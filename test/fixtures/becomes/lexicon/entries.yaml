@@ -33,3 +33,13 @@
   expect:
     mid:  { SG: tan, PL: tanga }
     late: { SG: tan, PL: tanga }
+
+# An analogy without `cell:` reaches every cell.
+- id: reed
+  form: "*kan"
+  paradigm: noun-new
+  events:
+    - analogy: { at: mid, replace: { a: o } }
+  expect:
+    mid:   { SG: gon, PL: gongo }
+    other: { SG: kam, PL: kamka }
