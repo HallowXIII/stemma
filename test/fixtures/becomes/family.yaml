@@ -1,0 +1,22 @@
+# Test fixture for paradigm `becomes`: verbs change from the old
+# arrangement (suffixes only in the nonpast) to a new one at late, on one
+# line only, and gain cells the old paradigm lacks.
+name: Becomes
+
+stages:
+  proto:
+    name: Proto
+  mid:
+    name: Mid
+    parent: proto
+    rules: rules/mid.bsc
+  late:
+    name: Late
+    parent: mid
+    rules: rules/late.bsc
+    current: true
+  other:
+    name: Other
+    parent: proto
+    rules: rules/other.bsc
+    current: true

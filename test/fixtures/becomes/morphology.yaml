@@ -1,0 +1,21 @@
+affixes:
+  SBJ.1S: { form: "*bi-" }
+  OBJ:    { form: "*a-" }
+  PST:    { form: "*-ka" }
+  S.1S:   { form: "*-ne" }
+  # A reduced suffix, known only from mid on.
+  S.1S.SHORT: { form: "-n", stage: mid }
+
+paradigms:
+  verb-old:
+    cells:
+      - NPST.1S: [~, S.1S]
+      - PST.1S: [SBJ.1S, ~, PST]
+    becomes: { late: verb }
+  # Prefixes and suffixes everywhere; the archaic variant keeps the old
+  # suffix, and is new at late.
+  verb:
+    cells:
+      - NPST.1S: [SBJ.1S, ~, S.1S.SHORT]
+      - NPST.1S~archaic: [SBJ.1S, ~, S.1S]
+      - PST.1S: [SBJ.1S, ~, PST, S.1S.SHORT]

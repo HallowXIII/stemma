@@ -167,6 +167,22 @@ computed. `lost` is inherited and merged like `exclude`.
       wiyan: ["*.GEN"]                   # Wiyan drops the genitive
 ```
 
+**Change on one line.** `becomes` names stages where every entry with the
+paradigm changes to another one, as if each had a `repattern` event
+there (§4): cells are rebuilt from the new paradigm's templates, cells it
+lacks are lost, and cells only it has are joined there. Other lines of
+descent keep the paradigm. An entry with its own `repattern` at that stage
+keeps it instead. The new paradigm's own `becomes` follows in turn.
+`becomes` is not inherited, since a paradigm that extends the one it
+replaces would otherwise become itself.
+
+```yaml
+  verb-pe:
+    stage: proto-echo
+    dimensions: ...
+    becomes: { azal: verb }              # Azal generalises the prefixes
+```
+
 The dimensions are written to `lexicon.json`. In Typst,
 `paradigm(id, stage)` lays the cells out as a table, with one row per member
 of the last dimension (or of `rows: "number"`) and a column for each
@@ -375,6 +391,20 @@ both, and new names add cells or variants for this entry only:
 A suppletive base is a real dependency, so it appears in the cell's
 source and must exist where the cell is formed.
 
+**Cells joined later.** With `at: S`, a cell is not part of the paradigm:
+it is joined at S, from the forms entering S, as a `repattern` joins
+(§4), and exists only from S on. This suits forms that belong to a later
+arrangement of the paradigm, such as object forms of a verb that only
+take their shape at Azal. On a cell the paradigm has, `at:` re-forms it
+there instead.
+
+```yaml
+- id: see
+  paradigm: verb-pe
+  cells:
+    NPST.1S>3S: { at: azal, morph: [SBJ.1S, OBJ.3S, ~, S.1S] }
+```
+
 **Bound items.** `bound: true` marks an item that is not a word on its own:
 a bound root or stem. Affixes are bound by default. With a boundary symbol
 (§2), it keeps the boundaries at its edges (a written root keeps its `-`;
@@ -448,8 +478,9 @@ it, the bare entry takes the new stem too. The entry's own `cells` changes
 (§3) apply to the new paradigm as well, and a suppletive cell keeps its
 base.
 
-Cells that the new paradigm lacks are lost from this stage on. The new
-paradigm may not have cells the old one lacks. A repattern applies to the
+Cells that the new paradigm lacks are lost from this stage on. Cells that
+it has and the old one lacks are joined at this stage, the same way, and
+exist only from here on. A repattern applies to the
 whole entry, so it takes no `cell:`. Other lines of descent keep the old
 paradigm, and Typst's `paradigm()` uses the one in force at the stage.
 
