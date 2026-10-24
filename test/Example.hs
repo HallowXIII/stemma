@@ -24,7 +24,7 @@ import Stemma.View
 import Server.StageRules (addStageRules)
 
 projects :: [FilePath]
-projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology"]
+projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs"]
 
 main :: IO ()
 main = do
@@ -169,9 +169,21 @@ viewFailures dir b
             && ordered "bes.NPST.1S" "bes.NPST.1S~archaic" bes
             && ordered "bes.PST.3P" "bes.PST.3P~dialectal" bes
           _ -> False) ]
+  | dir == "test/fixtures/allomorphs" =
+      [ "the affix's own reflex should list the allomorphs in force"
+      | [spelledAt b False s "DAT" | s <- ["mid", "late", "other"]]
+          /= [Just ["-a", "-ka"], Just ["-we", "-ke"], Just ["-ha"]] ]
+      ++ [ "the trace should report the allomorphs chosen"
+         | not (case (traceView b "lo-pl-dat" (Just "mid"), traceView b "kel.DAT" (Just "late")) of
+             (Right p, Right k) -> any ("DAT: -ka (elsewhere, after r)" `T.isInfixOf`) p
+               && any ("DAT: -a (after a)" `T.isInfixOf`) k
+             _ -> False) ]
+      ++ [ "the items carrying the allomorphs should be internal"
+         | any ("~" `T.isInfixOf`) (prItemOrder (bProject b))
+             || any (any ("~" `T.isInfixOf`) . Map.keys) (Map.elems (bActual b)) ]
   | otherwise = []
   where
-    respelled = b {bSpelled = Map.adjust (Map.insert "valyk.SG.DIR" ["written"]) "azal" (bSpelled b)}
+    respelled =b {bSpelled = Map.adjust (Map.insert "valyk.SG.DIR" ["written"]) "azal" (bSpelled b)}
     ordered mainCell variant xs = case (findIndex mainCell xs, findIndex variant xs) of
       (Just a, Just c) -> c == a + 1
       _ -> False

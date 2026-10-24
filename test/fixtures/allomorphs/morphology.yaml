@@ -1,0 +1,32 @@
+affixes:
+  ZERO: { form: "" }
+  PL:   { form: "*-r" }
+  DAT:
+    form: "*-xa"
+    # On its own *-xa is -ka at mid; the allomorphs replace it in forms
+    # joined from mid's forms, and are replaced in turn from late on.
+    allomorphs:
+      mid:
+        - { after: [a, o, u], form: "-a" }
+        - { form: "-ka" }
+      late:
+        - { after: [a, e, o, u], form: "-we" }
+        - { form: "-ke" }
+    # Its own reflex lists the allomorphs where they are in force (checked
+    # in test/Example.hs, since an expect matches any one form).
+    expect: { other: "-ha" }
+  NEG:
+    form: "*n-"
+    allomorphs:
+      mid:
+        - { before: [a, o, u], form: "n-" }
+        - { form: "na-" }
+
+paradigms:
+  noun:
+    cells:
+      - DIR: ZERO
+      - DAT: DAT
+  # The same cells; a repattern target.
+  noun-new:
+    extends: noun

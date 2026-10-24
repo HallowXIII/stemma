@@ -1,0 +1,60 @@
+# Cells joined at proto keep their history (lo.DAT: *lo+xa > lua); forms
+# joined from mid's forms choose an allomorph by the segment before them.
+- id: lo
+  form: "*lo"
+  gloss: "water"
+  paradigm: noun
+  expect:
+    mid: { DAT: lua }
+    late: { DAT: lue }
+  derivatives:
+    - id: lo-dat
+      stage: mid
+      source: { base: lo, morph: [DAT] }
+      expect: { mid: loa, late: loe }
+    # The dative sees the r of the plural, not the stem.
+    - id: lo-pl-dat
+      stage: mid
+      source: { base: lo, morph: [PL, DAT] }
+      expect: { mid: lorka }
+    # A zero part is skipped.
+    - id: lo-zero-dat
+      stage: mid
+      source: { base: lo, morph: [ZERO, DAT] }
+      expect: { mid: loa }
+    # From late on, the allomorphs given at late are in force.
+    - id: lo-late
+      stage: late
+      source: { base: lo, morph: [DAT] }
+      expect: { late: lowe }
+    # The other line has no allomorphs: the ordinary reflex.
+    - id: lo-other
+      stage: other
+      source: { base: lo, morph: [DAT] }
+      expect: { other: loha }
+    # A prefix chooses by the segment after it.
+    - id: neg-lo
+      stage: mid
+      source: { base: lo, morph: [NEG, ~] }
+      expect: { mid: nalo }
+
+- id: ak
+  form: "*ak"
+  gloss: "ash"
+  derivatives:
+    - id: neg-ak
+      stage: mid
+      source: { base: ak, morph: [NEG, ~] }
+      expect: { mid: nak }
+
+# A repattern at late joins from mid's forms, so mid's allomorphs apply:
+# kela + -a, not the ordinary -ka.
+- id: kel
+  form: "*kel"
+  gloss: "stone"
+  paradigm: noun
+  events:
+    - repattern: { at: late, paradigm: noun-new, stem: "kela" }
+  expect:
+    mid: { DAT: kelka }
+    late: { DAT: kelae }

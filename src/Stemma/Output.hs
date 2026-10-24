@@ -129,6 +129,7 @@ itemJson b it = do
     , "cells" .=? nonEmpty (itCells it)
     , "paradigm" .=? itParadigm it
     , "repatterns" .=? nonEmpty [object ["at" .= s, "paradigm" .= p] | (s, p) <- itRepatterns it]
+    , "allomorphs" .=? allomorphs
     , "variant_of" .=? fmap fst variant
     , "variant" .=? fmap snd variant
     , "notes" .=? notes
@@ -152,7 +153,18 @@ itemJson b it = do
         _ -> Nothing
       _ -> Nothing
     proj = bProject b
-    regularAt s = fromMaybe Map.empty (Map.lookup s (bRegular b))
+    -- The allomorphs as written, from each stage on. Their forms at each
+    -- stage are the affix's own reflexes.
+    allomorphs
+      | Map.null (itAllomorphs it) = Nothing
+      | otherwise = Just (object
+        [ Key.fromText s .= [ sparse
+            [ "after" .=? (case c of Just (After gs) -> Just gs; _ -> Nothing)
+            , "before" .=? (case c of Just (Before gs) -> Just gs; _ -> Nothing)
+            , "form" .=? (case itBuild (prItems proj Map.! x) of BForm t -> Just t; _ -> Nothing) ]
+          | (c, x) <- als ]
+        | (s, als) <- Map.toList (itAllomorphs it) ])
+    regularAt s =fromMaybe Map.empty (Map.lookup s (bRegular b))
     -- A field is left out when it repeats its default: @spelled@ and
     -- @regular@ default to @forms@, and @regular_spelled@ to @spelled@ (to
     -- @regular@ when the reflex is lost).

@@ -1,0 +1,25 @@
+# Test fixture for allomorphs: the dative *-xa splits at mid into -a after
+# vowels and -ka elsewhere, and is redeclared at late. The other line keeps
+# the ordinary reflex.
+name: Allomorphs
+
+notation:
+  boundary: "+"
+
+stages:
+  proto:
+    name: Proto
+  mid:
+    name: Mid
+    parent: proto
+    rules: rules/proto-to-mid.bsc
+  late:
+    name: Late
+    parent: mid
+    rules: rules/mid-to-late.bsc
+    current: true
+  other:
+    name: Other
+    parent: proto
+    rules: rules/proto-to-other.bsc
+    current: true

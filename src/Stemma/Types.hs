@@ -13,6 +13,8 @@ module Stemma.Types
   , Part (..)
   , templateParts
   , Entry (..)
+  , Allomorph (..)
+  , Condition (..)
   , Source (..)
   , Event (..)
   , EventKind (..)
@@ -230,8 +232,25 @@ data Entry = Entry
   , enEvents :: [Event]
   , enFate :: Map StageId Fate
   , enExpect :: Map StageId Expect
+  , enAllomorphs :: Map StageId [Allomorph]
+  -- ^ For affixes: the allomorphs to choose from, in order, in forms joined
+  -- from a stage's forms, from that stage on.
   }
   deriving (Show)
+
+-- | One allomorph of an affix: a form as written at the stage, and the
+-- phonological condition under which it is chosen ('Nothing' for the
+-- elsewhere case).
+data Allomorph = Allomorph
+  { alCondition :: Maybe Condition
+  , alForm :: Text
+  }
+  deriving (Show)
+
+-- | The graphemes the part before the affix may end with, or the part
+-- after it start with.
+data Condition = After [Text] | Before [Text]
+  deriving (Eq, Show)
 
 -- | A cell or member named @NPST~archaic@ is a variant of @NPST@: its main
 -- name, and its label (everything after the first @~@).
@@ -336,7 +355,20 @@ parseEntryBody enId = withObject "entry" $ \o -> do
   enEvents <- o .:? "events" .!= []
   enFate <- o .:? "fate" .!= Map.empty
   enExpect <- o .:? "expect" .!= Map.empty
+  enAllomorphs <- o .:? "allomorphs" .!= Map.empty
   pure Entry {..}
+
+instance FromJSON Allomorph where
+  parseJSON = withObject "allomorph" $ \o -> do
+    alForm <- o .: "form"
+    after <- traverse oneOrMany =<< o .:? "after"
+    before <- traverse oneOrMany =<< o .:? "before"
+    alCondition <- case (after, before) of
+      (Just _, Just _) -> fail "an allomorph may have `after` or `before`, not both"
+      (Just gs, Nothing) -> pure (Just (After gs))
+      (Nothing, Just gs) -> pure (Just (Before gs))
+      (Nothing, Nothing) -> pure Nothing
+    pure Allomorph {..}
 
 instance FromJSON Source where
   parseJSON = withObject "source" $ \o -> do
