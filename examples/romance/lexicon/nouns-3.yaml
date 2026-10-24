@@ -1,5 +1,6 @@
 # Third-declension nouns. Expected forms are generated from attested.tsv
-# by research/expect.sh, which gives sources.
+# by research/expect.sh, which gives sources. The nominative singular is
+# the entry's form; the other cells are built on the oblique stem.
 
 - id: homo
   form: "*homō"
@@ -13,14 +14,18 @@
     ACC.PL: { stem: "*homin-" }
     GEN.PL: { stem: "*homin-" }
   events:
-    # Castilian omne, without the diphthong of Leonese uemne.
-    - analogy: { at: old-spanish, cell: ACC.SG, replace: { ɔ́: ó }, model: "unstressed use" }
-    - analogy: { at: old-spanish, cell: ACC.PL, replace: { ɔ́: ó }, model: "unstressed use" }
+    # Castilian omne and Francien om, ome, without the diphthong of Leonese
+    # uemne and OF huem: the word was often unstressed.
+    - analogy: { at: old-spanish, replace: { ɔ́: ó }, model: "unstressed use" }
+    - analogy: { at: old-french, replace: { ɔ́: ɔ }, model: "unstressed use" }
+    # omne kept while mn > mbr spread (nombre already by 1200)
+    - irregular: { at: old-spanish, cell: ACC.SG, form: "ómne", reason: "conservative, beside nombre" }
+    - irregular: { at: old-spanish, cell: ACC.PL, form: "ómnes", reason: "conservative, beside nombres" }
   expect:
     old-spanish: { ACC.SG: ómne, ACC.PL: ómnes }
-    spanish:     { ACC.SG: ómbɾe, ACC.PL: ómbɾes }
-    old-french:  { NOM.SG: ɔm, ACC.SG: ɔmə, NOM.PL: ɔmə, ACC.PL: ɔməs }
-    french:      { ACC.SG: ɔm, ACC.PL: ɔm }
+    spanish: { ACC.SG: ómbɾe, ACC.PL: ómbɾes }
+    old-french: { NOM.SG: ɔm, ACC.SG: ɔmə, NOM.PL: ɔmə, ACC.PL: ɔməs }
+    french: { ACC.SG: ɔm, ACC.PL: ɔm }
   notes: |
     Old French {homo.NOM.SG @ old-french} is the cas sujet, lost in French
     but kept as the pronoun {on @ french}. The nominative plural
@@ -32,6 +37,8 @@
       gloss: "one (indefinite pronoun)"
       category: [{ at: western-romance, is: PRON }]
       fate: { old-spanish: lost }
+      events:
+        - analogy: { at: old-french, replace: { ɔ́: ɔ }, model: "unstressed use" }
       expect: { old-french: ɔm, french: ɔ̃ }
       notes: |
         Already pronominal in the Oaths of Strasbourg (842, "si cum om").
@@ -63,3 +70,439 @@
     spanish: { ACC.SG: tjémpo, ACC.PL: tjémpos }
     old-french: { NOM.SG: tans, ACC.SG: tans, NOM.PL: tans, ACC.PL: tans }
     french: { ACC.SG: tɑ̃, ACC.PL: tɑ̃ }
+
+- id: pater
+  form: "*pater"
+  gloss: "father"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*patr-" }
+    GEN.SG: { stem: "*patr-" }
+    NOM.PL: { stem: "*patr-" }
+    ACC.PL: { stem: "*patr-" }
+    GEN.PL: { stem: "*patr-" }
+    # *patre for pater: the nominative remade on the accusative
+    NOM.SG: { at: western-romance, stem: "*patr-", morph: [~, C.ACC.SG] }
+  expect:
+    old-spanish: { ACC.SG: pádɾe, ACC.PL: pádɾes }
+    spanish: { ACC.SG: pádɾe, ACC.PL: pádɾes }
+    old-french: { NOM.SG: perə, ACC.SG: perə, NOM.PL: perə, ACC.PL: perəs }
+    french: { ACC.SG: pɛʁ, ACC.PL: pɛʁ }
+
+- id: mater
+  form: "*māter"
+  gloss: "mother"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c-f
+  cells:
+    ACC.SG: { stem: "*mātr-" }
+    GEN.SG: { stem: "*mātr-" }
+    NOM.PL: { stem: "*mātr-" }
+    ACC.PL: { stem: "*mātr-" }
+    GEN.PL: { stem: "*mātr-" }
+    # *mātre for mater: the nominative remade on the accusative
+    NOM.SG: { at: western-romance, stem: "*mātr-", morph: [~, C.ACC.SG] }
+  expect:
+    old-spanish: { ACC.SG: mádɾe }
+    spanish: { ACC.SG: mádɾe, ACC.PL: mádɾes }
+    old-french: { NOM.SG: merə, ACC.SG: merə, NOM.PL: merəs, ACC.PL: merəs }
+    french: { ACC.SG: mɛʁ, ACC.PL: mɛʁ }
+
+- id: frater
+  form: "*frāter"
+  gloss: "brother"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*frātr-" }
+    GEN.SG: { stem: "*frātr-" }
+    NOM.PL: { stem: "*frātr-" }
+    ACC.PL: { stem: "*frātr-" }
+    GEN.PL: { stem: "*frātr-" }
+    # *frātre for frater: the nominative remade on the accusative
+    NOM.SG: { at: western-romance, stem: "*frātr-", morph: [~, C.ACC.SG] }
+  fate: { spanish: { replaced-by: germanus } }
+  expect:
+    old-spanish: { ACC.SG: fɾádɾe }
+    old-french: { NOM.SG: frerə, ACC.SG: frerə, NOM.PL: frerə, ACC.PL: frerəs }
+    french: { ACC.SG: fʁɛʁ, ACC.PL: fʁɛʁ }
+
+- id: nox
+  form: "*noks"
+  gloss: "night"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c-f
+  cells:
+    ACC.SG: { stem: "*nokt-" }
+    GEN.SG: { stem: "*nokt-" }
+    NOM.PL: { stem: "*nokt-" }
+    ACC.PL: { stem: "*nokt-" }
+    GEN.PL: { stem: "*nokt-" }
+    # the parisyllabic *noktis
+    NOM.SG: { at: western-romance, stem: "*nokt-", morph: [~, C.NOM.SG.IS] }
+  expect:
+    old-spanish: { ACC.SG: nótʃe, ACC.PL: nótʃes }
+    spanish: { ACC.SG: nótʃe, ACC.PL: nótʃes }
+    old-french: { NOM.SG: nyjts, ACC.SG: nyjt, NOM.PL: nyjts, ACC.PL: nyjts }
+    french: { ACC.SG: nɥi, ACC.PL: nɥi }
+
+- id: panis
+  form: "*pān-"
+  gloss: "bread"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-i
+  expect:
+    old-spanish: { ACC.SG: pán, ACC.PL: pánes }
+    spanish: { ACC.SG: pán, ACC.PL: pánes }
+    old-french: { NOM.SG: pajns, ACC.SG: pajn, NOM.PL: pajn, ACC.PL: pajns }
+    french: { ACC.SG: pɛ̃, ACC.PL: pɛ̃ }
+
+- id: mare
+  form: "*mar-"
+  gloss: "sea"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c-f
+  cells:
+    NOM.SG: [~, N.SG.E]
+    ACC.SG: [~, N.SG.E]
+  expect:
+    old-spanish: { ACC.SG: máɾ }
+    spanish: { ACC.SG: máɾ, ACC.PL: máɾes }
+    old-french: { NOM.SG: mer, ACC.SG: mer, NOM.PL: mers, ACC.PL: mers }
+    french: { ACC.SG: mɛʁ, ACC.PL: mɛʁ }
+
+- id: sol
+  form: "*sōl"
+  gloss: "sun"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  fate: { old-french: { replaced-by: soliculus } }
+  expect:
+    old-spanish: { ACC.SG: sól }
+    spanish: { ACC.SG: sól, ACC.PL: sóles }
+
+- id: canis
+  form: "*kan-"
+  gloss: "dog"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-i
+  expect:
+    old-spanish: { ACC.SG: kán, ACC.PL: kánes }
+    spanish: { ACC.SG: kán, ACC.PL: kánes }
+    old-french: { NOM.SG: tʃjens, ACC.SG: tʃjen, NOM.PL: tʃjen, ACC.PL: tʃjens }
+    french: { ACC.SG: ʃjɛ̃, ACC.PL: ʃjɛ̃ }
+
+- id: rex
+  form: "*rēks"
+  gloss: "king"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*rēg-" }
+    GEN.SG: { stem: "*rēg-" }
+    NOM.PL: { stem: "*rēg-" }
+    ACC.PL: { stem: "*rēg-" }
+    GEN.PL: { stem: "*rēg-" }
+  expect:
+    old-spanish: { ACC.SG: réj, ACC.PL: réjes }
+    spanish: { ACC.SG: réj, ACC.PL: réʝes }
+    old-french: { NOM.SG: rojs, ACC.SG: roj, NOM.PL: roj, ACC.PL: rojs }
+    french: { ACC.SG: ʁwa, ACC.PL: ʁwa }
+
+- id: lex
+  form: "*lēks"
+  gloss: "law"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c-f
+  cells:
+    ACC.SG: { stem: "*lēg-" }
+    GEN.SG: { stem: "*lēg-" }
+    NOM.PL: { stem: "*lēg-" }
+    ACC.PL: { stem: "*lēg-" }
+    GEN.PL: { stem: "*lēg-" }
+    # the nominative remade on the accusative (OF loi)
+    NOM.SG: { at: western-romance, stem: "*lēg-", morph: [~, C.ACC.SG] }
+  expect:
+    old-spanish: { ACC.SG: léj }
+    spanish: { ACC.SG: léj, ACC.PL: léʝes }
+    old-french: { NOM.SG: loj, ACC.SG: loj, NOM.PL: lojs, ACC.PL: lojs }
+    french: { ACC.SG: lwa, ACC.PL: lwa }
+
+- id: mons
+  form: "*mōns"
+  gloss: "mountain"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*mōnt-" }
+    GEN.SG: { stem: "*mōnt-" }
+    NOM.PL: { stem: "*mōnt-" }
+    ACC.PL: { stem: "*mōnt-" }
+    GEN.PL: { stem: "*mōnt-" }
+    # the parisyllabic *montis
+    NOM.SG: { at: western-romance, stem: "*mōnt-", morph: [~, C.NOM.SG.IS] }
+  expect:
+    old-spanish: { ACC.SG: mónte, ACC.PL: móntes }
+    spanish: { ACC.SG: mónte, ACC.PL: móntes }
+    old-french: { NOM.SG: monts, ACC.SG: mont, NOM.PL: mont, ACC.PL: monts }
+    french: { ACC.SG: mɔ̃, ACC.PL: mɔ̃ }
+
+- id: pons
+  form: "*pons"
+  gloss: "bridge"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*pont-" }
+    GEN.SG: { stem: "*pont-" }
+    NOM.PL: { stem: "*pont-" }
+    ACC.PL: { stem: "*pont-" }
+    GEN.PL: { stem: "*pont-" }
+    # the parisyllabic *pontis
+    NOM.SG: { at: western-romance, stem: "*pont-", morph: [~, C.NOM.SG.IS] }
+  expect:
+    old-spanish: { ACC.SG: pwénte }
+    spanish: { ACC.SG: pwénte, ACC.PL: pwéntes }
+    old-french: { NOM.SG: ponts, ACC.SG: pont, NOM.PL: pont, ACC.PL: ponts }
+    french: { ACC.SG: pɔ̃, ACC.PL: pɔ̃ }
+
+- id: dens
+  form: "*dens"
+  gloss: "tooth"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*dent-" }
+    GEN.SG: { stem: "*dent-" }
+    NOM.PL: { stem: "*dent-" }
+    ACC.PL: { stem: "*dent-" }
+    GEN.PL: { stem: "*dent-" }
+    # the parisyllabic *dentis
+    NOM.SG: { at: western-romance, stem: "*dent-", morph: [~, C.NOM.SG.IS] }
+  expect:
+    old-spanish: { ACC.SG: djénte, ACC.PL: djéntes }
+    spanish: { ACC.SG: djénte, ACC.PL: djéntes }
+    old-french: { NOM.SG: dants, ACC.SG: dant, NOM.PL: dant, ACC.PL: dants }
+    french: { ACC.SG: dɑ̃, ACC.PL: dɑ̃ }
+
+- id: pes
+  form: "*pēs"
+  gloss: "foot"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*ped-" }
+    GEN.SG: { stem: "*ped-" }
+    NOM.PL: { stem: "*ped-" }
+    ACC.PL: { stem: "*ped-" }
+    GEN.PL: { stem: "*ped-" }
+    # the parisyllabic *pedis
+    NOM.SG: { at: western-romance, stem: "*ped-", morph: [~, C.NOM.SG.IS] }
+  expect:
+    old-spanish: { ACC.SG: pjé, ACC.PL: pjés }
+    spanish: { ACC.SG: pjé, ACC.PL: pjés }
+    old-french: { NOM.SG: pjets, ACC.SG: pje, NOM.PL: pje, ACC.PL: pjets }
+    french: { ACC.SG: pje, ACC.PL: pje }
+
+- id: flos
+  form: "*flōs"
+  gloss: "flower"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c-f
+  cells:
+    ACC.SG: { stem: "*flōr-" }
+    GEN.SG: { stem: "*flōr-" }
+    NOM.PL: { stem: "*flōr-" }
+    ACC.PL: { stem: "*flōr-" }
+    GEN.PL: { stem: "*flōr-" }
+    # flors: -s after the masculines
+    NOM.SG: { at: old-french, stem: "flór-", morph: [~, O.NOM.SG] }
+  expect:
+    old-spanish: { ACC.SG: flóɾ }
+    spanish: { ACC.SG: flóɾ, ACC.PL: flóɾes }
+    old-french: { NOM.SG: flowrs, ACC.SG: flowr, NOM.PL: flowrs, ACC.PL: flowrs }
+    french: { ACC.SG: flœʁ, ACC.PL: flœʁ }
+
+- id: civitas
+  form: "*kīwitās"
+  gloss: "city"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c-f
+  cells:
+    ACC.SG: { stem: "*kīwitāt-" }
+    GEN.SG: { stem: "*kīwitāt-" }
+    NOM.PL: { stem: "*kīwitāt-" }
+    ACC.PL: { stem: "*kīwitāt-" }
+    GEN.PL: { stem: "*kīwitāt-" }
+    # citez: -s after the masculines
+    NOM.SG: { at: old-french, stem: "tsiβetád-", morph: [~, O.NOM.SG] }
+  expect:
+    old-spanish: { ACC.SG: tsibdád }
+    spanish: { ACC.SG: θjudád, ACC.PL: θjudádes }
+    old-french: { NOM.SG: tsitets, ACC.SG: tsite, NOM.PL: tsitets, ACC.PL: tsitets }
+    french: { ACC.SG: site, ACC.PL: site }
+
+- id: comes
+  form: "*komes"
+  gloss: "companion; count"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*komit-" }
+    GEN.SG: { stem: "*komit-" }
+    NOM.PL: { stem: "*komit-" }
+    ACC.PL: { stem: "*komit-" }
+    GEN.PL: { stem: "*komit-" }
+  events:
+    # conde, not *cuende: unstressed as a title
+    - analogy: { at: old-spanish, replace: { ɔ́: ó }, model: "proclitic title" }
+  expect:
+    old-spanish: { ACC.SG: kónde, ACC.PL: kóndes }
+    spanish: { ACC.SG: kónde, ACC.PL: kóndes }
+    old-french: { NOM.SG: kwɛns, ACC.SG: kontə, NOM.PL: kontə, ACC.PL: kontəs }
+    french: { ACC.SG: kɔ̃t, ACC.PL: kɔ̃t }
+
+- id: latro
+  form: "*latrō"
+  gloss: "thief"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*latrōn-" }
+    GEN.SG: { stem: "*latrōn-" }
+    NOM.PL: { stem: "*latrōn-" }
+    ACC.PL: { stem: "*latrōn-" }
+    GEN.PL: { stem: "*latrōn-" }
+  events:
+    # lerre: rr after larron, but with the e of a free a
+    - irregular: { at: old-french, cell: NOM.SG, form: "lerrə", reason: "rr after larron" }
+  expect:
+    old-spanish: { ACC.SG: ladɾón, ACC.PL: ladɾónes }
+    spanish: { ACC.SG: ladɾón, ACC.PL: ladɾónes }
+    old-french: { NOM.SG: lerrə, ACC.SG: larron, NOM.PL: larron, ACC.PL: larrons }
+    french: { ACC.SG: laʁɔ̃, ACC.PL: laʁɔ̃ }
+
+- id: senior
+  form: "*senior"
+  gloss: "elder; lord"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*seniōr-" }
+    GEN.SG: { stem: "*seniōr-" }
+    NOM.PL: { stem: "*seniōr-" }
+    ACC.PL: { stem: "*seniōr-" }
+    GEN.PL: { stem: "*seniōr-" }
+  events:
+    # sire: reduced in address, *seior > sieire > sire
+    - irregular: { at: old-french, cell: NOM.SG, form: "sirə", reason: "reduced in address" }
+  derivatives:
+    - id: sire
+      source: { base: senior, cell: NOM.SG }
+      stage: old-french
+      gloss: "sire, lord (in address)"
+      expect: { french: siʁ }
+  expect:
+    old-spanish: { ACC.SG: seɲóɾ, ACC.PL: seɲóɾes }
+    spanish: { ACC.SG: seɲóɾ, ACC.PL: seɲóɾes }
+    old-french: { NOM.SG: sirə, ACC.SG: seɲowr, NOM.PL: seɲowr, ACC.PL: seɲowrs }
+    french: { ACC.SG: sɛɲœʁ, ACC.PL: sɛɲœʁ }
+
+- id: nomen
+  form: "*nōmen"
+  gloss: "name"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-s
+  cells:
+    # nons: -s after the masculines
+    NOM.SG: { at: old-french, stem: "nóm-", morph: [~, O.NOM.SG] }
+    ACC.PL: { at: old-french, stem: "nóm-", morph: [~, O.ACC.PL] }
+  events:
+    # nombre, from the oblique nōmine
+    - repattern: { at: old-spanish, paradigm: noun-c-rom, stem: "nómen-" }
+  expect:
+    old-spanish: { ACC.SG: nómbɾe, ACC.PL: nómbɾes }
+    spanish: { ACC.SG: nómbɾe, ACC.PL: nómbɾes }
+    old-french: { NOM.SG: nons, ACC.SG: nom, NOM.PL: nom, ACC.PL: nons }
+    french: { ACC.SG: nɔ̃, ACC.PL: nɔ̃ }
+
+- id: cor
+  form: "*kor"
+  gloss: "heart"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-s
+  fate: { spanish: { replaced-by: coratio } }
+  cells:
+    # cuers: -s after the masculines
+    NOM.SG: { at: old-french, stem: "kɔ́r-", morph: [~, O.NOM.SG] }
+    ACC.PL: { at: old-french, stem: "kɔ́r-", morph: [~, O.ACC.PL] }
+  expect:
+    old-spanish: { ACC.SG: kwéɾ }
+    old-french: { NOM.SG: kwɛrs, ACC.SG: kwɛr, NOM.PL: kwɛr, ACC.PL: kwɛrs }
+    french: { ACC.SG: kœʁ, ACC.PL: kœʁ }
+  derivatives:
+    - id: coratio
+      source: { base: cor, morph: [~, AUG] }
+      stage: vulgar-latin
+      gloss: "heart (Spanish)"
+      paradigm: noun-c
+      cite: ACC.SG
+      fate: { old-french: lost }
+      expect:
+        old-spanish: { ACC.SG: koɾatsón, ACC.PL: koɾatsónes }
+        spanish: { ACC.SG: koɾaθón, ACC.PL: koɾaθónes }
+
+- id: soliculus
+  source: { base: sol, morph: [~, DIM] }
+  stage: vulgar-latin
+  gloss: "sun (French)"
+  category: [{ at: vulgar-latin, is: "N" }]
+  paradigm: noun-o
+  fate: { old-spanish: lost }
+  expect:
+
+- id: germanus
+  form: "*germān-"
+  gloss: "full (brother); brother (Spanish)"
+  category: [{ at: latin, is: ADJ }, { at: old-spanish, is: "N" }]
+  paradigm: noun-o
+  fate: { old-french: lost }
+  expect:
+
+- id: perro
+  form: "pér-"
+  stage: old-spanish
+  gloss: "dog"
+  category: [{ at: old-spanish, is: "N" }]
+  paradigm: noun-o-rom
+  notes: Of unknown origin.
+  expect:
+
+# A Greek loan: OF prestre continues the Latin stress of the nominative,
+# provoire the Greek one of the oblique (presbýterum).
+- id: presbyter
+  form: "*presbiter"
+  gloss: "elder; priest"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  cells:
+    NOM.SG: ~
+    # French prêtre continues the cas sujet
+    ACC.SG: { at: french, base: presbyter.NOM.SG, morph: ~ }
+    ACC.PL: { at: french, base: presbyter.NOM.SG, morph: ~ }
+  expect:
+    old-french: { NOM.SG: prɛstrə, ACC.SG: provojrə, NOM.PL: provojrə, ACC.PL: provojrəs }
+    french: { ACC.SG: pʁɛtʁ, ACC.PL: pʁɛtʁ }
+  derivatives:
+    # Spanish preste, from Old French
+    - id: preste
+      source: { loan: { from: old-french, id: presbyter, adapt: rules/french-into-spanish.bsc } }
+      stage: old-spanish
+      gloss: "priest"
+      expect: { old-spanish: pɾéste, spanish: pɾéste }
+    - id: presbitero
+      source: { loan: { from: latin, id: presbyter.ACC.SG, adapt: rules/learned-spanish.bsc } }
+      stage: spanish
+      gloss: "presbyter (learned)"
+      expect: { spanish: pɾesbíteɾo }

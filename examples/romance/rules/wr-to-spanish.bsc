@@ -5,19 +5,32 @@ B = &+
 Vu = a e i o u au
 Vs = á é ɛ́ í ó ɔ́ ú áu
 V = Vu Vs
-C = p b t d k g kʷ gʷ f s z m n l r R ɾ j w β ʎ ɲ tʃ ts dz ʃ ʒ
+C = p b t d k g kʷ gʷ f s z m n l r R ɾ j w β ð ʎ ɲ tʃ ts dz ʃ ʒ
 end
 
+; voicing, before the syncope (comite > conde)
+[p t k kʷ] / [b d g gʷ] / V _ [V r l]
+; Latin d (pede > pie)
+ð / / _
 ; intervocalic j after a front vowel (digitus)
-j / / [é e] _ V
+j / / é _ e C V
 é e / é / _
 ; syncope of the post-tonic vowel of a proparoxytone
 [e i o u] / / Vs C _ C V C* #
+; intertonic vowels (civitatem > cibdad)
+[e i o] / / V C _ C Vs
+β / b / _ d
+m / n / _ d
+j / / # _ e
+; omne > omre > ombre, spreading through the lexicon (nombre by 1200)
+n / ɾ / m _
+/ b / m _ ɾ
 ; diphthongisation, in open and closed syllables alike, but not before a
 ; palatal; then the open-mid vowels merge with the close-mid
 ɛ́ / j é / _ // _ [j ʎ]
 ɔ́ / w é / _ // _ [j ʎ]
 [ɛ́ ɔ́] / [é ó] / _
+é e / é / _
 áu / ó / _
 au / o / _
 ; the infinitive's -e before the auxiliary in the future
@@ -29,12 +42,12 @@ l l / ʎ / _
 n n / ɲ / _
 j t / tʃ / _
 ; pl-, kl-, fl-
-[p k f] l / ʎ / # _
+[p k] l / ʎ / # _
 kʷ / k w / _
 gʷ / g w / _
 t / / _ #
 ; apocope after a single dental or alveolar
-e / / V [d l n r s z] _ #
+e / / V [d l n r s z j] _ #
 ; tap and trill
 r r / R / _
 r / ɾ / _ // # _
@@ -49,7 +62,7 @@ n / ɾ / m _
 / b / m _ ɾ
 β / b / _
 ; -ades > -áis
-d / / V _ e s #
+d / / V _ e s # // b d á _
 e / j / Vs _ s #
 ; f- > h- > zero, except before w, r, l
 f / / # _ [V j]
@@ -58,4 +71,6 @@ j é / í / _ ʎ
 ; the sibilants
 [ʒ ʃ] / x / _
 z / s / _
+i b / j u / _ d
+j / ʝ / V _ V
 [ts dz] / θ / _

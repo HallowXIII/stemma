@@ -24,6 +24,13 @@ affixes:
   C.GEN.PL: { form: "*-um" }
   # neuter plural
   N.PL:     { form: "*-a" }
+  # third-declension neuter singular (mare)
+  N.SG.E:   { form: "*-e" }
+  # the parisyllabic nominative of Vulgar Latin (*montis, *pedis)
+  C.NOM.SG.IS: { form: "*-is" }
+  # derivational
+  DIM:      { form: "*-icul-" }
+  AUG:      { form: "*-ākeōn-" }
 
   # first conjugation
   INF.A:
@@ -196,3 +203,33 @@ paradigms:
     cells:
       - ACC.SG: O.ACC.SG
       - ACC.PL: O.ACC.PL
+
+  # Third-declension feminines keep the nominative plural in -ēs (OF meres).
+  noun-c-f:
+    extends: noun-c
+    becomes: { western-romance: noun-c-f-wr }
+  noun-c-f-wr:
+    extends: noun-c
+    lost:
+      western-romance: ["GEN.*"]
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  # Parisyllabic third-declension nouns (pānis).
+  noun-i:
+    extends: noun-c
+    cells:
+      - NOM.SG: C.NOM.SG.IS
+    becomes: { western-romance: noun-i-wr }
+  noun-i-wr:
+    extends: noun-c-wr
+    cells:
+      - NOM.SG: C.NOM.SG.IS
+
+  # Romance third-declension nouns, for nouns remade as such after Western
+  # Romance (Spanish nombre).
+  noun-c-rom:
+    cite: ACC.SG
+    cells:
+      - ACC.SG: C.ACC.SG
+      - ACC.PL: C.ACC.PL

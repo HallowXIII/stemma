@@ -214,6 +214,29 @@ Found while building the full word list, batch by batch.
     isn't expressible, so the four Old French cells are `irregular`. The
     inline-rule analogy from finding 4 would do it in one event.
 
+14. **A cell couldn't be re-formed on one its stage loses.** French *prêtre*
+    continues the cas sujet, so the oblique cells are re-formed at French
+    on `presbyter.NOM.SG`, which French loses. The rebuild failed with
+    "has no form at french".
+
+    **Fixed** (`6e62d53`): a lost item enters the stage with its form at
+    the end of the parent.
+
+15. **An event can't come after a sound change in the same segment.**
+    Semi-learned OF *pueple* keeps the *p* that Old French voicing would
+    make *b*. An analogy at Old French applies on entry, before the
+    voicing, so the four cells are `irregular`. A Gallo-Romance stage
+    between Western Romance and Old French, after the voicing, would let
+    one `analogy` do it, and probably *estoile* (finding 13) too. Worth
+    adding once more such words show up.
+
+16. **Lexical diffusion needs `irregular`.** *mn* > *mbr* had reached
+    *nombre* by 1200 but not *omne*, so the rule is in both Spanish
+    segments and *omne* is two `irregular`s. That is honest, but the
+    build can't tell a conservative form from an unexplained one; a
+    reason category on `irregular` (conservative, semi-learned, ...)
+    would make the count meaningful.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
@@ -227,10 +250,13 @@ forms are reproduced. The main judgement calls:
 - **Dating.** Old French at 1150 sits on several changes: *ei* > *oi* (taken
   as done: *avojr*), *ai* > *ɛ* (taken as not yet: *aj*), and the loss of 3sg
   *-t* (taken as gone: *tʃantə*).
-- **Rules.** Old French *om*, *ome* without a diphthong is done by blocking
-  the diphthongisation of *ɔ́* before nasals, which is right for *homo* but
-  needs checking against *bonum* and *comes*. Castilian *omne* is done with
-  an event instead, since Spanish diphthongises before nasals (*puente*).
+- **Rules.** Old French diphthongises before nasals (*cuens* < *comes*), so
+  *om*, *ome* and Castilian *omne* are an "unstressed use" analogy on
+  *homo* (the spike blocked the diphthong instead, which *cuens* rules
+  out). Old French has its syncope before the voicing of *p t k* (*conte*,
+  *doit*, *cité*), Spanish after it (*conde*), so the voicing is in each
+  branch, not Western Romance. Two rows were corrected for consistency:
+  OF *doit* (with *t*, as *nuit*) and *prestre* (with *ɛ*, as *terre*).
 
 ## Brassica
 

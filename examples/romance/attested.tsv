@@ -59,10 +59,10 @@ oculus	oculus	ACC.SG	spanish	inherited	ojo	óxo	high	https://en.wiktionary.org/w
 oculus	oculus	ACC.PL	spanish	inherited	ojos	óxos	high	https://en.wiktionary.org/wiki/ojo	
 oculus	oculus	ACC.SG	french	inherited	œil	œj	high	https://fr.wiktionary.org/wiki/œil	
 oculus	oculus	ACC.PL	french	inherited	yeux	jø	high	https://fr.wiktionary.org/wiki/œil; Bourciez §70 Rem. I (development of ôc(u)los)	continues the OF plural uelz/ieus, not œil + s
-digitus	digitus	NOM.SG	old-french	inherited	dois; doiz	dojs	low	https://en.wiktionary.org/wiki/doit (OF; alt. dei, deit, doi)	see ACC.SG. doiz /dojts/ if the stem has t
-digitus	digitus	ACC.SG	old-french	inherited	doi; dei; doit; deit	doj	low	https://fr.wiktionary.org/wiki/doigt ('afr. dei, doi, < lat. pop. *dĭtus', after DAF9); https://en.wiktionary.org/wiki/doit; NyropI §196 ('digitum doigt')	forms with and without t compete (*ditu vs *digitu). ei > oi as in avoir (pilot), so /doj/; /dej/ for the older value
-digitus	digitus	NOM.PL	old-french	inherited	doi; dei; doit; deit	doj	low	as above	
-digitus	digitus	ACC.PL	old-french	inherited	dois; doiz	dojs	low	as above	
+digitus	digitus	NOM.SG	old-french	inherited	dois; doiz	dojts	low	https://en.wiktionary.org/wiki/doit (OF; alt. dei, deit, doi)	see ACC.SG. doiz /dojts/ if the stem has t [build: doit, with its t, as in nuit]
+digitus	digitus	ACC.SG	old-french	inherited	doi; dei; doit; deit	dojt	low	https://fr.wiktionary.org/wiki/doigt ('afr. dei, doi, < lat. pop. *dĭtus', after DAF9); https://en.wiktionary.org/wiki/doit; NyropI §196 ('digitum doigt')	forms with and without t compete (*ditu vs *digitu). ei > oi as in avoir (pilot), so /doj/; /dej/ for the older value [build: doit, with its t, as in nuit]
+digitus	digitus	NOM.PL	old-french	inherited	doi; dei; doit; deit	dojt	low	as above	[build: doit, with its t, as in nuit]
+digitus	digitus	ACC.PL	old-french	inherited	dois; doiz	dojts	low	as above	[build: doit, with its t, as in nuit]
 digitus	digitus	ACC.SG	old-spanish	inherited	dedo	dédo	medium	PidalManual ('digitum, dedo'); https://en.wiktionary.org/wiki/dedo (< OSp dedo)	not in the Cid ('dedos' in the text index is 'De dos')
 digitus	digitus	ACC.PL	old-spanish	inherited	dedos	dédos	medium	as above	
 digitus	digitus	ACC.SG	spanish	inherited	dedo	dédo	high	https://en.wiktionary.org/wiki/dedo	
@@ -518,7 +518,7 @@ senior	seniōrem	ACC.SG	old-spanish	inherited	señor	seɲóɾ	high	PidalCid voca
 senior	seniōrēs	ACC.PL	old-spanish	inherited	señores	seɲóɾes	high	Cid text 'Mala cueta es, señores, aver mingua de pan' (673)	
 senior	seniōrem	ACC.SG	spanish	inherited	señor	seɲóɾ	high	standard	
 senior	seniōrēs	ACC.PL	spanish	inherited	señores	seɲóɾes	high	standard	
-presbyter	presbyter	NOM.SG	old-french	inherited	prestre	prestrə	medium	NyropII §260 (prestre, proveire, proveire, proveires); https://en.wiktionary.org/wiki/prestre	s before t still pronounced at the end of the 11th c. and lost everywhere by about 1200 (Bourciez §157), so kept c.1150. Wiktionary thinks prestre and provoire were probably separate words (they rarely occur together); Nyrop gives one paradigm
+presbyter	presbyter	NOM.SG	old-french	inherited	prestre	prɛstrə	medium	NyropII §260 (prestre, proveire, proveire, proveires); https://en.wiktionary.org/wiki/prestre	s before t still pronounced at the end of the 11th c. and lost everywhere by about 1200 (Bourciez §157), so kept c.1150. Wiktionary thinks prestre and provoire were probably separate words (they rarely occur together); Nyrop gives one paradigm [build: ɛ for ĕ in a closed syllable, as in terre]
 presbyter	presbyterum	ACC.SG	old-french	inherited	provoire; proveire	provojrə	medium	NyropII §260; https://en.wiktionary.org/wiki/provoire (< VL *previterum)	ei > oi as for roi; /provejrə/ for the older value. prestre is already used for the régime in OF (NyropII §273 'Prestre pour proveire')
 presbyter	*presbyterī	NOM.PL	old-french	inherited	provoire; proveire	provojrə	medium	NyropII §260	
 presbyter	presbyterōs	ACC.PL	old-french	inherited	provoires; proveires	provojrəs	medium	NyropII §260; Roland O 'proveires coronez'	

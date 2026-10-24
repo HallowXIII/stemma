@@ -37,8 +37,9 @@ V / S / _ C* V C* # // S C* _
 
 ; --- Vowels ---
 m / / [V S] _ #
-[e i] / j / _ V
-t j / ts / _
+; final n of neuters in -men
+n / / V _ #
+[e i] / j / _ [V S] // r _ á
 [ā́ á ḗ é ī́ í ṓ ó ū́ ú áe óe áu] / [á á é ɛ́ í é ó ɔ́ ú ó ɛ́ é áu]
 [ā ē ī ō ū ae oe i u] / [a e i o u e e e o]
 
@@ -52,15 +53,20 @@ end
 ; prothesis before s and a stop
 / e / # _ s [p t k]
 s / z / W _ W
-; yod
-l j / ʎ / _
-k t / j t / _
+; palatalisation and yod
+k / ts / _ [e i é í ɛ́ j]
 g / j / _ [e i é í ɛ́]
-
-; --- Lenition ---
+l j / ʎ / _
+n j / ɲ / _
+k t / j t / _
+t j / ts / _
+ts j / ts / _
+; Latin d: voiced stops, unlike t, are already weak (pede > pie, pié)
+d / ð / W _ [W r]
 w / β / _
 b / β / [W r l] _ [W r l]
-[p t k kʷ] / [b d g gʷ] / W _ [W r l]
+; The voicing of p, t, k is not shared: Old French has syncope before it
+; (comite > conte, doit), Spanish after it (conde).
 
 ; post-tonic vowel before l in a proparoxytone (oculus, populus)
 o / / Sw C _ l W C* #

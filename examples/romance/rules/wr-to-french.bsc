@@ -13,7 +13,16 @@ end
 β / v / _
 [u ú] / [y ý] / _
 ; syncope of the post-tonic vowel of a proparoxytone
-[e i o u] / / Vs C _ C V C* #
+[e i o u] / / V C _ C V C* # / V s b _ C V C* #
+; presbyter: prestre, provoire
+b / / s _ t
+s / / _ b
+; intertonic vowels (civitatem > *civtate)
+[e i o] / / V C _ C Vs
+; voicing, after the syncope (comite > conte, digitu > doit)
+[p t k kʷ] / [b d g gʷ] / V _ [V r l]
+ts / dz / V _ V
+v / / _ t
 g / j / V _ l
 [k g] / [tʃ dʒ] / _ [a á au áu]
 ; the infinitive's -e before the auxiliary in the future
@@ -24,11 +33,14 @@ gʷ / g / _
 ɔ́ g / ó w / _ [o u i]
 
 b / v / V _ [V r l]
+e / o / r _ v
 
 ; --- stressed vowels ---
-ɛ́ / j é / _ C V / _ [Stop v] [r l] V / _ V
-ɔ́ / w ɛ́ / _ C V / _ [Stop v] [r l] V / _ V // _ [m n]
-é / é j / _ C V / _ [Stop v] [r l] V
+ɔ́ j / ý j / _
+ɔ́ / ó / _ [m n] C
+é / é j / _ C V / _ [Stop v] [r l] V // _ [ʎ j]
+ɛ́ / j é / _ C V / _ [Stop v] [r l] V / _ V / _ C #
+ɔ́ / w ɛ́ / _ C V / _ [Stop v] [r l] V / _ V / _ C #
 ó / ó w / _ C V / _ [Stop v] [r l] V // _ [m n w]
 ; Bartsch's law
 á / j é / [tʃ dʒ j] _ C V / [tʃ dʒ j] _ [Stop v] [r l] V
@@ -41,17 +53,21 @@ b / v / V _ [V r l]
 a / ə / [tʃ dʒ] _ C V
 a / ə / V C* _ C* Vs
 a / ə / _ C* #
-[e i o] / ə / [Stop m β v] [r l n] _ (s) # / j l _ (s) #
+[e i o] / ə / [Stop m β v] [r l n] _ (s) # / j l _ (s) # / m t _ (s) #
+e r / r ə / [Stop] _ #
 [e i o u y] / / _ (C) #
 o / / Vs j _ #
-t / / V _ #
+[t d ð] / / V _ #
 ɛ́ j / í / _
 
 ; --- consonants ---
 v / / w _
-d / / V _ V
-[b d g v] / [p t k f] / _ (s) #
-t / / j _ (s) #
+[d ð] / / V _ V
+d r / r r / V _ Vs
+d r / r / [Vs j] _
+k s / j s / _ #
+m / n / _ t
+[b d g v ð] / [p t k f t] / _ (s) #
 ; anz, filz, ueuz
 / t / n n _ s #
 / t / ʎ _ s #
@@ -71,7 +87,7 @@ l / w / [a á e é ɛ ɛ́ o ó ɔ ɔ́] _ C
 [á é ɛ́ í ó ɔ́ ú ý] / [a e ɛ i o ɔ u y] / _
 ; 12th century
 e j / o j / _ // _ n
-[e ɛ] n / a n / _ C // j _
+[e ɛ] n / a n / _ C // [j w] _
 
 report
 
@@ -86,10 +102,12 @@ end
 tʃ / ʃ / _
 dʒ / ʒ / _
 ts / s / _
-j / / [ʃ ʒ] _
+j / / [ʃ ʒ] _ // _ e n
 r r / r / _
 s / / _ C
 ; nasal vowels, before a nasal that ends the syllable
+e / ɛ̃ / j _ n [C #]
+a j / ɛ̃ / _ n [C #]
 [a e o ɔ] / [ɑ̃ ɑ̃ ɔ̃ ɔ̃] / _ [m n] [C #]
 e j / ɛ̃ / _ n [C #]
 [m n] / / N _
@@ -98,7 +116,7 @@ e j / ɛ̃ / _ n [C #]
 t s / / e _ #
 s / / _ #
 t / / _ #
-r / / e _ #
+r / / V C* e _ #
 ə / / _ #
 ; diphthongs
 a j / e / _ #
@@ -110,6 +128,9 @@ o j / w a / _
 a w / o / _
 e w / o / _ #
 o w / ø / _
+ø / œ / _ r
+y j / ɥ i / _
+e / ɛ / _ ɲ
 w ɛ / œ / _
 ʎ / j / _
 ; schwa between single consonants, after the diphthongs had gone
