@@ -74,4 +74,8 @@ data Engine = Engine
   , engineOutline :: Text -> Either OutlineError [[RuleStatement]]
   -- ^ Parse the text of a rules file into its segments (see 'RulesRef'),
   -- each a list of statements, without applying it.
+  , engineInline :: Maybe (Text -> Either Text (Form -> [Form]))
+  -- ^ Compile a rule given inline (an analogy's `rule:`) into a function
+  -- from a form to its outputs, with no IO, so that events can apply it.
+  -- Nothing for an engine that can't.
   }

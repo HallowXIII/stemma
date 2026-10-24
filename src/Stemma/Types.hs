@@ -19,6 +19,7 @@ module Stemma.Types
   , Source (..)
   , Event (..)
   , EventKind (..)
+  , AnalogyChange (..)
   , Fate (..)
   , Expect (..)
   , Cite (..)
@@ -152,6 +153,8 @@ data Paradigm = Paradigm
   -- ^ Stages where every entry with this paradigm changes to another one,
   -- as if each had a @repattern@ event there.
   , pdCite :: Maybe Cite
+  , pdEvents :: [Event]
+  -- ^ Events for every entry with the paradigm, before the entry's own.
   }
   deriving (Show)
 
@@ -217,6 +220,7 @@ instance FromJSON Paradigm where
     pdLost <- traverse oneOrMany =<< o .:? "lost" .!= Map.empty
     pdBecomes <- traverse (name "paradigm name") =<< o .:? "becomes" .!= Map.empty
     pdCite <- o .:! "cite"   -- `cite: ~` is the bare form, not no cite
+    pdEvents <- o .:? "events" .!= []
     pure Paradigm {..}
     where
       dimension :: Value -> Parser Dimension
@@ -378,9 +382,15 @@ data Event = Event
   }
   deriving (Show)
 
+-- | What an analogy does to a form: substitute graphemes, or apply a rule
+-- given inline (in the engine's syntax), which can be confined to a
+-- context.
+data AnalogyChange = Replace [(Text, Text)] | ByRule Text
+  deriving (Show)
+
 data EventKind
-  = Analogy [(Text, Text)] (Maybe Text)
-  -- ^ Segment substitutions, and the model of the analogy.
+  = Analogy AnalogyChange (Maybe Text)
+  -- ^ The change, and the model of the analogy.
   | Reform
   | Loan StageId (Maybe ItemId) (Maybe RulesRef)
   -- ^ Donor stage, donor item (default: the same item), adaptation rules.
@@ -504,8 +514,13 @@ instance FromJSON Event where
       evCell <- traverse (name "cell name") =<< b .:? "cell"
       evKind <- case Key.toText k of
         "analogy" -> do
-          repl <- b .: "replace"
-          Analogy (Map.toList repl) <$> b .:? "model"
+          repl <- b .:? "replace"
+          rule <- b .:? "rule"
+          change <- case (repl, rule) of
+            (Just r, Nothing) -> pure (Replace (Map.toList r))
+            (Nothing, Just t) -> pure (ByRule t)
+            _ -> fail "an analogy takes either `replace` or `rule`"
+          Analogy change <$> b .:? "model"
         "reform" -> pure Reform
         "loan" -> Loan <$> b .: "from" <*> (traverse (name "id") =<< b .:? "id") <*> b .:? "adapt"
         "irregular" -> Irregular <$> b .: "form" <*> b .:? "reason"

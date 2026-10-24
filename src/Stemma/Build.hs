@@ -92,19 +92,34 @@ build engine proj = do
       Left e -> pure (Left [e])
       Right order -> do
         let rules = Map.fromList rs
-        actual <- runMode engine proj rules order Actual
-        regular <- runMode engine proj rules order Regular
-        case (actual, regular) of
-          (Left e, _) -> pure (Left e)
-          (_, Left e) -> pure (Left e)
-          (Right (a0, wa), Right (g0, _)) -> do
-            let a = presentAllomorphs proj a0
-                g = presentAllomorphs proj g0
-            spA <- spell proj rules a
-            spG <- spell proj rules g
-            let built = Built proj order a g spA spG []
-            pure (Right built {bWarnings = boundaryWarnings proj rules ++ wa ++ redundantIrregulars built
-                                             ++ allomorphWarnings built ++ citeWarnings built})
+        case inlineRules engine proj of
+          Left errs -> pure (Left errs)
+          Right inline -> do
+            actual <- runMode engine proj rules inline order Actual
+            regular <- runMode engine proj rules inline order Regular
+            case (actual, regular) of
+              (Left e, _) -> pure (Left e)
+              (_, Left e) -> pure (Left e)
+              (Right (a0, wa), Right (g0, _)) -> do
+                let a = presentAllomorphs proj a0
+                    g = presentAllomorphs proj g0
+                spA <- spell proj rules a
+                spG <- spell proj rules g
+                let built = Built proj order a g spA spG []
+                pure (Right built {bWarnings = boundaryWarnings proj rules ++ wa ++ redundantIrregulars built
+                                                 ++ allomorphWarnings built ++ citeWarnings built})
+
+-- | The rules that analogies give inline, each compiled once by the engine.
+inlineRules :: Engine -> Project -> Either [Text] (Map Text (Form -> [Form]))
+inlineRules engine proj = case (texts, engineInline engine) of
+  ([], _) -> Right Map.empty
+  (_, Nothing) -> Left [engineName engine <> " cannot apply an analogy's `rule`"]
+  (_, Just compile) -> case partitionEithers [compiled compile t | t <- texts] of
+    ([], rs) -> Right (Map.fromList rs)
+    (errs, _) -> Left errs
+  where
+    texts = nub [t | it <- Map.elems (prItems proj), Event {evKind = Analogy (ByRule t) _} <- itEvents it]
+    compiled compile t = either (\e -> Left ("analogy rule " <> T.strip t <> ": " <> e)) (Right . (t,)) (compile t)
 
 -- | Parents first, and loan donors before recipients.
 stageOrder :: Project -> Either Text [StageId]
@@ -126,9 +141,9 @@ stageOrder proj = go [] Set.empty (prStageOrder proj)
           ds -> go done (Set.insert s visiting) (ds ++ s : rest)
 
 runMode
-  :: Engine -> Project -> Map RulesRef Rules -> [StageId] -> Mode
+  :: Engine -> Project -> Map RulesRef Rules -> Map Text (Form -> [Form]) -> [StageId] -> Mode
   -> IO (Either [Text] (Map StageId StageResults, [Text]))
-runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) order
+runMode engine proj rules inline order mode = foldM stepStage (Right (Map.empty, [])) order
   where
     stages = famStages (prFamily proj)
     items = prItems proj
@@ -286,7 +301,12 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
     applyEvent s it loanForms inputs prev acc (k, ev) = do
       (f, descs, origin) <- acc
       case evKind ev of
-        Analogy repl model -> do
+        Analogy (ByRule t) model -> case Map.lookup t inline of
+          Nothing -> Left ("analogy: rule not compiled: " <> T.strip t)
+          Just apply -> case apply f of
+            [] -> Left ("analogy: the rule " <> T.strip t <> " deleted the form")
+            f' : _ -> pure (f', descs ++ ["analogy (" <> T.strip t <> ")" <> maybe "" (" after " <>) model], origin)
+        Analogy (Replace repl) model -> do
           -- A replacement may be written with spaces between its graphemes.
           table <- forM repl $ \(from, to) -> do
             g <- tokeniseAt s from

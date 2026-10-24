@@ -94,3 +94,19 @@
     mid:   { NPST.1S: dorga }
     late:  { NPST.1S: dorni }
     other: { NPST.1S: dorka }
+
+- id: jump
+  form: "*pol"
+  paradigm: verb-p
+  expect:
+    mid:  { PST.1S: polga }
+    late: { PST.1S: polka }
+
+# An analogy given as a rule: only the initial k changes.
+- id: nest
+  form: "*kekel"
+  events:
+    - analogy: { at: mid, rule: "k / t / # _" }
+  expect:
+    mid: tegel
+    other: kekel

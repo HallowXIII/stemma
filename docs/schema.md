@@ -207,6 +207,21 @@ re-formings of the entry's paradigm and of any it changes to apply.
 They are inherited through `extends` with their cell, and replaced with
 it.
 
+**Events on a paradigm.** A paradigm can list `events` (§4), usually with
+`cell:`, which every entry with the paradigm gets before its own. This
+suits an analogy that reaches a whole conjugation but only one cell, and
+that a re-forming from bare parts would get wrong because the stem has
+changed on the way (Spanish 2pl *podéis*, from *podedes*):
+
+```yaml
+  verb-e:
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / _ #" }
+```
+
+They are inherited through `extends`, after the parent's. The events of
+any paradigm the entry changes to apply as well.
+
 **Citation.** In a dictionary, an entry with a paradigm is cited by one of
 its cells: by default its first, or the cell its paradigm's `cite` names.
 `cite` is one cell, `~` for the bare form (the stem, which suits verbs
@@ -550,6 +565,19 @@ Each key is one grapheme, and every occurrence of it is replaced. A
 replacement of several graphemes may be written with spaces between them
 (`{ a: a j }`), and an empty one deletes. A key that is not one grapheme at
 the stage is an error.
+
+Where the change is confined to a context, or must not touch every
+occurrence, give a `rule` instead of `replace`: one statement in the rules
+engine's syntax (Brassica's), applied to the form entering the stage.
+
+```yaml
+- analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / _ #", model: "the 2pl in -áis" }
+```
+
+The rule sees the form's graphemes as they are: it doesn't know the
+stage's categories, so name graphemes or write categories inline
+(`[a e i]`). A rule that changes nothing leaves the form as it was. `trace`
+shows the rule with the event.
 
 This is preferred over writing the output form: if you change what word-final
 *r₂ becomes, the analogical form follows.

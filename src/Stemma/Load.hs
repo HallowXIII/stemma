@@ -306,7 +306,9 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       | t <- stemTexts ]
     cellBase ov = coBase ov <|> (stemId <$> coStem ov)
 
-    (cellEvents, ownEvents) = partitionBy (\ev -> evCell ev /= Nothing) events
+    -- The events of its paradigm, and of any it changes to, come first.
+    paradigmEvents = concatMap pfEvents (toList paradigm ++ repatternParadigms)
+    (cellEvents, ownEvents) = partitionBy (\ev -> evCell ev /= Nothing) (paradigmEvents ++ events)
     cellOf ev = fromMaybe "" (evCell ev)
 
     -- The entry's events, with a repattern for each stage where its
@@ -541,6 +543,7 @@ data ParadigmDef = ParadigmDef
   , pfLost :: Map StageId [Text]
   , pfBecomes :: Map StageId Text
   , pfCite :: Maybe Cite
+  , pfEvents :: [Event]
   }
 
 resolveParadigms :: Map Text Paradigm -> Either [Text] (Map Text ParadigmDef)
@@ -576,6 +579,7 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
                 -- replaces would otherwise become itself.
                 , pdBecomes = pdBecomes p
                 , pdCite = pdCite p <|> pdCite b
+                , pdEvents = pdEvents b ++ pdEvents p
                 }
 
     checkUnique what xs = case nub [x | x <- xs, length (filter (== x) xs) > 1] of
@@ -638,6 +642,7 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
         , pfLost = pdLost p
         , pfBecomes = pdBecomes p
         , pfCite = pdCite p
+        , pfEvents = pdEvents p
         }
 
 -- | Does a @lost@ pattern cover this cell? A cell's variants go with it.

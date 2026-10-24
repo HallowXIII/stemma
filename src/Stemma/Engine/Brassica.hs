@@ -21,6 +21,7 @@ brassicaEngine = Engine
       either (Left . T.pack . errorBundlePretty) (Right . map T.pack)
         (tokeniseWord (map T.unpack gs) (T.unpack t))
   , engineOutline = outline
+  , engineInline = Just inline
   }
 
 type Statements = SoundChanges Expanded GraphemeList
@@ -45,6 +46,14 @@ load ref bytes = do
       in if n <= length segs
            then Right (concat (take (n - 1) segs), segs !! (n - 1))
            else Left (here ("has only " <> T.pack (show (length segs)) <> " segment(s)"))
+
+-- | A rule given inline: parsed and expanded once, then applied to forms.
+-- Without a categories block of its own it sees the graphemes as they are.
+inline :: T.Text -> Either T.Text (Form -> [Form])
+inline text = do
+  parsed <- either (Left . T.pack . errorBundlePretty) Right (parseSoundChanges (T.unpack text))
+  statements <- either (Left . expandError) Right (expandSoundChanges parsed)
+  pure (evoOutputs . evolve statements)
 
 outline :: T.Text -> Either OutlineError [[RuleStatement]]
 outline text = do

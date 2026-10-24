@@ -45,3 +45,10 @@ paradigms:
       - NPST.1S: [[~, S.1S], { at: late, morph: [~, S.1S.SHORT] }]
       - PST.1S: [~, PST]
       - OPT: { at: mid, morph: [OBJ, ~] }
+
+  # A paradigm event: the past restores its k at late, for every verb with
+  # the paradigm, by a rule confined to the ending.
+  verb-p:
+    extends: verb-r
+    events:
+      - analogy: { at: late, cell: PST.1S, rule: "g a / k a / _ #", model: "the other pasts" }
