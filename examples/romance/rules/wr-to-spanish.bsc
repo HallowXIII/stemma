@@ -5,21 +5,33 @@ B = &+
 Vu = a e i o u au
 Vs = á é ɛ́ í ó ɔ́ ú áu
 V = Vu Vs
-C = p b t d k g kʷ f s z m n l r R ɾ j w β ʎ ɲ tʃ ts dz ʃ ʒ
+C = p b t d k g kʷ gʷ f s z m n l r R ɾ j w β ʎ ɲ tʃ ts dz ʃ ʒ
 end
 
+; intervocalic j after a front vowel (digitus)
+j / / [é e] _ V
+é e / é / _
 ; syncope of the post-tonic vowel of a proparoxytone
 [e i o u] / / Vs C _ C V C* #
-; diphthongisation, in open and closed syllables alike
-ɛ́ / j é / _
-ɔ́ / w é / _
+; diphthongisation, in open and closed syllables alike, but not before a
+; palatal; then the open-mid vowels merge with the close-mid
+ɛ́ / j é / _ // _ [j ʎ]
+ɔ́ / w é / _ // _ [j ʎ]
+[ɛ́ ɔ́] / [é ó] / _
 áu / ó / _
 au / o / _
 ; the infinitive's -e before the auxiliary in the future
 e / / _ Vs
 á j o / é / _ #
+; palatals: Western Romance ʎ (filius, oculus) > ʒ, then ll > ʎ
+ʎ / ʒ / _
+l l / ʎ / _
+n n / ɲ / _
+j t / tʃ / _
 ; pl-, kl-, fl-
 [p k f] l / ʎ / # _
+kʷ / k w / _
+gʷ / g w / _
 t / / _ #
 ; apocope after a single dental or alveolar
 e / / V [d l n r s z] _ #
@@ -39,3 +51,11 @@ n / ɾ / m _
 ; -ades > -áis
 d / / V _ e s #
 e / j / Vs _ s #
+; f- > h- > zero, except before w, r, l
+f / / # _ [V j]
+j / ʝ / # _
+j é / í / _ ʎ
+; the sibilants
+[ʒ ʃ] / x / _
+z / s / _
+[ts dz] / θ / _

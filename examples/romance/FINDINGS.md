@@ -183,6 +183,37 @@ does instead, and what stemma could do about it.
    put at French for now; a Middle French stage would let it go through
    later changes.
 
+## Scaling up
+
+Found while building the full word list, batch by batch.
+
+10. **Cells two repatterns add were joined at the wrong one.** *corpus*
+    `becomes` invariable at Western Romance (OF *cors* in every cell) and
+    is remade as an o-stem by its own `repattern` at Old Spanish
+    (*cuerpo*). The plural cells, which both add, were joined at Old
+    Spanish, since the entry's own repatterns came first, so French had
+    none.
+
+    **Fixed** (`190e29e`): repatterns are taken nearest the root first.
+
+11. **An analogy without `cell:` changed only the bare entry.** The schema
+    implied it would change every cell, which is what a word-wide analogy
+    wants (OF *pueple*, *escole*; French *loup*, *roue*).
+
+    **Fixed** (`9567c98`): it now reaches every cell.
+
+12. **A `repattern` brings back cells lost earlier.** Remaking *corpus* as
+    `noun-o` at Old Spanish joined its genitive and nominative cells
+    there, although `noun-o` loses them at Western Romance and Old
+    Spanish. The example uses a Romance paradigm with only the accusative
+    cells (`noun-o-rom`). Whether a repattern should honour `lost` above
+    its stage is a design question.
+
+13. **`replace` can't change one of two equal graphemes.** OF *estoile*
+    needs *\*stēla* with a single *l*, from WR *estélla*; deleting one *l*
+    isn't expressible, so the four Old French cells are `irregular`. The
+    inline-rule analogy from finding 4 would do it in one event.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.

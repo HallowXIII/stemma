@@ -22,6 +22,8 @@ affixes:
   C.NOM.PL: { form: "*-ēs" }
   C.ACC.PL: { form: "*-ēs" }
   C.GEN.PL: { form: "*-um" }
+  # neuter plural
+  N.PL:     { form: "*-a" }
 
   # first conjugation
   INF.A:
@@ -114,6 +116,37 @@ paradigms:
       old-spanish: ["NOM.*"]
       french: ["NOM.*"]
 
+  # Second-declension neuters: masculine from Western Romance on (OF fers,
+  # chasteaus).
+  noun-o-n:
+    cite: { latin: NOM.SG }
+    cells:
+      - NOM.SG: O.ACC.SG
+      - ACC.SG: O.ACC.SG
+      - GEN.SG: O.GEN.SG
+      - NOM.PL: N.PL
+      - ACC.PL: N.PL
+      - GEN.PL: O.GEN.PL
+    becomes: { western-romance: noun-o }
+
+  # Third-declension neuter s-stems (corpus, tempus): the same in every
+  # cell from Western Romance on, as in Old French cors. Spanish remakes
+  # them as o-stems, by entry (cuerpo).
+  noun-s:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
+    cells:
+      - NOM.SG: ~
+      - ACC.SG: ~
+    becomes: { western-romance: noun-s-wr }
+  noun-s-wr:
+    extends: noun-s
+    cells:
+      - NOM.PL: ~
+      - ACC.PL: ~
+    lost:
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
   adj-o-a:
     cite: { latin: M.NOM.SG, western-romance: M.ACC.SG }
     cells:
@@ -155,3 +188,11 @@ paradigms:
       - INF: INF.E
       - PRS.1SG: PRS.1SG
       - PRS.3SG: PRS.3SG.E
+
+  # Romance o-stems, for nouns remade as such after Western Romance
+  # (Spanish cuerpo).
+  noun-o-rom:
+    cite: ACC.SG
+    cells:
+      - ACC.SG: O.ACC.SG
+      - ACC.PL: O.ACC.PL

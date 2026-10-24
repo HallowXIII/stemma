@@ -11,9 +11,9 @@ Ss = á é í ó ú
 Sl = ā́ ḗ ī́ ṓ ū́ áe áu óe
 V = Vs Vl
 S = Ss Sl
-Stop = p b t d k g kʷ
+Stop = p b t d k g kʷ gʷ
 L = l r
-C = Stop f s h m n l r j w z β
+C = Stop f s h m n l r j w z β ʎ ɲ ts dz
 end
 
 h / / _
@@ -38,6 +38,7 @@ V / S / _ C* V C* # // S C* _
 ; --- Vowels ---
 m / / [V S] _ #
 [e i] / j / _ V
+t j / ts / _
 [ā́ á ḗ é ī́ í ṓ ó ū́ ú áe óe áu] / [á á é ɛ́ í é ó ɔ́ ú ó ɛ́ é áu]
 [ā ē ī ō ū ae oe i u] / [a e i o u e e e o]
 
@@ -47,7 +48,21 @@ Sw = á é ɛ́ í ó ɔ́ ú áu
 W = Vw Sw
 end
 
+; --- Consonants ---
+; prothesis before s and a stop
+/ e / # _ s [p t k]
+s / z / W _ W
+; yod
+l j / ʎ / _
+k t / j t / _
+g / j / _ [e i é í ɛ́]
+
 ; --- Lenition ---
-w / β
-b / β / W _ [W r]
-[p t k] / [b d g] / W _ [W r]
+w / β / _
+b / β / [W r l] _ [W r l]
+[p t k kʷ] / [b d g gʷ] / W _ [W r l]
+
+; post-tonic vowel before l in a proparoxytone (oculus, populus)
+o / / Sw C _ l W C* #
+; -kl-, -gl-
+[k g] l / ʎ / W _

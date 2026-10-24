@@ -1,0 +1,170 @@
+# Second-declension nouns. Expected forms are generated from attested.tsv
+# by research/expect.sh, which gives sources.
+
+- id: murus
+  form: "*mūr-"
+  gloss: "wall"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  expect:
+    old-spanish: { ACC.SG: múɾo, ACC.PL: múɾos }
+    spanish: { ACC.SG: múɾo, ACC.PL: múɾos }
+    old-french: { NOM.SG: myrs, ACC.SG: myr, NOM.PL: myr, ACC.PL: myrs }
+    french: { ACC.SG: myʁ, ACC.PL: myʁ }
+
+- id: lupus
+  form: "*lup-"
+  gloss: "wolf"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  events:
+    # loup /lu/, not *leu: after the feminine louve and the Latin spelling
+    - analogy: { at: french, replace: { o: u, w: "" }, model: "louve" }
+  expect:
+    old-spanish: { ACC.SG: lóbo, ACC.PL: lóbos }
+    spanish: { ACC.SG: lóbo, ACC.PL: lóbos }
+    old-french: { NOM.SG: lows, ACC.SG: low, NOM.PL: low, ACC.PL: lows }
+    french: { ACC.SG: lu, ACC.PL: lu }
+
+- id: focus
+  form: "*fok-"
+  gloss: "hearth, fire"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  expect:
+    old-spanish: { ACC.SG: fwégo, ACC.PL: fwégos }
+    spanish: { ACC.SG: fwégo, ACC.PL: fwégos }
+    old-french: { NOM.SG: fows, ACC.SG: fow, NOM.PL: fow, ACC.PL: fows }
+    french: { ACC.SG: fø, ACC.PL: fø }
+
+- id: annus
+  form: "*ann-"
+  gloss: "year"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  expect:
+    old-spanish: { ACC.SG: áɲo, ACC.PL: áɲos }
+    spanish: { ACC.SG: áɲo, ACC.PL: áɲos }
+    old-french: { NOM.SG: ants, ACC.SG: an, NOM.PL: an, ACC.PL: ants }
+    french: { ACC.SG: ɑ̃, ACC.PL: ɑ̃ }
+
+- id: caballus
+  form: "*kaball-"
+  gloss: "horse (nag)"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  expect:
+    old-spanish: { ACC.SG: kaβáʎo, ACC.PL: kaβáʎos }
+    spanish: { ACC.SG: kabáʎo, ACC.PL: kabáʎos }
+    old-french: { NOM.SG: tʃəvaws, ACC.SG: tʃəval, NOM.PL: tʃəval, ACC.PL: tʃəvaws }
+    french: { ACC.SG: ʃəval, ACC.PL: ʃəvo }
+
+- id: oculus
+  form: "*okul-"
+  gloss: "eye"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  events:
+    - irregular: { at: french, cell: ACC.PL, form: "jø", reason: "yeux, from OF ieus beside ueuz" }
+  expect:
+    old-spanish: { ACC.SG: óʒo, ACC.PL: óʒos }
+    spanish: { ACC.SG: óxo, ACC.PL: óxos }
+    old-french: { NOM.SG: wɛwts, ACC.SG: wɛʎ, NOM.PL: wɛʎ, ACC.PL: wɛwts }
+    french: { ACC.SG: œj, ACC.PL: jø }
+
+- id: digitus
+  form: "*digit-"
+  gloss: "finger"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  expect:
+    old-spanish: { ACC.SG: dédo, ACC.PL: dédos }
+    spanish: { ACC.SG: dédo, ACC.PL: dédos }
+    old-french: { NOM.SG: dojs, ACC.SG: doj, NOM.PL: doj, ACC.PL: dojs }
+    french: { ACC.SG: dwa, ACC.PL: dwa }
+
+- id: filius
+  form: "*fīli-"
+  gloss: "son"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  derivatives:
+    # The cas sujet, as a word of its own; its s is a spelling
+    # pronunciation.
+    - id: fils
+      source: { base: filius, cell: NOM.SG }
+      stage: old-french
+      gloss: "son"
+      events:
+        - irregular: { at: french, form: "fis", reason: "spelling pronunciation" }
+      expect: { french: fis }
+  expect:
+    old-spanish: { ACC.SG: fíʒo, ACC.PL: fíʒos }
+    spanish: { ACC.SG: íxo, ACC.PL: íxos }
+    old-french: { NOM.SG: fits, ACC.SG: fiʎ, NOM.PL: fiʎ, ACC.PL: fits }
+
+- id: ferrum
+  form: "*ferr-"
+  gloss: "iron"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o-n
+  expect:
+    old-spanish: { ACC.SG: fjéro, ACC.PL: fjéros }
+    spanish: { ACC.SG: ʝéro, ACC.PL: ʝéros }
+    old-french: { NOM.SG: fɛrs, ACC.SG: fɛr, NOM.PL: fɛr, ACC.PL: fɛrs }
+    french: { ACC.SG: fɛʁ, ACC.PL: fɛʁ }
+
+- id: castellum
+  form: "*kastell-"
+  gloss: "fort"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o-n
+  events:
+    # château: the singular remade on chasteaus
+    - analogy: { at: french, cell: ACC.SG, replace: { l: a w }, model: "chasteaus" }
+  expect:
+    old-spanish: { ACC.SG: kastjéʎo, ACC.PL: kastjéʎos }
+    spanish: { ACC.SG: kastíʎo, ACC.PL: kastíʎos }
+    old-french: { NOM.SG: tʃastɛaws, ACC.SG: tʃastɛl, NOM.PL: tʃastɛl, ACC.PL: tʃastɛaws }
+    french: { ACC.SG: ʃato, ACC.PL: ʃato }
+
+- id: lectus
+  form: "*lekt-"
+  gloss: "bed"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  expect:
+    old-spanish: { ACC.SG: létʃo, ACC.PL: létʃos }
+    spanish: { ACC.SG: létʃo, ACC.PL: létʃos }
+    old-french: { NOM.SG: lits, ACC.SG: lit, NOM.PL: lit, ACC.PL: lits }
+    french: { ACC.SG: li, ACC.PL: li }
+
+- id: populus
+  form: "*popul-"
+  gloss: "people"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-o
+  events:
+    # pueple, not *pueble: p kept under the influence of Latin populus
+    - analogy: { at: old-french, replace: { b: p }, model: "Latin populus" }
+  expect:
+    old-spanish: { ACC.SG: pwéblo, ACC.PL: pwéblos }
+    spanish: { ACC.SG: pwéblo, ACC.PL: pwéblos }
+    old-french: { NOM.SG: pwɛpləs, ACC.SG: pwɛplə, NOM.PL: pwɛplə, ACC.PL: pwɛpləs }
+    french: { ACC.SG: pœpl, ACC.PL: pœpl }
+
+# Vulgar Latin *capum, for caput.
+- id: caput
+  form: "*kap-"
+  stage: vulgar-latin
+  gloss: "head"
+  category: [{ at: vulgar-latin, is: "N" }]
+  paradigm: noun-o
+  events:
+    # chefs: the plural remade on the singular
+    - analogy: { at: french, cell: ACC.PL, replace: { s: f }, model: "chef" }
+  expect:
+    old-spanish: { ACC.SG: kábo, ACC.PL: kábos }
+    spanish: { ACC.SG: kábo, ACC.PL: kábos }
+    old-french: { NOM.SG: tʃjes, ACC.SG: tʃjef, NOM.PL: tʃjef, ACC.PL: tʃjes }
+    french: { ACC.SG: ʃɛf, ACC.PL: ʃɛf }

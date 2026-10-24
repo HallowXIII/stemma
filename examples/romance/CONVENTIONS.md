@@ -39,7 +39,8 @@ Broad phonemic IPA, one form per cell. Spelling goes in its own column.
 - No stress marks; ə for unstressed e.
 - Diphthongs: *ie* as je, *ue* (< ŏ) as wɛ, *ai* as aj, *ei* as ej
   (and oj where it has become *oi*: *avojr*, but *plejn* before a nasal),
-  *ou*/*eu* (< ō, ŭ) as ou, and say which in a note.
+  *ou*/*eu* (< ō, ŭ) as ow. Falling glides are j and w: *aj*, *oj*, *aw*,
+  *ow*, *ɛaw* (*chasteaus*).
 - Affricates tʃ dʒ ts dz still affricates (*chantez* /tʃantets/).
 - Nasalisation before a nasal consonant is allophonic: not marked.
 - θ and ð are gone, and so is a final -t that was after a vowel at the

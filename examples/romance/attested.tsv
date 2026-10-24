@@ -9,20 +9,20 @@ murus	mūrus	ACC.SG	spanish	inherited	muro	múɾo	high	https://en.wiktionary.org
 murus	mūrus	ACC.PL	spanish	inherited	muros	múɾos	high	https://en.wiktionary.org/wiki/muro	
 murus	mūrus	ACC.SG	french	inherited	mur	myʁ	high	https://fr.wiktionary.org/wiki/mur	
 murus	mūrus	ACC.PL	french	inherited	murs	myʁ	high	https://fr.wiktionary.org/wiki/mur	-s silent
-lupus	lupus	NOM.SG	old-french	inherited	leus; lous	lous	medium	NyropII §266.1 (labial lost before flexional s); Bourciez §72 Rem. I ('lûpu est en afr. lou[p] ou leu')	ŭ > ou, written o/ou/eu; ou > eu is second half of 12th c. (Bourciez §72), so /ou/ for 1150. p lost before s
-lupus	lupus	ACC.SG	old-french	inherited	leu; lou	lou	medium	Bourciez §72 Rem. I and §172 Rem. ('loup, afr. leu'); NyropI §182, §183 ('lupum > leu'); https://en.wiktionary.org/wiki/leu (OF /ˈlɛw/)	Wiktionary gives /lɛw/, the later value; leu survives in 'à la queue leu leu'
-lupus	lupus	NOM.PL	old-french	inherited	leu; lou	lou	medium	as above	< lupī
-lupus	lupus	ACC.PL	old-french	inherited	leus; lous	lous	medium	as above	
+lupus	lupus	NOM.SG	old-french	inherited	leus; lous	lows	medium	NyropII §266.1 (labial lost before flexional s); Bourciez §72 Rem. I ('lûpu est en afr. lou[p] ou leu')	ŭ > ou, written o/ou/eu; ou > eu is second half of 12th c. (Bourciez §72), so /ou/ for 1150. p lost before s
+lupus	lupus	ACC.SG	old-french	inherited	leu; lou	low	medium	Bourciez §72 Rem. I and §172 Rem. ('loup, afr. leu'); NyropI §182, §183 ('lupum > leu'); https://en.wiktionary.org/wiki/leu (OF /ˈlɛw/)	Wiktionary gives /lɛw/, the later value; leu survives in 'à la queue leu leu'
+lupus	lupus	NOM.PL	old-french	inherited	leu; lou	low	medium	as above	< lupī
+lupus	lupus	ACC.PL	old-french	inherited	leus; lous	lows	medium	as above	
 lupus	lupus	ACC.SG	old-spanish	inherited	lobo	lóbo	medium	PidalManual ('lupum, lobo'); https://en.wiktionary.org/wiki/lobo (< OSp lobo)	not in the Cid; b < Latin -p- = /b/
 lupus	lupus	ACC.PL	old-spanish	inherited	lobos	lóbos	medium	as above	
 lupus	lupus	ACC.SG	spanish	inherited	lobo	lóbo	high	https://en.wiktionary.org/wiki/lobo	
 lupus	lupus	ACC.PL	spanish	inherited	lobos	lóbos	high	https://en.wiktionary.org/wiki/lobo	
 lupus	lupus	ACC.SG	french	analogical	loup	lu	high	https://fr.wiktionary.org/wiki/loup; NyropI §182; Bourciez §72 Rem. I	not the Francien reflex (leu). Nyrop: loup replaced leu under the influence of louve; fr.wiktionary adds borrowing of eastern dialect lou
 lupus	lupus	ACC.PL	french	analogical	loups	lu	high	as above	
-focus	focus	NOM.SG	old-french	inherited	fous; feus; fus	fous	low	Darmesteter p.143 ('ou in pou, fou, jou (focum, locum, jocum) became about the same period eu'); Bourciez §69 Rem. III	vowel of the period uncertain: Bourciez derives it via a triphthong (*fuou > *fœw > fœ). Spellings fou, fu, feu all occur
-focus	focus	ACC.SG	old-french	inherited	fou; feu; fu	fou	low	Darmesteter p.143; Bourciez §69 Rem. III; https://fr.wiktionary.org/wiki/feu ('afr. fou (IXe s.), fu, foc'); https://en.wiktionary.org/wiki/fu (OF)	see the NOM.SG note
-focus	focus	NOM.PL	old-french	inherited	fou; feu; fu	fou	low	as above	
-focus	focus	ACC.PL	old-french	inherited	fous; feus; fus	fous	low	as above	
+focus	focus	NOM.SG	old-french	inherited	fous; feus; fus	fows	low	Darmesteter p.143 ('ou in pou, fou, jou (focum, locum, jocum) became about the same period eu'); Bourciez §69 Rem. III	vowel of the period uncertain: Bourciez derives it via a triphthong (*fuou > *fœw > fœ). Spellings fou, fu, feu all occur
+focus	focus	ACC.SG	old-french	inherited	fou; feu; fu	fow	low	Darmesteter p.143; Bourciez §69 Rem. III; https://fr.wiktionary.org/wiki/feu ('afr. fou (IXe s.), fu, foc'); https://en.wiktionary.org/wiki/fu (OF)	see the NOM.SG note
+focus	focus	NOM.PL	old-french	inherited	fou; feu; fu	fow	low	as above	
+focus	focus	ACC.PL	old-french	inherited	fous; feus; fus	fows	low	as above	
 focus	focus	ACC.SG	old-spanish	inherited	fuego	fwégo	medium	PidalManual ('focum, fuego'); PidalCid gramática cites 'cabo el fuego' (Berceo, SDom 51); https://en.wiktionary.org/wiki/fuego	not in the Cid. huego c.1500 (Wiktionary, after DCECH)
 focus	focus	ACC.PL	old-spanish	inherited	fuegos	fwégos	medium	as above	
 focus	focus	ACC.SG	spanish	inherited	fuego	fwégo	high	https://en.wiktionary.org/wiki/fuego	
@@ -49,10 +49,10 @@ caballus	caballus	ACC.SG	spanish	inherited	caballo	kabáʎo	high	https://en.wikt
 caballus	caballus	ACC.PL	spanish	inherited	caballos	kabáʎos	high	https://en.wiktionary.org/wiki/caballo	
 caballus	caballus	ACC.SG	french	inherited	cheval	ʃəval	high	https://fr.wiktionary.org/wiki/cheval	
 caballus	caballus	ACC.PL	french	inherited	chevaux	ʃəvo	high	https://fr.wiktionary.org/wiki/cheval	
-oculus	oculus	NOM.SG	old-french	inherited	uelz; ueuz; ialz	wɛuts	low	Bourciez §190 Rem. I ('ueil (= oculu) à côté de uelz, ueus (= oculos)') and §70 Rem. I; https://en.wiktionary.org/wiki/ueil (nom.sg/obl.pl ialz)	ʎ + s > lts, then l vocalised (c.1100, Bourciez §188); Nyrop's parallel dueil has cas sujet duez, without u. Spelling and value both uncertain
+oculus	oculus	NOM.SG	old-french	inherited	uelz; ueuz; ialz	wɛwts	low	Bourciez §190 Rem. I ('ueil (= oculu) à côté de uelz, ueus (= oculos)') and §70 Rem. I; https://en.wiktionary.org/wiki/ueil (nom.sg/obl.pl ialz)	ʎ + s > lts, then l vocalised (c.1100, Bourciez §188); Nyrop's parallel dueil has cas sujet duez, without u. Spelling and value both uncertain
 oculus	oculus	ACC.SG	old-french	inherited	ueil; uel; oil	wɛʎ	medium	Bourciez §70 ('ôc(u)lu, oeil'), §190 Rem. I; Darmesteter §76 ('oculum, oclum: ue-il, oeil'); https://en.wiktionary.org/wiki/ueil (OF /ˈu͡ɛʎ/)	ŏ diphthongised before the yod of cl. oil is a common variant spelling
 oculus	oculus	NOM.PL	old-french	inherited	ueil; uel; oil	wɛʎ	medium	as above	
-oculus	oculus	ACC.PL	old-french	inherited	uelz; ueuz; ialz	wɛuts	low	as NOM.SG	
+oculus	oculus	ACC.PL	old-french	inherited	uelz; ueuz; ialz	wɛwts	low	as NOM.SG	
 oculus	oculus	ACC.SG	old-spanish	inherited	oio; ojo	óʒo	high	Cid text 'oio' ~18x; PidalManual ('oc(u)lum, ojo')	i/j = /ʒ/
 oculus	oculus	ACC.PL	old-spanish	inherited	oios; ojos	óʒos	high	Cid text 'oios' ~45x	
 oculus	oculus	ACC.SG	spanish	inherited	ojo	óxo	high	https://en.wiktionary.org/wiki/ojo	
@@ -458,10 +458,10 @@ nomen	nōmen	ACC.SG	old-spanish	inherited	nombre; nonbre	nómbɾe	high	PidalCid 
 nomen	nōmen	ACC.PL	old-spanish	inherited	nombres	nómbɾes	medium	PidalCid gram. (Auto de los Magos 'nombres' 81)	the Auto is late 12th c.
 nomen	nōmen	ACC.SG	spanish	inherited	nombre	nómbɾe	high	standard	
 nomen	nōmen	ACC.PL	spanish	inherited	nombres	nómbɾes	high	standard	
-flos	flōrem	NOM.SG	old-french	analogical	flors; flurs	flours	low	NyropII §249.2 (cas sujet flors in Chrétien's time, flor in earlier Norman texts); https://en.wiktionary.org/wiki/flor#Old_French (nom. sg. flors)	flōs itself would not give flors: the r is from the oblique stem. Same caveat on the feminine nominative -s as for nuiz
-flos	flōrem	ACC.SG	old-french	inherited	flor; flour; flur	flour	medium	Bourciez §72 (flore, fleur); https://en.wiktionary.org/wiki/flor#Old_French (/ˈfluɾ/); Roland O 'flur'	free ō is written o in 11th-12th c. MSS but was a diphthong ou; eu comes in the second half of the 12th c., in the North-East first (Bourciez §72). Wiktionary gives /u/
-flos	flōrēs	NOM.PL	old-french	inherited	flors	flours	medium	NyropII §249.2	
-flos	flōrēs	ACC.PL	old-french	inherited	flors	flours	medium	NyropII §249.2; Roland O 'a flurs', 'seintes flurs'	
+flos	flōrem	NOM.SG	old-french	analogical	flors; flurs	flowrs	low	NyropII §249.2 (cas sujet flors in Chrétien's time, flor in earlier Norman texts); https://en.wiktionary.org/wiki/flor#Old_French (nom. sg. flors)	flōs itself would not give flors: the r is from the oblique stem. Same caveat on the feminine nominative -s as for nuiz
+flos	flōrem	ACC.SG	old-french	inherited	flor; flour; flur	flowr	medium	Bourciez §72 (flore, fleur); https://en.wiktionary.org/wiki/flor#Old_French (/ˈfluɾ/); Roland O 'flur'	free ō is written o in 11th-12th c. MSS but was a diphthong ou; eu comes in the second half of the 12th c., in the North-East first (Bourciez §72). Wiktionary gives /u/
+flos	flōrēs	NOM.PL	old-french	inherited	flors	flowrs	medium	NyropII §249.2	
+flos	flōrēs	ACC.PL	old-french	inherited	flors	flowrs	medium	NyropII §249.2; Roland O 'a flurs', 'seintes flurs'	
 flos	flōrem	ACC.SG	french	inherited	fleur	flœʁ	high	standard; https://fr.wiktionary.org/wiki/fleur	
 flos	flōrēs	ACC.PL	french	inherited	fleurs	flœʁ	high	standard	
 flos	flōrem	ACC.SG	old-spanish	inherited	flor	flóɾ	medium	https://en.wiktionary.org/wiki/flor#Spanish (< OSp flor)	not in the Cid. fl- unusually kept (cf. llama < flamma). Plural not found; no row
@@ -507,9 +507,9 @@ latro	latrōnēs	ACC.PL	old-spanish	inherited	ladrones	ladɾónes	high	PidalCid 
 latro	latrōnem	ACC.SG	spanish	inherited	ladrón	ladɾón	high	standard	
 latro	latrōnēs	ACC.PL	spanish	inherited	ladrones	ladɾónes	high	standard	
 senior	senior	NOM.SG	old-french	inherited	sire	sirə	high	NyropII §259 (sire, seignor, seignor, seignors), §453.11 ('Senior > sendre (Serments de Strasbourg) ou sire'); https://en.wiktionary.org/wiki/seignor (sire through a contracted *seior); Roland O 'sire' 66x	the cas sujet, also the vocative. The regular nominative is sendra in the Oaths (842); sire needs a denasalised *seior (fr.wiktionary sire). Nyrop writes sendre, Wiktionary sendra
-senior	seniōrem	ACC.SG	old-french	inherited	seignor; seignur	seɲour	medium	NyropII §259; https://en.wiktionary.org/wiki/seignor (/seˈɲoːɾ/); Roland O 'seignur' 9x, 'seignor' 4x	free ō as ou, as for flor (Bourciez §72); Wiktionary writes oː
-senior	*seniōrī	NOM.PL	old-french	inherited	seignor	seɲour	medium	NyropII §259; Alexis v. 499 'Toit cil seignor' (quoted in NyropII §556)	
-senior	seniōrēs	ACC.PL	old-french	inherited	seignors; seignurs	seɲours	medium	NyropII §259; Roland O 'seignurs' 25x, 'seignors' 6x	many are vocatives (Seignurs barons)
+senior	seniōrem	ACC.SG	old-french	inherited	seignor; seignur	seɲowr	medium	NyropII §259; https://en.wiktionary.org/wiki/seignor (/seˈɲoːɾ/); Roland O 'seignur' 9x, 'seignor' 4x	free ō as ou, as for flor (Bourciez §72); Wiktionary writes oː
+senior	*seniōrī	NOM.PL	old-french	inherited	seignor	seɲowr	medium	NyropII §259; Alexis v. 499 'Toit cil seignor' (quoted in NyropII §556)	
+senior	seniōrēs	ACC.PL	old-french	inherited	seignors; seignurs	seɲowrs	medium	NyropII §259; Roland O 'seignurs' 25x, 'seignors' 6x	many are vocatives (Seignurs barons)
 senior	seniōrem	ACC.SG	french	inherited	seigneur	sɛɲœʁ	high	standard; https://fr.wiktionary.org/wiki/seigneur	from the cas régime; /seɲœʁ/ also. sieur (monsieur) is a reduced form of the oblique (NyropII §453.11)
 senior	seniōrēs	ACC.PL	french	inherited	seigneurs	sɛɲœʁ	high	standard	
 senior	senior	ACC.SG	french	derived	sire	siʁ	high	https://fr.wiktionary.org/wiki/sire (from the OF cas sujet); NyropII §281 ('Sire < senior; les formes de l'accusatif seigneur et sieur se sont aussi maintenues. Il y a eu différenciation d'emploi')	the OF cas sujet became a separate word (a title of address)
@@ -599,12 +599,12 @@ novus	novus	M.ACC.SG	spanish	inherited	nuevo	nwébo	high	https://en.wiktionary.o
 novus	novus	M.ACC.PL	spanish	inherited	nuevos	nwébos	high	standard	
 novus	novus	F.ACC.SG	spanish	inherited	nueva	nwéba	high	standard	
 novus	novus	F.ACC.PL	spanish	inherited	nuevas	nwébas	high	standard	
-altus	altus	M.NOM.SG	old-french	inherited	halz; hauz	hauts	medium	NyropII §268 (t + s > z [ts]); NyropI §480.1 (haltus < altum + hôh); https://en.wiktionary.org/wiki/halt (OF)	h- from Frankish *hauh/*hōh 'high' crossed with altus (NyropI §480; Wiktionary), so not a regular reflex of altus. l vocalised before a consonant by c.1100 (Bourciez §188); MSS still write halt. Wiktionary gives /halt/
-altus	altus	M.ACC.SG	old-french	inherited	halt; haut	haut	medium	as above; Bourciez §188	h- pronounced (h aspiré). /halt/ if l was still consonantal
-altus	altus	M.NOM.PL	old-french	inherited	halt; haut	haut	medium	NyropII §261 (group 1)	
-altus	altus	M.ACC.PL	old-french	inherited	halz; hauz	hauts	medium	NyropII §261, §268	
-altus	altus	F.ACC.SG	old-french	inherited	halte; haute	hautə	medium	https://en.wiktionary.org/wiki/halte (OF, f. of halt)	
-altus	altus	F.ACC.PL	old-french	inherited	haltes; hautes	hautəs	medium	NyropII §261	paradigm form, not checked in a text
+altus	altus	M.NOM.SG	old-french	inherited	halz; hauz	hawts	medium	NyropII §268 (t + s > z [ts]); NyropI §480.1 (haltus < altum + hôh); https://en.wiktionary.org/wiki/halt (OF)	h- from Frankish *hauh/*hōh 'high' crossed with altus (NyropI §480; Wiktionary), so not a regular reflex of altus. l vocalised before a consonant by c.1100 (Bourciez §188); MSS still write halt. Wiktionary gives /halt/
+altus	altus	M.ACC.SG	old-french	inherited	halt; haut	hawt	medium	as above; Bourciez §188	h- pronounced (h aspiré). /halt/ if l was still consonantal
+altus	altus	M.NOM.PL	old-french	inherited	halt; haut	hawt	medium	NyropII §261 (group 1)	
+altus	altus	M.ACC.PL	old-french	inherited	halz; hauz	hawts	medium	NyropII §261, §268	
+altus	altus	F.ACC.SG	old-french	inherited	halte; haute	hawtə	medium	https://en.wiktionary.org/wiki/halte (OF, f. of halt)	
+altus	altus	F.ACC.PL	old-french	inherited	haltes; hautes	hawtəs	medium	NyropII §261	paradigm form, not checked in a text
 altus	altus	M.ACC.SG	french	inherited	haut	o	high	https://fr.wiktionary.org/wiki/haut (h aspiré, /o/)	h aspiré (no liaison or elision) is the trace of Frankish *hauh. Note this in the model
 altus	altus	M.ACC.PL	french	inherited	hauts	o	high	standard	
 altus	altus	F.ACC.SG	french	inherited	haute	ot	high	standard	
@@ -716,13 +716,13 @@ siccus	siccus	M.ACC.SG	spanish	inherited	seco	séko	high	https://en.wiktionary.o
 siccus	siccus	M.ACC.PL	spanish	inherited	secos	sékos	high	standard	
 siccus	siccus	F.ACC.SG	spanish	inherited	seca	séka	high	standard	
 siccus	siccus	F.ACC.PL	spanish	inherited	secas	sékas	high	standard	
-malus	malus	M.NOM.SG	old-french	inherited	maus; mals	maus	medium	NyropII §267 (l + s > us, cf. chevaus); https://en.wiktionary.org/wiki/mal (OF adj.)	paradigm form; l vocalised before s by c.1100 (Bourciez §188)
+malus	malus	M.NOM.SG	old-french	inherited	maus; mals	maws	medium	NyropII §267 (l + s > us, cf. chevaus); https://en.wiktionary.org/wiki/mal (OF adj.)	paradigm form; l vocalised before s by c.1100 (Bourciez §188)
 malus	malus	M.ACC.SG	old-french	inherited	mal	mal	medium	https://en.wiktionary.org/wiki/mal (OF, < malus)	
 malus	malus	M.NOM.PL	old-french	inherited	mal	mal	medium	NyropII §267	
-malus	malus	M.ACC.PL	old-french	inherited	maus; mals	maus	medium	NyropII §267	
+malus	malus	M.ACC.PL	old-french	inherited	maus; mals	maws	medium	NyropII §267	
 malus	malus	F.ACC.SG	old-french	inherited	male	malə	medium	NyropII §261 (group 1)	paradigm form; survives in malemort, malebouche
 malus	malus	F.ACC.PL	old-french	inherited	males	maləs	medium	NyropII §261	paradigm form
-malus	*malifātius	M.ACC.SG	old-french	replaced	malvais; mauvais	mauvajs	medium	https://en.wiktionary.org/wiki/malvais (OF, < LL malifatius); Bourciez §173 (*malifatius)	already the commoner word in OF alongside mal. Wiktionary gives archaic /malˈvai̯s/, classical /mau̯ˈvei̯s/
+malus	*malifātius	M.ACC.SG	old-french	replaced	malvais; mauvais	mawvajs	medium	https://en.wiktionary.org/wiki/malvais (OF, < LL malifatius); Bourciez §173 (*malifatius)	already the commoner word in OF alongside mal. Wiktionary gives archaic /malˈvai̯s/, classical /mau̯ˈvei̯s/
 malus	malus	M.ACC.SG	french	inherited	mal	mal	medium	standard	as an adjective only in fixed phrases (bon an mal an, pas mal, bon gré mal gré); the ordinary word is mauvais
 malus	*malifātius	M.ACC.SG	french	replaced	mauvais	movɛ	high	https://fr.wiktionary.org/wiki/mauvais (/mo.vɛ/ or /mɔ.vɛ/)	replacement of malus; etymology disputed (fr.wiktionary)
 malus	*malifātius	M.ACC.PL	french	replaced	mauvais	movɛ	high	standard	
@@ -736,11 +736,11 @@ malus	malus	M.ACC.SG	spanish	inherited	malo	málo	high	standard	apocopated mal /
 malus	malus	M.ACC.PL	spanish	inherited	malos	málos	high	standard	
 malus	malus	F.ACC.SG	spanish	inherited	mala	mála	high	standard	
 malus	malus	F.ACC.PL	spanish	inherited	malas	málas	high	standard	
-multus	multus	M.NOM.SG	old-french	inherited	molz; mouz	mouts	low	https://en.wiktionary.org/wiki/molt (OF decl. ssm=molz); https://fr.wiktionary.org/wiki/moult (variable until the 13th c.)	mostly an adverb (molt, mult 'very, much'); adjectival use is rarer. Paradigm form, not checked in a text
-multus	multus	M.ACC.SG	old-french	inherited	molt; mult; mout	mout	medium	en.wiktionary molt (OF); fr.wiktionary moult; NyropII §478 (Mult par ies ber, Roland 648)	nearly always adverbial c.1150. l vocalised by c.1100 (Bourciez §188); fr.wiktionary gives archaic [moɫt]. ŭ > close o + u written ou
-multus	multus	M.ACC.PL	old-french	inherited	molz; mouz	mouts	low	en.wiktionary molt (opm=molz)	paradigm form
-multus	multus	F.ACC.SG	old-french	inherited	molte; moute	moutə	low	fr.wiktionary moult (moulte)	paradigm form
-multus	multus	F.ACC.PL	old-french	inherited	moltes; moutes	moutəs	low	fr.wiktionary moult (moultes)	paradigm form
+multus	multus	M.NOM.SG	old-french	inherited	molz; mouz	mowts	low	https://en.wiktionary.org/wiki/molt (OF decl. ssm=molz); https://fr.wiktionary.org/wiki/moult (variable until the 13th c.)	mostly an adverb (molt, mult 'very, much'); adjectival use is rarer. Paradigm form, not checked in a text
+multus	multus	M.ACC.SG	old-french	inherited	molt; mult; mout	mowt	medium	en.wiktionary molt (OF); fr.wiktionary moult; NyropII §478 (Mult par ies ber, Roland 648)	nearly always adverbial c.1150. l vocalised by c.1100 (Bourciez §188); fr.wiktionary gives archaic [moɫt]. ŭ > close o + u written ou
+multus	multus	M.ACC.PL	old-french	inherited	molz; mouz	mowts	low	en.wiktionary molt (opm=molz)	paradigm form
+multus	multus	F.ACC.SG	old-french	inherited	molte; moute	mowtə	low	fr.wiktionary moult (moulte)	paradigm form
+multus	multus	F.ACC.PL	old-french	inherited	moltes; moutes	mowtəs	low	fr.wiktionary moult (moultes)	paradigm form
 multus	multus	M.ACC.SG	french	inherited	moult	mu	medium	https://fr.wiktionary.org/wiki/moult (/mu/, also /mult/)	archaic or jocular invariable adverb; /mult/ is a spelling pronunciation (TLFi via fr.wiktionary). The ordinary word is beaucoup
 multus	multus	M.ACC.SG	old-spanish	inherited	mucho	mútʃo	high	PidalManual §47 (multum, ant. muito, mucho); PidalCid §67.2; Cid text 'mucho'	the Cid has only mucho (and the adverbial muy, much once): PidalCid §67. muncho is a later dialectal variant (en.wiktionary mucho), not in the Cid
 multus	multus	M.ACC.PL	old-spanish	inherited	muchos	mútʃos	high	Cid text 'muchos'; PidalCid vocab. s.v. mucho	
@@ -822,7 +822,7 @@ unus	ūnam	F.ACC.SG	old-spanish	inherited	una; vna	úna	high	PidalManual §89.1 
 unus	ūnum	M.ACC.SG	spanish	inherited	uno	úno	high	standard	un before a noun
 unus	ūnam	F.ACC.SG	spanish	inherited	una	úna	high	standard	
 duo	*duī	M.NOM	old-french	inherited	dui; doi	dui	medium	NyropII §481.2 (VL *dui > dui, doi; Li dui fer, Claris); https://en.wiktionary.org/wiki/deus (nom. dui < VL *duī)	dui and doi were used indifferently (NyropII). Falling diphthong ui assumed
-duo	duōs	M.ACC	old-french	inherited	deus; dous	dous	medium	NyropII §481.2 (duos > dous, deus; Entre les deus furceles, Roland 1294); https://en.wiktionary.org/wiki/deus (OF /deu̯s/)	written ou per CONVENTIONS (ō/ŭ diphthong); Wiktionary /deu̯s/. Also used for the feminine except in the East (does, doues)
+duo	duōs	M.ACC	old-french	inherited	deus; dous	dows	medium	NyropII §481.2 (duos > dous, deus; Entre les deus furceles, Roland 1294); https://en.wiktionary.org/wiki/deus (OF /deu̯s/)	written ou per CONVENTIONS (ō/ŭ diphthong); Wiktionary /deu̯s/. Also used for the feminine except in the East (does, doues)
 duo	duōs	M	french	inherited	deux	dø	high	NyropII §481.2c (only the oblique deus survives; spelling deux arbitrary)	liaison /døz/ not given
 duo	duōs	M	old-spanish	inherited	dos	dós	high	PidalManual §89.1 (duos, dos); PidalCid §68.1	feminine dues once in the Cid (255), otherwise dos for both genders (PidalCid §68.1 and the note to it); duas, dues in other 13th c. texts
 duo	duōs	M	spanish	inherited	dos	dós	high	standard	
@@ -1790,7 +1790,7 @@ sapere	*sapētis	PRS.2PL	old-french	analogical	savez	savets	medium	https://en.wi
 sapere	*sapunt	PRS.3PL	old-french	inherited	sevent	sevənt	medium	https://en.wiktionary.org/wiki/savoir#Old_French (conjugation table); NyropII §25	for sapiunt
 sapere	*sapēre habeō	FUT.1SG	old-french	inherited	savrai	savraj	low	https://en.wiktionary.org/wiki/savoir#Old_French (conjugation table)	final ai kept as /aj/ as in the pilot; NyropI §200 has verb-final ai > [e] already in the 12th c.; sarai also
 sapere	*sapēre habet	FUT.3SG	old-french	inherited	savra	savra	medium	https://en.wiktionary.org/wiki/savoir#Old_French (conjugation table)	
-sapere	sapuit	PRET.3SG	old-french	inherited	sout; sot	sou	low	NyropII §194 (sapuit > sout > sut); https://en.wiktionary.org/wiki/savoir#Old_French (conjugation table) (sot); TLFi https://www.cnrtl.fr/etymologie/savoir (St Léger 'soth')	vowel and final t uncertain; t taken as lost after a vowel (Bourciez §151); /sɔ/ if sot
+sapere	sapuit	PRET.3SG	old-french	inherited	sout; sot	sow	low	NyropII §194 (sapuit > sout > sut); https://en.wiktionary.org/wiki/savoir#Old_French (conjugation table) (sot); TLFi https://www.cnrtl.fr/etymologie/savoir (St Léger 'soth')	vowel and final t uncertain; t taken as lost after a vowel (Bourciez §151); /sɔ/ if sot
 sapere	*sapūtum	PTCP	old-french	analogical	seü	səy	medium	https://en.wiktionary.org/wiki/savoir#Old_French (conjugation table)	VL analogical -ūtum participle (NyropII §92)
 sapere	*sapēre	INF	french	analogical	savoir	savwaʁ	high	standard; https://en.wiktionary.org/wiki/savoir#French	
 sapere	sapiō	PRS.1SG	french	inherited	sais	sɛ	high	standard; NyropII §51	-s analogical in spelling only
@@ -1871,7 +1871,7 @@ placere	placētis	PRS.2PL	old-french	analogical	plaisiez	plajziets	low	https://e
 placere	placent	PRS.3PL	old-french	inherited	plaisent	plajzənt	medium	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	
 placere	placēre habeō	FUT.1SG	old-french	inherited	plairai	plajraj	low	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	final ai kept as /aj/ as in the pilot; NyropI §200 has verb-final ai > [e] already in the 12th c.
 placere	placēre habet	FUT.3SG	old-french	inherited	plaira	plajra	medium	https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	
-placere	placuit	PRET.3SG	old-french	inherited	plout; plot	plou	low	NyropII §194 (placui > ploi; type sout); https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table) (plot); TLFi https://www.cnrtl.fr/etymologie/plaire (ca 1050 Alexis 'ploüst', subj.)	as sout: vowel and final t uncertain
+placere	placuit	PRET.3SG	old-french	inherited	plout; plot	plow	low	NyropII §194 (placui > ploi; type sout); https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table) (plot); TLFi https://www.cnrtl.fr/etymologie/plaire (ca 1050 Alexis 'ploüst', subj.)	as sout: vowel and final t uncertain
 placere	*placūtum	PTCP	old-french	analogical	pleü	pləy	medium	NyropII §92 (placutum); https://en.wiktionary.org/wiki/plaisir#Old_French (conjugation table)	VL analogical -ūtum participle (NyropII §92)
 placere	*placĕre	INF	french	analogical	plaire	plɛʁ	high	standard; TLFi https://www.cnrtl.fr/etymologie/plaire ('issu peut-être d'un doublet plácĕre ... ou bien réfection d'apr. il plaît ... sur le mod. de faire'); NyropII §74.2	
 placere	placeō	PRS.1SG	french	analogical	plais	plɛ	high	standard; https://en.wiktionary.org/wiki/plaire#French	OF plaz, remade on the 2sg

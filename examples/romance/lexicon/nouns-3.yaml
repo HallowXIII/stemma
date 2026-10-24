@@ -1,0 +1,65 @@
+# Third-declension nouns. Expected forms are generated from attested.tsv
+# by research/expect.sh, which gives sources.
+
+- id: homo
+  form: "*homō"
+  gloss: "man, person"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
+  cells:
+    ACC.SG: { stem: "*homin-" }
+    GEN.SG: { stem: "*homin-" }
+    NOM.PL: { stem: "*homin-" }
+    ACC.PL: { stem: "*homin-" }
+    GEN.PL: { stem: "*homin-" }
+  events:
+    # Castilian omne, without the diphthong of Leonese uemne.
+    - analogy: { at: old-spanish, cell: ACC.SG, replace: { ɔ́: ó }, model: "unstressed use" }
+    - analogy: { at: old-spanish, cell: ACC.PL, replace: { ɔ́: ó }, model: "unstressed use" }
+  expect:
+    old-spanish: { ACC.SG: ómne, ACC.PL: ómnes }
+    spanish:     { ACC.SG: ómbɾe, ACC.PL: ómbɾes }
+    old-french:  { NOM.SG: ɔm, ACC.SG: ɔmə, NOM.PL: ɔmə, ACC.PL: ɔməs }
+    french:      { ACC.SG: ɔm, ACC.PL: ɔm }
+  notes: |
+    Old French {homo.NOM.SG @ old-french} is the cas sujet, lost in French
+    but kept as the pronoun {on @ french}. The nominative plural
+    {homo.NOM.PL @ old-french} is from Vulgar Latin *homini.
+  derivatives:
+    - id: "on"
+      source: { base: homo, cell: NOM.SG }
+      stage: western-romance
+      gloss: "one (indefinite pronoun)"
+      category: [{ at: western-romance, is: PRON }]
+      fate: { old-spanish: lost }
+      expect: { old-french: ɔm, french: ɔ̃ }
+      notes: |
+        Already pronominal in the Oaths of Strasbourg (842, "si cum om").
+
+- id: corpus
+  form: "*korpus"
+  gloss: "body"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-s
+  events:
+    # remade as an o-stem
+    - repattern: { at: old-spanish, paradigm: noun-o-rom, stem: "kɔ́rp-" }
+  expect:
+    old-spanish: { ACC.SG: kwéɾpo, ACC.PL: kwéɾpos }
+    spanish: { ACC.SG: kwéɾpo, ACC.PL: kwéɾpos }
+    old-french: { NOM.SG: kɔrs, ACC.SG: kɔrs, NOM.PL: kɔrs, ACC.PL: kɔrs }
+    french: { ACC.SG: kɔʁ, ACC.PL: kɔʁ }
+
+- id: tempus
+  form: "*tempus"
+  gloss: "time"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-s
+  events:
+    # remade as an o-stem
+    - repattern: { at: old-spanish, paradigm: noun-o-rom, stem: "tɛ́mp-" }
+  expect:
+    old-spanish: { ACC.SG: tjémpo, ACC.PL: tjémpos }
+    spanish: { ACC.SG: tjémpo, ACC.PL: tjémpos }
+    old-french: { NOM.SG: tans, ACC.SG: tans, NOM.PL: tans, ACC.PL: tans }
+    french: { ACC.SG: tɑ̃, ACC.PL: tɑ̃ }

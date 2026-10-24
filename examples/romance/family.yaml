@@ -3,7 +3,7 @@
 name: Romance
 
 notation:
-  graphemes: [kʷ, ae, au, oe]
+  graphemes: [kʷ, gʷ, ae, au, oe]
   boundary: "+"
   internal-boundaries: false   # joined forms are one word to the rules
 
