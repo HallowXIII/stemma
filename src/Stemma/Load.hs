@@ -333,6 +333,14 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         [(k, if k == c then (fromMaybe b (cellBase ov), fromMaybe ps (coMorph ov)) else v) | (k, v) <- acc]
       Nothing -> acc ++ [(c, (fromMaybe eid (cellBase ov), fromMaybe [PBase] (coMorph ov)))]
 
+    -- `at:` cells: the entry's own, then those of its paradigm and of any it
+    -- changes to, for cells the entry doesn't give `at:` itself.
+    entryAts = [(c, ov) | (c, ov) <- enCells e, Just _ <- [coAt ov]]
+    atCells = entryAts ++
+      [ (c, CellOverride Nothing Nothing (Just ps) (Just s))
+      | (c, s, ps) <- nub [a | p <- toList paradigm ++ repatternParadigms, a <- pfAt p]
+      , c `notElem` map fst entryAts ]
+
     -- Cells joined later than the paradigm: those that a repattern's
     -- paradigm has and the entry's own lacks, at the first repattern that
     -- has them, and those given `at:`, unless the paradigm has them.
@@ -340,13 +348,13 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     later = foldl' (\acc x@(c, _, _) -> if c `elem` map fst3 acc then acc else acc ++ [x]) []
       ( [ (c, (b, ps), s) | (s, _, _, new) <- repatterns, (c, (b, ps)) <- new, c `notElem` map fst entryCells ]
           ++ [ (c, (fromMaybe eid (coBase ov), fromMaybe [PBase] (coMorph ov)), s)
-             | (c, ov) <- enCells e, Just s <- [coAt ov], c `notElem` map fst entryCells ] )
+             | (c, ov) <- atCells, Just s <- [coAt ov], c `notElem` map fst entryCells ] )
     -- `at:` on a cell that the paradigm, or one the entry changes to, has
     -- re-forms it there.
     paradigmCells = map fst entryCells ++ [c | (_, _, _, new) <- repatterns, (c, _) <- new]
     reformedAt c =
       [ Event s Nothing (Rebuild (coStem ov) (fromMaybe eid (coBase ov)) (fromMaybe [PBase] (coMorph ov)) ("re-formed at " <> s))
-      | c `elem` paradigmCells, (c', ov) <- enCells e, c' == c, Just s <- [coAt ov] ]
+      | c `elem` paradigmCells, (c', ov) <- atCells, c' == c, Just s <- [coAt ov] ]
     fst3 (a, _, _) = a
     cellNames = map fst entryCells ++ map fst3 later
 
@@ -364,7 +372,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       | isAncestorOrSelf stages stage pstage = Right pstage
       | otherwise = err ("formed at " <> stage <> ", which is not on a line with paradigm stage " <> pstage)
       where pstage = fromMaybe root (paradigm >>= pfStage)
-    atStem c = listToMaybe [t | (c', ov) <- enCells e, c' == c, Just _ <- [coAt ov], Just t <- [coStem ov]]
+    atStem c = listToMaybe [t | (c', ov) <- atCells, c' == c, Just _ <- [coAt ov], Just t <- [coStem ov]]
 
     mkCell born (c, (base, parts)) = do
       cstage <- case born of
@@ -520,6 +528,10 @@ data ParadigmDef = ParadigmDef
   { pfStage :: Maybe StageId
   , pfDimensions :: [Dimension]
   , pfCells :: [(Text, [Part])]
+  -- ^ The cells formed with the paradigm.
+  , pfAt :: [(Text, StageId, [Part])]
+  -- ^ Cells re-formed at a later stage, or joined there if they are not
+  -- in 'pfCells': the cell, the stage and the template.
   , pfLost :: Map StageId [Text]
   , pfBecomes :: Map StageId Text
   , pfCite :: Maybe Cite
@@ -592,7 +604,7 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
             T.intercalate "." [fst (splitVariant m) | (m, _) <- combo]
               <> T.concat ["~" <> l | (m, _) <- combo, (_, Just l) <- [splitVariant m]]
           combined =
-            [ (cellName combo, concatMap (slot (zip names combo)) slots)
+            [ (cellName combo, CellDef (Just (concatMap (slot (zip names combo)) slots)) [])
             | not (null dims), combo <- mapM dmMembers dims ]
           slot chosen s
             | s == "~" = [PBase]
@@ -612,7 +624,15 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
       unless (null unknownTargets) $ Left ("becomes unknown paradigm: " <> T.intercalate ", " unknownTargets)
       let uncited = [c | c <- citeCells (pdCite p), c `notElem` map fst kept]
       unless (null uncited) $ Left ("cite names unknown cells: " <> T.intercalate ", " uncited)
-      Right (ParadigmDef (pdStage p) dims kept (pdLost p) (pdBecomes p) (pdCite p))
+      Right ParadigmDef
+        { pfStage = pdStage p
+        , pfDimensions = dims
+        , pfCells = [(c, ps) | (c, CellDef (Just ps) _) <- kept]
+        , pfAt = [(c, s, ps) | (c, CellDef _ ats) <- kept, (s, ps) <- ats]
+        , pfLost = pdLost p
+        , pfBecomes = pdBecomes p
+        , pfCite = pdCite p
+        }
 
 -- | Does a @lost@ pattern cover this cell? A cell's variants go with it.
 lostBy :: Text -> Text -> Bool

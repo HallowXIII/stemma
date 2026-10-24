@@ -184,6 +184,28 @@ replaces would otherwise become itself.
     becomes: { azal: verb }              # Azal generalises the prefixes
 ```
 
+**Re-forming on one line.** A cell can be re-formed at a later stage for
+every entry with the paradigm, as an entry's `at:` cell is (§3): it is
+joined again at that stage, from the forms entering it, and only the
+lines below that stage have the new form. Write the cell as a list of its
+template and the re-formings, or, for a cell the paradigm joins only at a
+later stage, as the re-forming alone:
+
+```yaml
+  verb-a:
+    cells:
+      - PRS.1PL: [PRS.1PL.A, { at: old-french, morph: [~, PRS.1PL.O] }]
+      - FUT.1SG: { at: western-romance, morph: [~, INF.A, FUT.1SG] }
+```
+
+A template longer than one affix is written as a list inside the list.
+A re-forming takes `at` and `morph`; `base` and `stem` belong to an
+entry. An entry's own `at:` for a cell replaces the paradigm's
+re-formings of that cell, so a verb can keep an older form. The
+re-formings of the entry's paradigm and of any it changes to apply.
+They are inherited through `extends` with their cell, and replaced with
+it.
+
 **Citation.** In a dictionary, an entry with a paradigm is cited by one of
 its cells: by default its first, or the cell its paradigm's `cite` names.
 `cite` is one cell, `~` for the bare form (the stem, which suits verbs

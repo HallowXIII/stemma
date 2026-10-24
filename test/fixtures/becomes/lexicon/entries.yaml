@@ -43,3 +43,20 @@
   expect:
     mid:   { SG: gon, PL: gongo }
     other: { SG: kam, PL: kamka }
+
+# The paradigm's re-formings, and an entry's own `at:` taking precedence.
+- id: hear
+  form: "*sel"
+  paradigm: verb-r
+  expect:
+    mid:   { NPST.1S: selne, PST.1S: selga, OPT: asel }
+    late:  { NPST.1S: seln, PST.1S: selga, OPT: asel }
+    other: { NPST.1S: selme, PST.1S: selka }
+
+- id: feel
+  form: "*fel"
+  paradigm: verb-r
+  cells:
+    NPST.1S: { at: late, morph: [~, S.1S] }
+  expect:
+    late:  { NPST.1S: felni }

@@ -37,3 +37,11 @@ paradigms:
     cells:
       - SG: ~
       - PL: PL
+
+  # Re-formings on the paradigm: the nonpast takes the short suffix at
+  # late, on that line only, and the optative is joined at mid.
+  verb-r:
+    cells:
+      - NPST.1S: [[~, S.1S], { at: late, morph: [~, S.1S.SHORT] }]
+      - PST.1S: [~, PST]
+      - OPT: { at: mid, morph: [OBJ, ~] }

@@ -8,6 +8,7 @@ module Stemma.Types
   , Morphology (..)
   , Paradigm (..)
   , Dimension (..)
+  , CellDef (..)
   , CellOverride (..)
   , splitVariant
   , Part (..)
@@ -29,7 +30,8 @@ module Stemma.Types
   , globMatch
   ) where
 
-import Control.Monad (when)
+import Control.Monad (forM_, when)
+import Data.Foldable (toList)
 import Data.Aeson
 import Data.Aeson.Key qualified as Key
 import Data.Aeson.KeyMap qualified as KM
@@ -137,10 +139,11 @@ data Paradigm = Paradigm
   , pdDimensions :: [Dimension]
   , pdTemplate :: Maybe [Text]
   -- ^ Dimension names, affix IDs and @~@, in order.
-  , pdCells :: [(Text, [Part])]
+  , pdCells :: [(Text, CellDef)]
   -- ^ In the order written: each cell is a template of affixes around the
-  -- base. See 'templateParts'. With dimensions, these override or add to
-  -- the cells the dimensions give.
+  -- base (see 'templateParts'), with any re-formings at later stages.
+  -- With dimensions, these override or add to the cells the dimensions
+  -- give.
   , pdExclude :: [Text]
   , pdLost :: Map StageId [Text]
   -- ^ Cells lost at a stage, and so on every line below it. Cell names may
@@ -149,6 +152,15 @@ data Paradigm = Paradigm
   -- ^ Stages where every entry with this paradigm changes to another one,
   -- as if each had a @repattern@ event there.
   , pdCite :: Maybe Cite
+  }
+  deriving (Show)
+
+-- | A paradigm cell: its template, if it is formed with the paradigm, and
+-- where it is re-formed (or, without a template, joined) on the way down,
+-- each a stage and the template used there.
+data CellDef = CellDef
+  { cdParts :: Maybe [Part]
+  , cdAt :: [(StageId, [Part])]
   }
   deriving (Show)
 
@@ -216,8 +228,31 @@ instance FromJSON Paradigm where
       affix Null = pure Nothing
       affix x = Just <$> name "affix id" x
       -- Cells are a list of single-key maps, so that their order survives.
-      cell :: Value -> Parser (Text, [Part])
-      cell = single "paradigm cell" "`NAME: affix`" $ \k v -> (k,) <$> template v
+      cell :: Value -> Parser (Text, CellDef)
+      cell = single "paradigm cell" "`NAME: affix`" $ \k v -> (k,) <$> cellDef v
+
+-- | A paradigm cell is a template; or `{ at: S, morph: [...] }`, a cell joined
+-- at S; or a list of one template and such re-formings.
+cellDef :: Value -> Parser CellDef
+cellDef v = case v of
+  Object _ -> CellDef Nothing . pure <$> reform v
+  Array xs | any isObject xs -> do
+    let (objs, rest) = partitionObjects (toList xs)
+    parts <- case rest of
+      [] -> pure Nothing
+      [t] -> Just <$> template t
+      _ -> fail "a cell with re-formings may have only one template; write a longer one as a list"
+    CellDef parts <$> traverse reform objs
+  _ -> (\t -> CellDef (Just t) []) <$> template v
+  where
+    isObject = \case Object _ -> True; _ -> False
+    partitionObjects = foldr (\x (os, ts) -> if isObject x then (x : os, ts) else (os, x : ts)) ([], [])
+    reform = withObject "cell re-forming" $ \o -> do
+      forM_ ["base", "stem"] $ \k -> when (KM.member k o) $
+        fail ("`" <> show k <> "` belongs to an entry's cells, not a paradigm's")
+      s <- o .: "at"
+      parts <- maybe (pure [PBase]) template (KM.lookup "morph" o)
+      pure (s, parts)
 
 -- | Lists of single-key maps keep their order, unlike maps.
 single :: String -> String -> (Text -> Value -> Parser a) -> Value -> Parser a

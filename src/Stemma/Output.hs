@@ -27,6 +27,7 @@ import Data.Aeson.Key qualified as Key
 import Data.Aeson.Types (Pair)
 import Data.ByteString.Lazy qualified as BL
 import Data.Either (partitionEithers)
+import Data.List (nub)
 import Data.Map.Strict qualified as Map
 import Data.Maybe (catMaybes, fromMaybe)
 import Data.Set (Set)
@@ -220,9 +221,12 @@ paradigmJson :: ParadigmDef -> Value
 paradigmJson pf = object
   [ "dimensions" .= [ object ["name" .= dmName d, "members" .= [m | (m, _) <- dmMembers d, (_, Nothing) <- [splitVariant m]]]
                     | d <- pfDimensions pf ]
-  , "cells" .= map fst (pfCells pf)
+  -- with the cells joined later, after those formed with the paradigm
+  , "cells" .= (formed ++ nub [c | (c, _, _) <- pfAt pf, c `notElem` formed])
   , "lost" .= pfLost pf
   ]
+  where
+    formed = map fst (pfCells pf)
 
 runJson :: Run -> Value
 runJson = \case
