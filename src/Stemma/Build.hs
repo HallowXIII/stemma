@@ -175,7 +175,7 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
         loanForms <- donorForms results s [(i, it) | (i, it, _, _) <- survivors]
         let inputs :: LMap.Map ItemId (Either Text (Form, [Text], Origin))
             inputs = LMap.fromList
-              [ (i, withItem i (foldl' (applyEvent s it loanForms inputs) (Right (f, [], origin))
+              [ (i, withItem i (foldl' (applyEvent s it loanForms inputs prev) (Right (f, [], origin))
                                        (zip [0 ..] (inputEvents s it))))
               | (i, it, f, origin) <- survivors ]
         joined <- case partitionEithers [ (,) i <$> v | (i, v) <- LMap.toList inputs ] of
@@ -283,7 +283,7 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
             _ -> Left "loan: adaptation deleted the word"
     snd3 (_, b, _) = b
 
-    applyEvent s it loanForms inputs acc (k, ev) = do
+    applyEvent s it loanForms inputs prev acc (k, ev) = do
       (f, descs, origin) <- acc
       case evKind ev of
         Analogy repl model -> do
@@ -318,10 +318,13 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
         -- Events join from the forms entering this stage, which are the
         -- parent's, so the parent's allomorphs are in force.
         parent = fromMaybe s (Map.lookup s stages >>= stParent)
-        -- Forms entering this stage, after their own events.
+        -- Forms entering this stage, after their own events. An item lost
+        -- here still enters with its form at the end of the parent.
         entering what x = case LMap.lookup x inputs of
           Just v -> (\(g, _, _) -> g) <$> v
-          Nothing -> Left (what <> ": " <> x <> " has no form at " <> s)
+          Nothing -> case Map.lookup x prev >>= listToMaybe . rxForms of
+            Just g -> Right g
+            Nothing -> Left (what <> ": " <> x <> " has no form at " <> s)
 
     inheritedReflex s (i, (inp, descs, origin)) evo = do
       let it = items Map.! i
