@@ -450,8 +450,9 @@ written as entering that stage, like a `repattern` stem (§4).
 it is joined at S, from the forms entering S, as a `repattern` joins
 (§4), and exists only from S on. This suits forms that belong to a later
 arrangement of the paradigm, such as object forms of a verb that only
-take their shape at Azal. On a cell the paradigm has, `at:` re-forms it
-there instead.
+take their shape at Azal. On a cell the paradigm has, or one the entry
+changes to (`repattern`, `becomes`) has, `at:` re-forms it there instead;
+that stage must be below where the cell is joined.
 
 ```yaml
 - id: see

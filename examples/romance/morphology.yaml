@@ -24,13 +24,22 @@ affixes:
   C.GEN.PL: { form: "*-um" }
 
   # first conjugation
-  INF.A:    { form: "*-āre" }
+  INF.A:
+    form: "*-āre"
+    # Pretonic in the future (chanterai), where the stress is on the ending.
+    allomorphs:
+      old-french:
+        - { before: [a], form: "-ər" }
+        - { form: "-er" }
   PRS.1SG:  { form: "*-ō" }
   PRS.2SG.A: { form: "*-ās" }
   PRS.3SG.A: { form: "*-at" }
   PRS.1PL.A: { form: "*-āmus" }
   PRS.2PL.A: { form: "*-ātis" }
   PRS.3PL.A: { form: "*-ant" }
+  # Old French -ons, after *sumus: stressed, unlike *-umus would be by
+  # the Latin rule, so it is written at Western Romance.
+  PRS.1PL.O: { form: "-ómos", stage: western-romance }
   # second conjugation
   INF.E:    { form: "*-ēre" }
   PRS.3SG.E: { form: "*-et" }

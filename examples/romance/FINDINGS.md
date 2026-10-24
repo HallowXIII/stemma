@@ -47,8 +47,37 @@ does instead, and what stemma could do about it.
    affix's shape at a stage from a model cell (*-er* is whatever
    `cantare.INF` has after its stem).
 
-   **Answer.** Not tackled yet: it raises wider questions about affix
-   forms, and is the next thing to look at.
+   **Answer (partial).** Much less of a problem than it looked. The Latin
+   stress rules only look at the end of the word, so a bare ending whose
+   first syllable is heavy is stressed on its own: INF.A gives WR *-áre*
+   and Old French *-er*. Monosyllabic and light disyllabic endings are
+   never stressed. So for Latin, whether an ending carries the stress
+   is fixed by the ending, and its bare reflex is right in most later
+   joins. Where it isn't, the allomorphs feature written for Echo covers
+   it: INF.A has `{ before: [a], form: "-ər" }` at Old French for the
+   pretonic infinitive inside the future (*aimerai*, finding 4). An
+   ending that only exists later (OF *-ons*, finding 5) is written as an
+   affix formed at the stage, already stressed.
+
+   What remains is stress alternation in stems. A scratch run with a
+   paradigm-wide `becomes` at Old French (rebuilding every verb cell
+   from WR forms) got the endings right except the future's infinitive,
+   which a WR allomorph `{ before: [á], form: "-are" }` would fix, but
+   lost the apophony of *aim* ~ *amons*: the bare stem evolves
+   unstressed. Allomorphs are for affixes only, and their conditions are
+   graphemes, which can't say "before an unstressed ending" (2SG *-əs*
+   and the future's *-ər-* both start with *ə*). Today the only way is a
+   `stem:` per stem-stressed cell, per entry. Re-forming single cells
+   with `at:` avoids the issue, so the spike does that.
+
+   Making boundaries transparent to Brassica would help here too, since
+   a joined form could keep its morphemes apart through the rules. Brassica
+   1.0 has nothing built in. stemma could rewrite each parsed rule to
+   allow an optional boundary between the segments it matches; the limits
+   are coalescence (where the boundary should go is a policy choice),
+   metathesis, and gemination and features, which read the last matched
+   grapheme. A native `transparent` declaration in Brassica would be about
+   150-250 lines upstream. Worth prototyping the rewrite in stemma first.
 
 3. **Internal boundaries have to be removed in every segment.** The rules
    drop `+` inside a word, keeping the edge boundaries so that bound stems
@@ -80,12 +109,25 @@ does instead, and what stemma could do about it.
    second matching language. *aimerai* stays without an expectation until
    then.
 
+   *Second pass:* done as the better model after all. *aimerai* is
+   `amare.FUT.1SG` re-formed at French on the stem *ajm-* (finding 1), with
+   INF.A's Old French allomorph *-ər* before the future ending (finding 2).
+   This found a bug: `at:` on a cell that only a later paradigm has (here
+   FUT.1SG, from `becomes`) was silently ignored. It now re-forms such a
+   cell, and re-forming above where the cell is joined is an error. The
+   French rules also had schwa loss before *ai* > *e*, the wrong way round;
+   reordered, the build gives *emʁe*, now expected and in `attested.tsv`.
+   No inline-rule analogy was needed.
+
 5. **An ending replaced by another ending is awkward.** The OF 1pl *-ons*
    (after *sumus*) is done as `replace: { á: ó }` on the WR form. It's
    really a cell re-formed with a different affix at Old French, which runs
    into finding 2.
 
-   **Answer.** Left with finding 2, of which it is a case.
+   **Answer.** Done as a re-forming: PRS.1PL.O is an affix formed at
+   Western Romance as *-ómos*, written stressed since *\*-umus* would not
+   be by the Latin rule, and `cantare` and `amare` re-form PRS.1PL with it
+   at Old French. The `á: ó` analogies are gone.
 
 6. **The future is built from separate affixes, not from *habēre*.**
    *cantare habeo* > *chanterai* is written with affixes FUT.1SG *-ájo* and
@@ -144,7 +186,7 @@ does instead, and what stemma could do about it.
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
-`attested-notes.md` lists where sources disagree. All 140 expected
+`attested-notes.md` lists where sources disagree. All 141 expected
 forms are reproduced. The main judgement calls:
 
 - **Sources.** The research couldn't reach Pope, Penny, Lloyd or Einhorn.
@@ -158,8 +200,6 @@ forms are reproduced. The main judgement calls:
   the diphthongisation of *ɔ́* before nasals, which is right for *homo* but
   needs checking against *bonum* and *comes*. Castilian *omne* is done with
   an event instead, since Spanish diphthongises before nasals (*puente*).
-- ***aimerai*** is left without an expectation: the build gives *amʁe*
-  (finding 4, second pass).
 
 ## Brassica
 

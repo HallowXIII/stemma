@@ -341,10 +341,12 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       ( [ (c, (b, ps), s) | (s, _, _, new) <- repatterns, (c, (b, ps)) <- new, c `notElem` map fst entryCells ]
           ++ [ (c, (fromMaybe eid (coBase ov), fromMaybe [PBase] (coMorph ov)), s)
              | (c, ov) <- enCells e, Just s <- [coAt ov], c `notElem` map fst entryCells ] )
-    -- `at:` on a cell the paradigm has re-forms it there.
+    -- `at:` on a cell that the paradigm, or one the entry changes to, has
+    -- re-forms it there.
+    paradigmCells = map fst entryCells ++ [c | (_, _, _, new) <- repatterns, (c, _) <- new]
     reformedAt c =
       [ Event s Nothing (Rebuild (coStem ov) (fromMaybe eid (coBase ov)) (fromMaybe [PBase] (coMorph ov)) ("re-formed at " <> s))
-      | (c', ov) <- enCells e, c' == c, Just s <- [coAt ov] ]
+      | c `elem` paradigmCells, (c', ov) <- enCells e, c' == c, Just s <- [coAt ov] ]
     fst3 (a, _, _) = a
     cellNames = map fst entryCells ++ map fst3 later
 
@@ -379,6 +381,9 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
             _ -> []
           -- Nothing about stages above where the cell is joined.
           applies s = maybe True (\b -> isAncestorOrSelf stages b s) born
+      forM_ (reformedAt c) $ \ev -> unless (applies (evAt ev) && Just (evAt ev) /= born) $
+        err ("cell " <> c <> " is re-formed at " <> evAt ev <> ", which is not below "
+             <> fromMaybe cstage born <> ", where it is joined")
       pure Item
         { itId = eid <> "." <> c
         , itKind = KCell
@@ -392,7 +397,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itEvents = birth ++
             [ Event s Nothing (Rebuild (if b == eid then stem else Nothing) b ps ("repatterned as " <> pname))
             | (s, pname, stem, new) <- repatterns, applies s, Just (b, ps) <- [lookup c new] ]
-              ++ (if born == Nothing then reformedAt c else [])
+              ++ reformedAt c
               ++ [ev | ev <- cellEvents, evCell ev == Just c]
         , itFate = Map.filterWithKey (\s _ -> applies s && Just s /= born) $ Map.unions
             [ enFate e

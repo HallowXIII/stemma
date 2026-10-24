@@ -45,8 +45,7 @@
   cells:
     # chant > chante, after verbs with a supporting -e (12th–16th c.)
     PRS.1SG: { at: french, morph: [~, PRS.3SG.A] }
-  events:
-    - analogy: { at: old-french, cell: PRS.1PL, replace: { á: ó }, model: "*sumus" }
+    PRS.1PL: { at: old-french, morph: [~, PRS.1PL.O] }
   expect:
     old-spanish:
       INF: kantáɾ
@@ -96,9 +95,11 @@
   paradigm: verb-a
   cells:
     PRS.1SG: { at: french, morph: [~, PRS.3SG.A] }
+    PRS.1PL: { at: old-french, morph: [~, PRS.1PL.O] }
+    # The stem-stressed aim- is generalised (by Middle French), in the
+    # future too.
+    FUT.1SG: { at: french, stem: "ajm-", morph: [~, INF.A, FUT.1SG] }
   events:
-    - analogy: { at: old-french, cell: PRS.1PL, replace: { á: ó }, model: "*sumus" }
-    # The stem-stressed aim- is generalised (by Middle French).
     - analogy: { at: french, cell: INF, replace: { a: aj }, model: "aime" }
     - analogy: { at: french, cell: PRS.1SG, replace: { a: aj }, model: "aime" }
     - analogy: { at: french, cell: PRS.1PL, replace: { a: aj }, model: "aime" }
@@ -111,7 +112,7 @@
     old-french:
       { INF: amer, PRS.1SG: ajm, PRS.2SG: ajməs, PRS.3SG: ajmə, PRS.1PL: amons, PRS.2PL: amets, PRS.3PL: ajmənt }
     french:
-      { INF: eme, PRS.1SG: ɛm, PRS.2SG: ɛm, PRS.3SG: ɛm, PRS.1PL: emɔ̃, PRS.2PL: eme, PRS.3PL: ɛm }
+      { INF: eme, PRS.1SG: ɛm, PRS.2SG: ɛm, PRS.3SG: ɛm, PRS.1PL: emɔ̃, PRS.2PL: eme, PRS.3PL: ɛm, FUT.1SG: emʁe }
 
 - id: habere
   form: "*hab-"
