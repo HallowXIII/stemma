@@ -484,6 +484,20 @@ that stage must be below where the cell is joined.
     NPST.1S>3S: { at: azal, morph: [SBJ.1S, OBJ.3S, ~, S.1S] }
 ```
 
+**Several changes to one cell.** A cell can be given a list: at most one
+change without `at:` (its template, base or stem here) and any number of
+re-formings, as on a paradigm. This is for a cell that continues one form
+on one line and another elsewhere:
+
+```yaml
+- id: esse
+  cells:
+    PTCP: [{ base: stare.PTCP }, { at: ibero-romance, base: sedere.PTCP, morph: ~ }]
+```
+
+A template in the list stands for the change without `at:`; write a
+longer one as a list inside the list.
+
 **Citation.** `cite`, as on a paradigm (§2), sets the cell this entry is
 cited by, over its paradigm's: `cite: ~` cites a verb by its stem.
 

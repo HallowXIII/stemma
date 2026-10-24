@@ -82,3 +82,15 @@
   expect:
     mid:   { OPT: aran }
     late:  { OPT: ranga }
+
+# A list of overrides for one cell: a template of the entry's own, and a
+# re-forming on one line.
+- id: walk
+  form: "*dor"
+  paradigm: verb-r
+  cells:
+    NPST.1S: [[~, PST], { at: late, morph: [~, S.1S] }]
+  expect:
+    mid:   { NPST.1S: dorga }
+    late:  { NPST.1S: dorni }
+    other: { NPST.1S: dorka }

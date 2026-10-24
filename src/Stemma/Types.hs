@@ -245,14 +245,19 @@ cellDef v = case v of
     CellDef parts <$> traverse reform objs
   _ -> (\t -> CellDef (Just t) []) <$> template v
   where
-    isObject = \case Object _ -> True; _ -> False
-    partitionObjects = foldr (\x (os, ts) -> if isObject x then (x : os, ts) else (os, x : ts)) ([], [])
     reform = withObject "cell re-forming" $ \o -> do
       forM_ ["base", "stem"] $ \k -> when (KM.member k o) $
         fail ("`" <> show k <> "` belongs to an entry's cells, not a paradigm's")
       s <- o .: "at"
       parts <- maybe (pure [PBase]) template (KM.lookup "morph" o)
       pure (s, parts)
+
+isObject :: Value -> Bool
+isObject = \case Object _ -> True; _ -> False
+
+-- | Split a list into its objects and the rest, each in order.
+partitionObjects :: [Value] -> ([Value], [Value])
+partitionObjects = foldr (\x (os, ts) -> if isObject x then (x : os, ts) else (os, x : ts)) ([], [])
 
 -- | Lists of single-key maps keep their order, unlike maps.
 single :: String -> String -> (Text -> Value -> Parser a) -> Value -> Parser a
@@ -326,6 +331,22 @@ data CellOverride = CellOverride
   -- than with the paradigm.
   }
   deriving (Show)
+
+-- | An entry's cell: one override, or a list of them, at most one without
+-- `at:` (a template in the list stands for that one).
+cellOverrides :: Value -> Parser [CellOverride]
+cellOverrides v = case v of
+  Array xs | any isObject (toList xs) -> do
+    let (objs, rest) = partitionObjects (toList xs)
+    plain <- case rest of
+      [] -> pure []
+      [t] -> (\p -> [CellOverride Nothing Nothing (Just p) Nothing]) <$> template t
+      _ -> fail "a cell with re-formings may have only one template; write a longer one as a list"
+    ovs <- (plain ++) <$> traverse parseJSON objs
+    when (length [() | ov <- ovs, coAt ov == Nothing] > 1) $
+      fail "a cell may have only one override without `at`"
+    pure ovs
+  _ -> pure <$> parseJSON v
 
 -- | Either @{ base: X, stem: T, morph: [...], at: S }@ or just a template.
 instance FromJSON CellOverride where
@@ -437,7 +458,8 @@ parseEntryBody enId = withObject "entry" $ \o -> do
   enCategory <- o .:? "category" .!= []
   enParadigm <- traverse (name "paradigm name") =<< o .:? "paradigm"
   enBound <- o .:? "bound"
-  enCells <- maybe [] (map (\(k, v) -> (Key.toText k, v)) . KM.toList) <$> o .:? "cells"
+  cellsRaw <- o .:? "cells" .!= KM.empty
+  enCells <- concat <$> traverse (\(k, v) -> map (Key.toText k,) <$> cellOverrides v) (KM.toList cellsRaw)
   enNotes <- o .:? "notes"
   enDerivatives <- o .:? "derivatives" .!= []
   enEvents <- o .:? "events" .!= []
