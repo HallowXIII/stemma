@@ -1,0 +1,8 @@
+categories
+C = p t k b d g m n l r s v č w
+V = a e i o u ə ī
+B = &+
+end
+
+; a final i is long in a word built from parts
+i / ī / _ #

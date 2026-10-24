@@ -13,4 +13,5 @@ stages:
     name: Modern
     parent: proto
     rules: rules/proto-to-modern.bsc
+    morphophonology: rules/modern-morph.bsc
     current: true
