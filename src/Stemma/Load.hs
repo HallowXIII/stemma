@@ -334,12 +334,13 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       Nothing -> acc ++ [(c, (fromMaybe eid (cellBase ov), fromMaybe [PBase] (coMorph ov)))]
 
     -- `at:` cells: the entry's own, then those of its paradigm and of any it
-    -- changes to, for cells the entry doesn't give `at:` itself.
-    entryAts = [(c, ov) | (c, ov) <- enCells e, Just _ <- [coAt ov]]
-    atCells = entryAts ++
+    -- changes to, except where the entry re-forms the same cell at the
+    -- same stage itself.
+    entryAts = [(c, s) | (c, ov) <- enCells e, Just s <- [coAt ov]]
+    atCells = [(c, ov) | (c, ov) <- enCells e, Just _ <- [coAt ov]] ++
       [ (c, CellOverride Nothing Nothing (Just ps) (Just s))
       | (c, s, ps) <- nub [a | p <- toList paradigm ++ repatternParadigms, a <- pfAt p]
-      , c `notElem` map fst entryAts ]
+      , (c, s) `notElem` entryAts ]
 
     -- Cells joined later than the paradigm: those that a repattern's
     -- paradigm has and the entry's own lacks, at the first repattern that

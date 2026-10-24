@@ -200,8 +200,9 @@ later stage, as the re-forming alone:
 
 A template longer than one affix is written as a list inside the list.
 A re-forming takes `at` and `morph`; `base` and `stem` belong to an
-entry. An entry's own `at:` for a cell replaces the paradigm's
-re-formings of that cell, so a verb can keep an older form. The
+entry. An entry's own `at:` for a cell replaces the paradigm's re-forming
+of that cell at the same stage (so a verb can keep an older form there,
+by re-forming to it), and the paradigm's other re-formings still apply. The
 re-formings of the entry's paradigm and of any it changes to apply.
 They are inherited through `extends` with their cell, and replaced with
 it.

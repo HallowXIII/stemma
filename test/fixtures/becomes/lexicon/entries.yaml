@@ -60,3 +60,14 @@
     NPST.1S: { at: late, morph: [~, S.1S] }
   expect:
     late:  { NPST.1S: felni }
+
+# An entry's `at:` at another stage leaves the paradigm's re-forming at
+# late in force.
+- id: taste
+  form: "*ret"
+  paradigm: verb-r
+  cells:
+    NPST.1S: { at: mid, morph: [~, PST] }
+  expect:
+    mid:   { NPST.1S: retga }
+    late:  { NPST.1S: retn }
