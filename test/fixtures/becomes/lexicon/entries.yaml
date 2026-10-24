@@ -24,3 +24,12 @@
     mid:   { NPST.1S: torne, PST.1S: bitegga }
     late:  { NPST.1S: bitorn, NPST.1S~archaic: bitorni, PST.1S: biteggan, NPST.1S>3S: biatagn }
     other: { PST.1S: bitekka }
+
+- id: stone
+  form: "*tan"
+  paradigm: noun-old
+  events:
+    - repattern: { at: late, paradigm: noun-late }
+  expect:
+    mid:  { SG: tan, PL: tanga }
+    late: { SG: tan, PL: tanga }

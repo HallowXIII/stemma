@@ -415,8 +415,10 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         }
 
     -- Each repattern: its stage, the new paradigm, the new stem, and the
-    -- cells it gives.
-    repatterns =
+    -- cells it gives. Nearest the root first, so that a cell two
+    -- repatterns add is joined at the earlier one (a paradigm's `becomes`
+    -- comes after the entry's own events in `events`).
+    repatterns = sortOn (\(s, _, _, _) -> length (ancestorsOrSelf stages s))
       [ (evAt ev, pname, stem, cellsOf (Just p))
       | ev@Event {evKind = Repattern pname stem} <- events
       , Just p <- [Map.lookup pname paradigms] ]

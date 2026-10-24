@@ -5,6 +5,7 @@ affixes:
   S.1S:   { form: "*-ne" }
   # A reduced suffix, known only from mid on.
   S.1S.SHORT: { form: "-n", stage: mid }
+  PL:     { form: "*-ka" }
 
 paradigms:
   verb-old:
@@ -21,3 +22,18 @@ paradigms:
       - NPST.1S: [SBJ.1S, ~, S.1S.SHORT]
       - NPST.1S~archaic: [SBJ.1S, ~, S.1S]
       - PST.1S: [SBJ.1S, ~, PST, S.1S.SHORT]
+
+  # A paradigm that `becomes` another, on an entry with a repattern of its
+  # own further down: a cell both add is joined at the earlier one.
+  noun-old:
+    cells:
+      - SG: ~
+    becomes: { mid: noun-new }
+  noun-new:
+    cells:
+      - SG: ~
+      - PL: PL
+  noun-late:
+    cells:
+      - SG: ~
+      - PL: PL
