@@ -71,3 +71,14 @@
   expect:
     mid:   { NPST.1S: retga }
     late:  { NPST.1S: retn }
+
+# The paradigm joins OPT at mid; the entry's `at:` at late re-forms it
+# there rather than joining it only at late.
+- id: sing
+  form: "*ran"
+  paradigm: verb-r
+  cells:
+    OPT: { at: late, morph: [~, PST] }
+  expect:
+    mid:   { OPT: aran }
+    late:  { OPT: ranga }

@@ -344,18 +344,23 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
 
     -- Cells joined later than the paradigm: those that a repattern's
     -- paradigm has and the entry's own lacks, at the first repattern that
-    -- has them, and those given `at:`, unless the paradigm has them.
-    -- Each is joined from the forms entering its stage.
+    -- has them, and those given `at:`, unless the paradigm has them, at the
+    -- `at:` nearest the root (the others re-form it). Each is joined from
+    -- the forms entering its stage.
     later = foldl' (\acc x@(c, _, _) -> if c `elem` map fst3 acc then acc else acc ++ [x]) []
       ( [ (c, (b, ps), s) | (s, _, _, new) <- repatterns, (c, (b, ps)) <- new, c `notElem` map fst entryCells ]
-          ++ [ (c, (fromMaybe eid (coBase ov), fromMaybe [PBase] (coMorph ov)), s)
+          ++ sortOn (\(_, _, s) -> length (ancestorsOrSelf stages s))
+             [ (c, (fromMaybe eid (coBase ov), fromMaybe [PBase] (coMorph ov)), s)
              | (c, ov) <- atCells, Just s <- [coAt ov], c `notElem` map fst entryCells ] )
+    joinedAt c = listToMaybe [s | (c', _, s) <- later, c' == c]
     -- `at:` on a cell that the paradigm, or one the entry changes to, has
-    -- re-forms it there.
+    -- re-forms it there, and so does any but the first on a cell joined
+    -- later.
     paradigmCells = map fst entryCells ++ [c | (_, _, _, new) <- repatterns, (c, _) <- new]
     reformedAt c =
       [ Event s Nothing (Rebuild (coStem ov) (fromMaybe eid (coBase ov)) (fromMaybe [PBase] (coMorph ov)) ("re-formed at " <> s))
-      | c `elem` paradigmCells, (c', ov) <- atCells, c' == c, Just s <- [coAt ov] ]
+      | (c', ov) <- atCells, c' == c, Just s <- [coAt ov]
+      , c `elem` paradigmCells || joinedAt c /= Just s ]
     fst3 (a, _, _) = a
     cellNames = map fst entryCells ++ map fst3 later
 
@@ -373,7 +378,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       | isAncestorOrSelf stages stage pstage = Right pstage
       | otherwise = err ("formed at " <> stage <> ", which is not on a line with paradigm stage " <> pstage)
       where pstage = fromMaybe root (paradigm >>= pfStage)
-    atStem c = listToMaybe [t | (c', ov) <- atCells, c' == c, Just _ <- [coAt ov], Just t <- [coStem ov]]
+    atStem c s = listToMaybe [t | (c', ov) <- atCells, c' == c, coAt ov == Just s, Just t <- [coStem ov]]
 
     mkCell born (c, (base, parts)) = do
       cstage <- case born of
@@ -386,7 +391,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       let birth = case born of
             Just s | Just _ <- Map.lookup s stages >>= stParent
                    , s `notElem` [s' | (s', _, _, new) <- repatterns, Just _ <- [lookup c new]] ->
-                       [Event s Nothing (Rebuild (atStem c) base parts ("joined at " <> s))]
+                       [Event s Nothing (Rebuild (atStem c s) base parts ("joined at " <> s))]
             _ -> []
           -- Nothing about stages above where the cell is joined.
           applies s = maybe True (\b -> isAncestorOrSelf stages b s) born
