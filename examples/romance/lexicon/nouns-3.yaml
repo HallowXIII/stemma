@@ -461,6 +461,8 @@
   paradigm: noun-o
   fate: { old-spanish: lost }
   expect:
+    old-french: { NOM.SG: solewts, ACC.SG: soleʎ, NOM.PL: soleʎ, ACC.PL: solewts }
+    french: { ACC.SG: sɔlɛj }
 
 - id: germanus
   form: "*germān-"
@@ -469,6 +471,8 @@
   paradigm: noun-o
   fate: { old-french: lost }
   expect:
+    old-spanish: { ACC.SG: eɾmáno, ACC.PL: eɾmános }
+    spanish: { ACC.SG: eɾmáno, ACC.PL: eɾmános }
 
 - id: perro
   form: "pér-"
@@ -478,6 +482,8 @@
   paradigm: noun-o-rom
   notes: Of unknown origin.
   expect:
+    old-spanish: { ACC.SG: péro }
+    spanish: { ACC.SG: péro, ACC.PL: péros }
 
 # A Greek loan: OF prestre continues the Latin stress of the nominative,
 # provoire the Greek one of the oblique (presbýterum).

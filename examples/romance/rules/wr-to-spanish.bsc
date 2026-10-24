@@ -9,6 +9,16 @@ V = Vu Vs
 C = p b t d k g kʷ gʷ f s z m n l r R ɾ j w β ð ʎ ɲ tʃ ts dz ʃ ʒ
 end
 
+; cells re-formed here are joined from Western Romance forms, so k and g
+; before a front vowel again (fazer, re-formed on the second conjugation)
+k / dz / V _ [e i é í ɛ́ j]
+k / ts / _ [e i é í ɛ́ j]
+g / j / _ [e i é í ɛ́]
+b / β / V _ V
+; final unstressed i (venīs > vienes)
+i / e / _ (C) #
+; the infinitive's -e before the auxiliary in the future
+e / / _ Vs
 ; voicing, before the syncope (comite > conde)
 [p t k kʷ] / [b d g gʷ] / V _ [V r l]
 ; intervocalic j after a front vowel (digitus)
@@ -29,6 +39,10 @@ k k / k / _
 t t / t / _
 p p / p / _
 ; omne > omre > ombre, spreading through the lexicon (nombre by 1200)
+; the future: venrá > verná
+n r / r n / V _ Vs
+; yod raising (murió)
+o / u / _ r j
 n / ɾ / m _
 / b / m _ ɾ
 ; diphthongisation, in open and closed syllables alike, but not before a
@@ -36,11 +50,9 @@ n / ɾ / m _
 ɛ́ / j é / _ // _ [j ʎ]
 ɔ́ / w é / _ // _ [j ʎ]
 [ɛ́ ɔ́] / [é ó] / _
-é e / é / _
+é e / é / j _
 áu / ó / _
 au / o / _
-; the infinitive's -e before the auxiliary in the future
-e / / _ Vs
 á j o / é / _ #
 ; clitics: elle > el; illum > lo
 e / / V l l _ #
@@ -51,7 +63,9 @@ l l / l / # _
 ʎ / ʒ / _
 l l / ʎ / _
 n n / ɲ / _
+á / é / _ j t
 j t / tʃ / _
+k s / ʃ / V _ V
 ; pl-, kl-, fl-
 [p k] l / ʎ / # _
 
@@ -61,9 +75,10 @@ report
 kʷ / k / _ [i í j e é]
 kʷ / k w / _
 gʷ / g w / _
-t / / _ #
 ; apocope after a single dental or alveolar
 e / / V [d l n r s z j] _ #
+; final -t goes after the apocope, so the verb keeps its -e (tiene, from tenet)
+t / / _ #
 ; tap and trill
 r r / R / _
 r / ɾ / _ // # _
@@ -77,12 +92,11 @@ report
 n / ɾ / m _
 / b / m _ ɾ
 β / b / _
-; -ades > -áis
-d / / V _ e s # // b d á _
-e / j / Vs _ s #
 ; f- > h- > zero, except before w, r, l
 f / / # _ [V j]
 j / ʝ / # _
+; verná > vendrá
+ɾ n / n d ɾ / _
 j é / í / _ ʎ
 ; the sibilants
 [ʒ ʃ] / x / _
@@ -90,3 +104,7 @@ z / s / _
 i b / j u / _ d
 j / ʝ / V _ V
 [ts dz] / θ / _
+; veer > ver, vees > ves, vió
+e é / é / _
+é e / é / _
+í o / j ó / # C _ #

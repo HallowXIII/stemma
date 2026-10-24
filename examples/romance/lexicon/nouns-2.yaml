@@ -33,7 +33,7 @@
   paradigm: noun-o
   events:
     # fou, not *fuez: the nominative plural remade on the other cells
-    - analogy: { at: gallo-romance, cell: NOM.PL, replace: { ts: g }, model: "fou" }
+    - analogy: { at: gallo-romance, cell: NOM.PL, replace: { dz: g }, model: "fou" }
   expect:
     old-spanish: { ACC.SG: fwégo, ACC.PL: fwégos }
     spanish: { ACC.SG: fwégo, ACC.PL: fwégos }

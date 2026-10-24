@@ -11,13 +11,15 @@ C = Stop f v s z m n l r j w β ʎ ɲ tʃ dʒ ts dz ʃ ʒ θ ð h
 end
 
 ; rēx: x > is
-k s / j s / _ #
+k s / j s / _
 ; clitics: illum > le, illī > li, illōs > les
 e / / # _ l l V
 l l / l / # _
 [o a] / e / # l _ s #
 [e o] / ə / # C _ #
 j / dʒ / # _ V
+; the infinitive's -e before the auxiliary in the future
+e / / _ Vs
 β / b / [r l] _
 β / v / _
 [u ú] / [y ý] / _
@@ -39,19 +41,19 @@ report
 ; Gallo-Romance > Old French
 g / j / V _ l
 [k g] / [tʃ dʒ] / _ [a á au áu]
-; the infinitive's -e before the auxiliary in the future
-e / / _ Vs
 gʷ / w / V _ V
 gʷ / g / _
 kʷ / k / _ [i í e é]
 kʷ / k w / _
 ; focus: g before a back vowel
 ɔ́ g / ó w / _ [o u i]
+g / / V _ [o u]
 
 b / v / V _ [V r l]
 e / o / r _ v
 
 ; --- stressed vowels ---
+r j / j r / _
 ɔ́ j / ý j / _
 ɔ́ / ó / _ [m n] C
 é / é j / _ C V / _ [Stop v] [r l] V / _ #  / _ C # // _ [ʎ j]
@@ -64,29 +66,38 @@ e / o / r _ v
 á / á j / _ [ts dz]
 á / é / _ C V / _ [Stop v] [r l] V // _ j
 [áu au] / [ɔ́ ɔ] / _
-k k / k / _
-t t / t / _
-p p / p / _
-k / / _ tʃ
 
 
 ; --- unstressed vowels ---
 a / ə / [tʃ dʒ] _ C V
 a / ə / V C* _ C* Vs
 a / ə / _ C* # // # l _ #
-[e i o] / ə / [Stop m β v] [r l n] _ (s) # / j l _ (s) # / m t _ (s) #
+[e i o] / ə / [Stop m β v] [r l n] _ (s) # / j l _ (s) # / m t _ (s) # / dz r _ (s) #
+; the 3pl -ent
+[e o] / ə / _ n t #
 e r / r ə / [Stop] _ #
 [e i o u y] / / _ (C) # // # C _ (C) #
 o / / Vs j _ #
 [t d ð] / / V _ #
+k k / k / _
+t t / t / _
+p p / p / _
+k / / _ tʃ
 ɛ́ j / í / _
 
 ; --- consonants ---
 v / / w _
-[d ð] / / V _ V
+[d ð] / / [V j] _ V
 d r / r r / V _ Vs
 d r / r / [Vs j] _
+ð r / r r / _
+ð / / [V j] _ t
+ð / / [V j] _ #
 m / n / _ t
+dz / j / _ C
+dz / j / í _
+j / / [i í] _
+j j / j / _
 dz / / _ s #
 dz / s / j _ #
 [b d g v ð dz] / [p t k f t ts] / _ (s) #
@@ -100,6 +111,13 @@ n n / n / _
 r r / r / _ (s) #
 m / n / _ s #
 m n / m / _
+/ d / n _ r
+v / / _ t #
+d / / _ t #
+; pretonic e in an open first syllable (tenir, tenons), a in hiatus (eü)
+e / ə / # [t v d] _ C Vs
+[a o] / ə / _ ý
+e / ə / _ Vs
 ; l before a consonant
 ʎ / / [i í] _ t
 ʎ / w / V _ t
@@ -128,18 +146,24 @@ k w / k / _ a
 dʒ / ʒ / _
 ts / s / _
 dz / z / _
+; pourrai, mourir
+o / u / _ r
 j / / [ʃ ʒ] _ // _ e n
-r r / r / _
+e / ɛ / _ r r
+; mourrai keeps its rr (courrai too), pourrai doesn't
+r r / r / _ // m u _
 s / / _ C
 ; nasal vowels, before a nasal that ends the syllable
-e / ɛ̃ / j _ n [C #]
+e / ɛ̃ / j _ [n ɲ] [C #]
 a j / ɛ̃ / _ n [C #]
 y / œ̃ / _ n [C #]
+i / ɛ̃ / _ n [C #]
 [a e o ɔ] / [ɑ̃ ɑ̃ ɔ̃ ɔ̃] / _ [m n] [C #]
 e j / ɛ̃ / _ n [C #]
-[m n] / / N _
+[m n ɲ] / / N _
 o w / u / _ t
 ; final consonants and schwa
+ə / / _ V
 a j / e / _ #
 ə n t / ə / _ #
 t s / / e _ #
@@ -147,13 +171,17 @@ s / / _ #
 t / / _ #
 r / / V C* e _ #
 ə / / _ # // # C _
+; pretonic o (soleil), before the o from aw (mauvais)
+o / ɔ / _ C V // _ j
 ; diphthongs
 a j / e / _ C V
 a j / ɛ / _
 e j / ɛ / _ n
+o j / w a j / _ V
 o j / w a / _
 ɛ a w / o / _
 a w / o / _
+o / ɔ / _ r V
 e w / o / _ #
 o w / ø / _
 ø / œ / _ r
@@ -161,10 +189,12 @@ y j / ɥ i / _
 e / ɛ / _ ɲ
 w ɛ / œ / _
 ʎ / j / _
+œ / ø / _ #
 ; schwa between single consonants, after the diphthongs had gone
 ə / / V C _ C V
 e / ɛ / _ C C* #
 ɔ / o / _ z
+e / ɛ / _ j #
 o / ɔ / _ [n m l r] #
 k / / [ɑ̃ ɔ̃ ɛ̃ œ̃] _ #
 r / ʁ / _

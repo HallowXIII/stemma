@@ -5,9 +5,11 @@
 # belong to other items). INDENT is the number of spaces before `expect:`.
 cd "$(dirname "$0")/.." || exit 1
 awk -F'\t' -v id="$1" -v ind="${2:-2}" '
+# YAML would read y (French eu), n, on and so on as booleans.
+function q(v) { return (tolower(v) ~ /^(y|n|yes|no|on|off|true|false|null|~)$/) ? "\"" v "\"" : v }
 BEGIN { pad = sprintf("%" ind "s", ""); split("old-spanish spanish old-french french", st, " ") }
 FNR == 1 || $1 != id || $5 == "learned" || $5 == "derived" || $5 == "replaced" { next }
-{ cell = $3; if (!((cell, $4) in v)) { if (!(cell in seen)) { seen[cell] = 1; cells[++n] = cell } v[cell, $4] = $7 } }
+{ cell = $3; if (!((cell, $4) in v)) { if (!(cell in seen)) { seen[cell] = 1; cells[++n] = cell } v[cell, $4] = q($7) } }
 END {
   print pad "expect:"
   for (i = 1; i <= 4; i++) {
