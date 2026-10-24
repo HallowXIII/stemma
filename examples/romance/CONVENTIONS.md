@@ -89,7 +89,9 @@ id  latin  cell  stage  kind  spelling  ipa  confidence  source  note
 - `latin`: the Latin etymon as cited, with length marks; for a word not
   from the citation form, the actual etymon (*\*potēre*, *\*homini*).
 - `kind`: `inherited`, `learned`, `semi-learned`, `derived`, `replaced`
-  (the slot is filled by another word: Spanish *hermano* for *frater*) or
+  (the slot is filled by another word: Spanish *hermano* for *frater*),
+  `suppletive` (the cell continues another verb: Spanish *fue*, *sido* for
+  *ire*, *esse*) or
   `analogical` (the form is not the regular reflex; say of what in `note`).
 - `confidence`: `high`, `medium` or `low`.
 - `source`: a URL, or a book with section. Every row needs one.

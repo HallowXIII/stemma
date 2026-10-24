@@ -418,3 +418,19 @@ paradigms:
     extends: verb-c
     cells:
       - PTCP: PTCP.S
+
+  # Suppletive verbs: every cell is built on a stem or base of its own.
+  verb-x:
+    cite: INF
+    cells:
+      - INF: ~
+      - PRS.1SG: ~
+      - PRS.2SG: ~
+      - PRS.3SG: ~
+      - PRS.1PL: ~
+      - PRS.2PL: ~
+      - PRS.3PL: ~
+      - FUT.1SG: { at: western-romance, morph: ~ }
+      - FUT.3SG: { at: western-romance, morph: ~ }
+      - PRET.3SG: ~
+      - PTCP: ~

@@ -259,6 +259,11 @@ Found while building the full word list, batch by batch.
     by this. Overrides keyed by line, or a list of `at:` re-formings per
     cell, would lift it.
 
+    **Done** (`095dc46`): an entry's cell can take a list of changes, as
+    a paradigm's can. *esse* and *ire* need it (Spanish *sido* from
+    *sedēre* beside OF *esté* from *stātum*), and it replaced four
+    `replace` analogies in the verbs.
+
 19. **Plurals remade on the singular repeat.** French *chefs*, *secs*,
     *neufs* are each an `at: french` re-form of the plural on the
     singular cell, per entry. With the verbs' *-ons* and *-e* still to
@@ -273,11 +278,38 @@ Found while building the full word list, batch by batch.
     dialectal words (*estoile*, *pueple*, *claro*); with the intermediate
     stages there are 16, four of them *estoile*.
 
+20. **A cell re-formed from bare parts misses its stem's changes.** The
+    Spanish 2pl *-áis* is a re-forming at Spanish, joined from the bare
+    stem and a new ending. A bare stem never stood between vowels, so
+    *pot-*, *vid-* stay as they are (*\*potéis*, *\*vidéis*), and the verbs
+    whose stem changed need a re-forming of their own with the stem
+    written out (*pod-*, *ve-*; also *sedere*'s *seð-*). What is wanted is
+    a sound change confined to some cells: an analogy given as an inline
+    Brassica rule (finding 4), which a paradigm could declare as well as
+    an entry, would do the 2pl for every verb as `d e s / j s / _ #`, and
+    *estoile* too.
+
+21. **Smaller things the verbs needed, fixed.** An entry's `at:` replaces
+    the paradigm's re-forming at that stage only (`bba9a7c`); a cell the
+    paradigm joins later is joined at its earliest `at:` and re-formed at
+    the others (`d23d3f9`).
+
+    `irregular` count: 43. The verbs added 27, nearly all strong perfects
+    (*tovo*, *tint*, *fist*, *estut*) and the allegro forms of *facere*,
+    *dicere*, *esse* (*fémos*, *dimes*, *somes*), which the handbooks also
+    treat word by word.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
-`research/*-notes.md` list where sources disagree. All 141 expected
-forms are reproduced. The main judgement calls:
+`research/*-notes.md` list where sources disagree. All of its forms for
+the words built so far are reproduced (`./check.sh`). The main judgement
+calls:
+
+- **Tooling.** `research/refresh-expect.sh` silently dropped hand-written
+  `expect:` blocks of words whose forms are filed under another word
+  (*perro*, *capitia*) from batch 2 on; it now keeps them, and they are
+  restored. *esse* and *ire*'s suppletive cells have their own `kind`.
 
 - **Sources.** The research couldn't reach Pope, Penny, Lloyd or Einhorn.
   It used Nyrop, Bourciez, Darmesteter, Menéndez Pidal (*Manual*, *Cid*)

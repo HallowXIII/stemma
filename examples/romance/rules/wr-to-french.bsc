@@ -24,7 +24,7 @@ e / / _ Vs
 β / v / _
 [u ú] / [y ý] / _
 ; syncope of the post-tonic vowel of a proparoxytone
-[e i o u] / / V C _ C V C* # / V s b _ C V C* #
+[e i o u] / / V C _ C V C* # / V s b _ C V C* # / V C C _ r V C* #
 ; presbyter: prestre, provoire
 b / / s _ t
 s / / _ b
@@ -72,7 +72,7 @@ r j / j r / _
 a / ə / [tʃ dʒ] _ C V
 a / ə / V C* _ C* Vs
 a / ə / _ C* # // # l _ #
-[e i o] / ə / [Stop m β v] [r l n] _ (s) # / j l _ (s) # / m t _ (s) # / dz r _ (s) #
+[e i o] / ə / [Stop m β v] [r l n] _ (s) # / j l _ (s) # / m t _ (s) # / dz r _ (s) # / s r _ (s) #
 ; the 3pl -ent
 [e o] / ə / _ n t #
 e r / r ə / [Stop] _ #
@@ -82,6 +82,7 @@ o / / Vs j _ #
 k k / k / _
 t t / t / _
 p p / p / _
+s s / s / _
 k / / _ tʃ
 ɛ́ j / í / _
 
@@ -112,10 +113,12 @@ r r / r / _ (s) #
 m / n / _ s #
 m n / m / _
 / d / n _ r
+/ t / s _ r
 v / / _ t #
 d / / _ t #
 ; pretonic e in an open first syllable (tenir, tenons), a in hiatus (eü)
 e / ə / # [t v d] _ C Vs
+e / ə / # s _ r Vs
 [a o] / ə / _ ý
 e / ə / _ Vs
 ; l before a consonant

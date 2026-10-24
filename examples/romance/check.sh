@@ -1,6 +1,6 @@
 #!/bin/sh
-# Compare the last build with attested.tsv: every inherited, analogical or
-# semi-learned form whose item exists, by word. Learned, derived and
+# Compare the last build with attested.tsv: every inherited, analogical,
+# semi-learned or suppletive form whose item exists, by word. Learned, derived and
 # replaced rows belong to other items and are left out.
 #
 #   ./check.sh            all words
