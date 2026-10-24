@@ -139,6 +139,9 @@ data Paradigm = Paradigm
   , pdLost :: Map StageId [Text]
   -- ^ Cells lost at a stage, and so on every line below it. Cell names may
   -- contain @*@ (see 'globMatch').
+  , pdBecomes :: Map StageId Text
+  -- ^ Stages where every entry with this paradigm changes to another one,
+  -- as if each had a @repattern@ event there.
   }
   deriving (Show)
 
@@ -188,6 +191,7 @@ instance FromJSON Paradigm where
     pdCells <- traverse cell =<< o .:? "cells" .!= []
     pdExclude <- o .:? "exclude" .!= []
     pdLost <- traverse oneOrMany =<< o .:? "lost" .!= Map.empty
+    pdBecomes <- o .:? "becomes" .!= Map.empty
     pure Paradigm {..}
     where
       dimension :: Value -> Parser Dimension
@@ -264,17 +268,21 @@ splitVariant c = case T.breakOn "~" c of
 data CellOverride = CellOverride
   { coBase :: Maybe ItemId
   , coMorph :: Maybe [Part]
+  , coAt :: Maybe StageId
+  -- ^ The cell is joined at this stage, from the forms entering it, rather
+  -- than with the paradigm.
   }
   deriving (Show)
 
--- | Either @{ base: X, morph: [...] }@ or just a template.
+-- | Either @{ base: X, morph: [...], at: S }@ or just a template.
 instance FromJSON CellOverride where
   parseJSON v = case v of
     Object o -> do
       coBase <- o .:? "base"
       coMorph <- traverse template (KM.lookup "morph" o)   -- `morph: ~` is the bare base
+      coAt <- o .:? "at"
       pure CellOverride {..}
-    _ -> CellOverride Nothing . Just <$> template v
+    _ -> (\t -> CellOverride Nothing (Just t) Nothing) <$> template v
 
 data Source
   = SBase ItemId

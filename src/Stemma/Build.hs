@@ -169,14 +169,15 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
       Just p -> do
         let prev = fromMaybe Map.empty (Map.lookup p results)
             survivors =
-              [ (i, it, f) | (i, rx) <- Map.toList prev, f : _ <- [rxForms rx]
+              [ (i, it, f, Inherited) | (i, rx) <- Map.toList prev, f : _ <- [rxForms rx]
                         , Just it <- [Map.lookup i items], not (lostAt s it) ]
-        loanForms <- donorForms results s [(i, it) | (i, it, _) <- survivors]
+                ++ [ (itId it, it, [], Coined) | it <- Map.elems items, joinedEntering s it ]
+        loanForms <- donorForms results s [(i, it) | (i, it, _, _) <- survivors]
         let inputs :: LMap.Map ItemId (Either Text (Form, [Text], Origin))
             inputs = LMap.fromList
-              [ (i, withItem i (foldl' (applyEvent s it loanForms inputs) (Right (f, [], Inherited))
+              [ (i, withItem i (foldl' (applyEvent s it loanForms inputs) (Right (f, [], origin))
                                        (zip [0 ..] (inputEvents s it))))
-              | (i, it, f) <- survivors ]
+              | (i, it, f, origin) <- survivors ]
         joined <- case partitionEithers [ (,) i <$> v | (i, v) <- LMap.toList inputs ] of
           (errs@(_ : _), _) -> pure (Left errs)
           ([], ok) -> rejoin p s ok
@@ -198,6 +199,13 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
                 fmap (fmap (fmap ((noRules ++ ws) ++))) (coin results s res)
 
     inputEvents s it = [ev | ev <- eventsAt s it, not (isIrregular ev)]
+    -- An item formed at s that a rebuild there joins from the forms
+    -- entering s (a cell that a later paradigm adds), rather than one
+    -- coined from s's final forms. Only in the actual run: without events,
+    -- it is coined.
+    joinedEntering s it =
+      itStage it == s && any isRebuild (eventsAt s it)
+        && maybe False (const True) (Map.lookup s stages >>= stParent)
     isIrregular ev = case evKind ev of Irregular {} -> True; _ -> False
     isRebuild ev = case evKind ev of Rebuild {} -> True; Reform -> True; _ -> False
 
@@ -326,7 +334,7 @@ runMode engine proj rules order mode = foldM stepStage (Right (Map.empty, [])) o
     coin :: Map StageId StageResults -> StageId -> StageResults -> IO (Either [Text] (StageResults, [Text]))
     coin results s available = go available here
       where
-        here = [it | it <- Map.elems items, itStage it == s]
+        here = [it | it <- Map.elems items, itStage it == s, not (joinedEntering s it)]
         hereIds = Set.fromList (map itId here)
         ignored =
           [ itId it <> ": events at " <> s <> " are ignored, since it is formed there"
