@@ -335,7 +335,9 @@ Found while building the full word list, batch by batch.
     are re-formed after *crut*, *but*, and French *eut*, *sut*, *put*,
     *plut* remake Pope's type A on the other u-perfects: analogies, not
     `irregular`. The Old French rows without *-t* were normalised to it,
-    since the *t* follows *ww*. `irregular` count: 40.
+    since the *t* follows *ww*. *morut* stays */mory/*: its *t* followed a
+    vowel, and Pope's paradigm has none for it where the other u-perfects
+    have one. `irregular` count: 40.
 
 ## Data
 
