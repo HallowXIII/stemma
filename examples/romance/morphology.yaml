@@ -91,8 +91,10 @@ affixes:
   PTCP.I:   { form: "*-ītum" }
   # strong and -uī perfects, on a stem of their own (fēc-it, habu-it)
   PRET.3SG.S: { form: "*-it" }
-  # VL perfects in *-ut (*haubut > OSp ovo, OF out)
-  PRET.3SG.T: { form: "*-t" }
+  # u-perfects, stressed on the stem (hábuit > OF ot, OSp ovo); morī has the
+  # stress on the ending (*morūit > OF morut), which kept its u
+  PRET.3SG.U: { form: "*-uit" }
+  PRET.3SG.UU: { form: "*-ūit" }
   # Vulgar Latin participles in -ūtum (OF venu, eu)
   PTCP.U:   { form: "*-ūtum" }
   # strong participles, on a stem of their own (fact-um)
@@ -249,6 +251,8 @@ paradigms:
     cite: INF
     # The Spanish 2pl lost its d in the verb only (cantáis, but ciudades).
     events:
+      # OSp strong perfects take -o, after the weak -ó (ovo, vino, fizo)
+      - analogy: { at: old-spanish, cell: PRET.3SG, rule: "e / o / _ (t) #", model: "cantó" }
       - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl" }
     cells:
       - INF: INF.E
@@ -269,6 +273,8 @@ paradigms:
     cite: INF
     # The Spanish 2pl lost its d in the verb only (cantáis, but ciudades).
     events:
+      # OSp strong perfects take -o, after the weak -ó (ovo, vino, fizo)
+      - analogy: { at: old-spanish, cell: PRET.3SG, rule: "e / o / _ (t) #", model: "cantó" }
       - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl" }
     cells:
       - INF: [INF.C, { at: ibero-romance, morph: [~, INF.E] }]
@@ -288,6 +294,8 @@ paradigms:
   verb-i:
     cite: INF
     events:
+      # OSp strong perfects take -o, after the weak -ó (ovo, vino, fizo)
+      - analogy: { at: old-spanish, cell: PRET.3SG, rule: "e / o / _ (t) #", model: "cantó" }
       - analogy: { at: spanish, cell: PRS.2PL, rule: "í d e s / í s / _ #", model: "the 2pl" }
     cells:
       - INF: INF.I

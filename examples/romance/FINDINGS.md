@@ -324,6 +324,19 @@ Found while building the full word list, batch by batch.
     perfects (*crut*, *but*, *lut*, *chut*, *sot*, *plot*) and a few forms
     of defective verbs.
 
+    **Handbook pass, the u-perfects** (Pope): stem-stressed *hábuit*,
+    *sápuit*, *plácuit*, *pótuit*, *\*crḗduit*, *\*bíbuit*, *\*lḗguit*
+    are regular now. *u* in hiatus becomes *w* in Western Romance; C + *w*
+    > *ww* in Gallo-Romance (Pope *awwet*, *krịwwịt*), close *ẹ* > *ị*
+    before it, and *ịww* > *y*, *a*/*ǫ* + *ww* > *ɔ* in Old French (*crut*,
+    *but*, *lut*; *ot*, *sot*, *plot*, *pot*); in Spanish the *w* moves
+    into the stem (*ovo*, *sopo*, *plogo*). *morī* has the stress on the
+    ending (*\*morū́it*), which kept its *u* (*morut*). *chut* and *estut*
+    are re-formed after *crut*, *but*, and French *eut*, *sut*, *put*,
+    *plut* remake Pope's type A on the other u-perfects: analogies, not
+    `irregular`. The Old French rows without *-t* were normalised to it,
+    since the *t* follows *ww*. `irregular` count: 40.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
@@ -342,7 +355,10 @@ calls:
   handbooks.
 - **Dating.** Old French at 1150 sits on several changes: *ei* > *oi* (taken
   as done: *avojr*), *ai* > *ɛ* (taken as not yet: *aj*), and the loss of 3sg
-  *-t* (taken as gone: *tʃantə*).
+  *-t* (taken as gone: *tʃantə*). Checked against Pope: final *t* was a
+  dental fricative before the end of the first millennium and gone by 1150,
+  and *ei* > *oi* belongs to the 11th century, so both choices stand.
+  *ai* > *ɛ* is still unchecked.
 - **Rules.** Old French diphthongises before nasals (*cuens* < *comes*), so
   *om*, *ome* and Castilian *omne* are an "unstressed use" analogy on
   *homo* (the spike blocked the diphthong instead, which *cuens* rules
