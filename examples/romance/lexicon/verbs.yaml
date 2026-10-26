@@ -49,8 +49,9 @@
     - irregular: { at: vulgar-latin, cell: PRS.2SG, form: "ás", reason: "auxiliary reduction" }
     - irregular: { at: vulgar-latin, cell: PRS.3SG, form: "át", reason: "auxiliary reduction" }
     - irregular: { at: vulgar-latin, cell: PRS.3PL, form: "ánt", reason: "auxiliary reduction" }
-    # OF ont, after sont, font, vont
-    - analogy: { at: old-french, cell: PRS.3PL, replace: { á: ó }, model: "sont" }
+    # OF ont, from *aunt: one analogy with *faunt, *vaunt, *staunt; the model
+    # sunt is assumed
+    - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á n t / áu n t / _ #", model: "sunt" }
     # Spanish hemos, after he
     - analogy: { at: spanish, cell: PRS.1PL, replace: { a: "", β: "" }, model: "he" }
     # French aurai
@@ -84,9 +85,9 @@
   events:
     # Spanish estoy, after soy, doy, voy
     - analogy: { at: spanish, cell: PRS.1SG, replace: { ó: ó j }, model: "soy" }
-    # OF estois, estont, after vois, sont
+    # OF estois, after vois; estont, from *staunt (as ont)
     - analogy: { at: old-french, cell: PRS.1SG, replace: { ó: ó j s }, model: "vois" }
-    - analogy: { at: old-french, cell: PRS.3PL, replace: { á: ó }, model: "sont" }
+    - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á n t / áu n t / _ #", model: "sunt" }
     # The strong perfect stetit, remade differently on each line
     # OSp estido: the i of 1sg *stetī, raised by -ī, as -er and -ir verbs
     # alike allow (Penny)
@@ -377,8 +378,8 @@
     PTCP: [{ stem: "*īt-", morph: [~, PTCP.S] }, { at: gallo-romance, base: allare.PTCP, morph: ~ }]
   events:
     - analogy: { at: spanish, cell: PRS.1SG, replace: { ó: ó j }, model: "soy" }
-    - analogy: { at: old-french, cell: PRS.3PL, replace: { á: ó }, model: "sont" }
-    - irregular: { at: old-french, cell: PRS.1SG, form: "vojs", reason: "voi (< *vei), with the later -s (Pope)" }
+    - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á n t / áu n t / _ #", model: "sunt" }
+    - irregular: { at: old-french, cell: PRS.1SG, form: "vojs", reason: "vādō, VL *vao; -s added later (Pope)" }
     - irregular: { at: french, cell: PRS.1SG, form: "vɛ", reason: "vais continues OF vai, beside vois" }
   expect:
     old-spanish: { INF: íɾ, PRS.1SG: βó, PRS.2SG: βás, PRS.3SG: βá, PRS.1PL: ímos, PRS.2PL: ídes, PRS.3PL: βán, FUT.1SG: iɾé, FUT.3SG: iɾá, PRET.3SG: fwé, PTCP: ído }

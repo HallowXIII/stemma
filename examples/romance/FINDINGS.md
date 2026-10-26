@@ -406,8 +406,9 @@ Found while building the full word list, batch by batch.
       already had it. French *fais* follows the 2sg from the 13th century.
     - *font*: from *\*faunt* for *\*facunt*, after *\*aunt*, *\*vaunt*.
       This is an analogy, with *áu* now raised before a nasal like *ɔ́*.
-      *ont* and *vont* still follow *sont*. If they came from *\*aunt*,
-      *\*vaunt* instead, *sont* would be the only model left.
+      *ont*, *vont* and *estont* are the same analogy (*\*aunt*, *\*vaunt*,
+      *\*staunt*); they used to follow *sont* at Old French. The model
+      *sunt* is our assumption.
     - *puis*: *\*possjo* for *possum*, perhaps after the subjunctives
       *\*monja*, *\*audja*. This is an analogy, with a new rule moving
       the yod before *s* (*ssj* > *js*) as it already moves before *r*.
@@ -426,8 +427,9 @@ Found while building the full word list, batch by batch.
       stress alone does not give them.
     - *fils*: its *l* is only written, and *fiz* gives *fi* regularly.
       The /s/ is a spelling pronunciation.
-    - *vois*, *vais*: *-s* is a later addition, but the rules give *va*
-      from *\*vao*, not the *\*vei* > *voi* that Pope starts from.
+    - *vois*, *vais* (*vādō*, VL *\*vao*): *-s* is a later addition, but
+      the rules give *va*. Pope's *\*vei* > *voi* is *videō* (*veoir*),
+      which the build already gives as *voj*.
 
     `irregular` count: 17.
 
