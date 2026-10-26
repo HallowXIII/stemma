@@ -6,6 +6,12 @@ All files are YAML. IDs are short slugs, unique across the whole project.
 > Quote category tags and ids like these: `is: "N"`, `id: "on"`. stemma
 > reports an error if you forget.
 
+The examples come from two families. Where it has a real case,
+[`examples/romance`](../examples/romance/) is used: Latin to Spanish and
+French. Features it doesn't need are shown with **Echo**, a constructed
+family: Proto-Echo, with daughters Azal (through Old Azal) and Wiyan, and
+demonstratives such as *ir-* "this".
+
 ---
 
 ## 1. `family.yaml`: languages and stages
@@ -15,43 +21,39 @@ that turn the parent's forms into its own. A "language" is just a stage
 marked `current`.
 
 ```yaml
-name: Romance
+name: Echo
 
 notation:
-  graphemes: [kʷ, gʷ, ae, au]   # multigraphs in written forms (optional)
+  graphemes: [r₁, r₂]      # multigraphs in proto forms (optional)
   boundary: "+"            # morpheme boundary passed to the rules (optional; §2)
   internal-boundaries: false   # none between joined parts (optional; §2)
 
 stages:
-  latin:
-    name: Latin
-    abbr: Lat.             # used in etymologies
-    morphophonology: rules/latin-morph.bsc   # optional: for built forms (§2)
+  proto-echo:
+    name: Proto-Echo
+    abbr: PE               # used in etymologies
+    morphophonology: rules/pe-morph.bsc   # optional: for built forms (§2)
 
-  western-romance:
-    name: Western Romance
-    abbr: WR
-    parent: latin
-    rules: "rules/latin-to-wr.bsc"
+  old-azal:
+    name: Old Azal
+    parent: proto-echo
+    rules: "rules/pe-to-azal.bsc#1"
 
-  old-spanish:
-    name: Old Spanish
-    abbr: OSp.
-    parent: western-romance
-    rules: "rules/wr-to-spanish.bsc#1"
-
-  spanish:
-    name: Spanish
-    parent: old-spanish
-    rules: "rules/wr-to-spanish.bsc#2"
-    orthography: rules/spanish-ortho.bsc   # optional: phonemic > spelling
+  azal:
+    name: Azal
+    parent: old-azal
+    rules: "rules/pe-to-azal.bsc#2"
+    orthography: rules/azal-ortho.bsc   # optional: phonemic > spelling
     current: true
 
-  catalan:
-    name: Catalan
-    parent: western-romance
+  wiyan:
+    name: Wiyan
+    parent: proto-echo
     current: true          # no rules yet: forms are copied, with a warning
 ```
+
+`examples/romance/family.yaml` has nine stages on the same pattern: below
+Western Romance, each line has one rules file in three segments.
 
 ### Stages are breakpoints in a rules file
 
@@ -79,43 +81,46 @@ declared as allomorphs (below).
 
 ```yaml
 affixes:
-  ZERO:     { form: "" }      # zero affix
-  O.NOM.SG: { form: "*-us" }
-  O.ACC.SG: { form: "*-um" }
+  DIR.C: { form: "" }         # zero affix
+  GEN:   { form: "*-i" }
+  DAT:   { form: "*-xx" }
 
 paradigms:
-  noun-o:
-    stage: latin              # optional; default: the root stage
+  demonstrative:
+    stage: proto-echo         # optional; default: the root stage
     cells:                    # a list, so the order is kept
-      - NOM.SG: O.NOM.SG
-      - ACC.SG: [O.ACC.SG]    # a cell may stack several affixes
+      - DIR: DIR.C
+      - GEN: GEN
+      - DAT: [DAT]            # a cell may stack several affixes
 ```
 
 A cell is a **template**: affixes in order, with `~` for the base. Without
-a `~` the base comes first, so `[O.ACC.SG]` means `[~, O.ACC.SG]`. A cell
-written as just `~` is the bare base, and a prefix goes before the `~`:
+a `~` the base comes first, so `[GEN]` means `[~, GEN]`. A cell written as
+just `~` is the bare base.
 
 ```yaml
 affixes:
-  RE:      { form: "*re-" }   # a prefix
-  INF.A:   { form: "*-āre" }
-  FUT.1SG: { form: "-ájo", stage: vulgar-latin }
+  SBJ.1S: { form: "*bi-" }    # a prefix
+  PST:    { form: "*-va" }
 
 paradigms:
-  verb-a:
+  verb:
     cells:
-      - STEM: ~
-      - FUT.1SG: [~, INF.A, FUT.1SG]    # cantāre + *ajo > chanterai
-      - ITER.INF: [RE, ~, INF.A]
+      - INF: ~
+      - 1S.PST: [SBJ.1S, ~, PST]
 ```
+
+The Romance future stacks two suffixes, the infinitive and the reduced
+*habeō*: `FUT.1SG: [~, INF.A, FUT.1SG]` (*cantāre* + *\*ajo* >
+*chanterai*).
 
 Affixes take the same fields as entries (§3) and default to the root
 stage. They are items in their own right, so they can have category
 history and notes, which is how you record things like a definite article
 becoming a case ending.
 
-An entry with `paradigm: noun-o` gets one item per cell, named
-`entry.CELL` (e.g. `murus.ACC.SG`). Each cell is built at the paradigm's stage
+An entry with `paradigm: demonstrative` gets one item per cell, named
+`entry.CELL` (e.g. `ir.DIR`). Each cell is built at the paradigm's stage
 (or at the entry's, if that is later) and then evolves on its own.
 
 ### Dimensions
@@ -126,24 +131,24 @@ the members with `.`. The first dimension varies slowest.
 
 ```yaml
 paradigms:
-  adj:
+  noun-v:
     dimensions:
-      - gender: [M: M, F: F]
       - number: [SG: ~, PL: PL]          # ~: the member adds nothing
-    # cells: M.SG, M.PL, F.SG, F.PL (bueno, buenos, buena, buenas)
+      - case: [DIR: DIR.V, GEN: GEN, COM: COM]
+    # cells: SG.DIR, SG.GEN, SG.COM, PL.DIR, PL.GEN, PL.COM
 ```
 
 Each member adds its affixes (one, a list, or none) at its dimension's
 place in the `template`. By default the template is the base followed by
 the dimensions in order. A template names the dimensions, and can also
-hold `~` and fixed affixes; a dimension placed before `~` gives prefixes:
+hold `~` and fixed affixes:
 
 ```yaml
   verb:
     dimensions:
-      - person: [1SG: P.1SG, 3SG: P.3SG]
-      - tense: [PRS: ~, FUT: [INF, FUT]]
-    template: [~, tense, person]         # FUT.1SG is base + INF + FUT + P.1SG
+      - person: [1S: SBJ.1S, 2S: SBJ.2S]
+      - tense: [PRS: ~, PST: PST]
+    template: [person, ~, tense]         # 1S.PST is SBJ.1S + base + PST
 ```
 
 With dimensions, `cells` overrides cells by name, keeping their place, or
@@ -155,14 +160,18 @@ inherited one replaces or adds members. A new dimension is added after the
 inherited ones. Cells and exclusions are added to the inherited ones.
 
 ```yaml
-  adj-c:
-    extends: adj
+  noun-c:
+    extends: noun-v
     dimensions:
-      - gender: [M: ~, F: ~]             # no gender ending (grande)
+      - case: [DIR: ~]                   # no direct -n
     cells:
-      - SG.APOC: [~, APOC]               # gran, before a noun
-    exclude: [F.PL]                      # as the masculine
+      - PL.GEN: [~, PL, GEN.C]
+    exclude: [PL.COM]
 ```
+
+Romance lists its fused Latin endings as cells, but uses `extends` for the
+Western Romance paradigms: `noun-a-wr` extends `noun-a` and changes only
+its nominative plural to *-ās*.
 
 **Loss on one line.** `exclude` removes a cell everywhere. `lost` removes it
 from a stage on, so other lines of descent keep it. Cell names may use `*`,
@@ -260,8 +269,8 @@ combination of the others.
 
 A cell named `CELL~label` is a variant of `CELL`: a second form for the
 same slot, such as an archaic or dialectal one. It is an item of its own
-(`facere.PRS.3SG~apocopated`, OSp *faz* beside *faze*) and evolves
-independently. Its main cell must exist.
+(`ber.NPST.1S~archaic`) and evolves independently. Its main cell must
+exist.
 
 A dimension member can be a variant too. It then gives a variant of every
 cell with the main member:
@@ -269,9 +278,9 @@ cell with the main member:
 ```yaml
   verb:
     dimensions:
-      - tense: [PRS: ~, PRET: PRET, PRET~strong: PRET.S]
-      - person: [1SG: P.1SG, 3SG: P.3SG]
-    # PRS.1SG, PRS.3SG, PRET.1SG, PRET.3SG, PRET.1SG~strong, PRET.3SG~strong
+      - tense: [NPST: NPST, NPST~archaic: NPST.ARCH, PST: PST]
+      - person: [1S: SBJ.1S, 3P: SBJ.3P]
+    # NPST.1S, NPST.3P, NPST.1S~archaic, NPST.3P~archaic, PST.1S, PST.3P
 ```
 
 Variants can also be added through `cells`, in a paradigm or for one entry
@@ -285,16 +294,16 @@ ignored. Set `notation.boundary` in `family.yaml` to pass morpheme
 boundaries to the rules instead:
 
 - Every `-` in a written form becomes the boundary symbol. The affix
-  `*-um` evolves as `+um`, and the bound root `*kant-` as `kant+`, so a
-  rule conditioned on the end of the word (`_ #`) does not reach them.
+  `*-i` evolves as `+i`, and the bound root `*ber-` as `ber+`, so a rule
+  conditioned on the end of the word (`_ #`) does not reach them.
 - When a cell or derivative is built, its parts are joined with exactly one
-  boundary between them, and zero affixes add nothing: `re+`, `kant+` and
-  `+āre` give `re+kant+āre`. The boundaries at the outer edges are dropped,
+  boundary between them, and zero affixes add nothing: `bi+`, `ber+` and
+  `+va` give `bi+ber+va`. The boundaries at the outer edges are dropped,
   unless the result is itself `bound` (§3).
 - The boundaries stay in the forms from stage to stage, so later rules can
-  refer to them: `n / ɲ / _ + j` changes *ten+jo* but not a root's *nj*.
+  refer to them: `r / n / _ + i` changes *kar+i* but not *kari*.
 - Displayed and spelled forms leave out the boundaries inside the word and
-  show those at its edges as hyphens: *rekantāre*, but *kant-* and *-āre*.
+  show those at its edges as hyphens: *mibedva*, but *ber-* and *-va*.
   `trace` and `forms.tsv` show the raw forms. The orthography never sees
   boundaries.
 
@@ -321,14 +330,14 @@ the word rather than the root goes, such as an epenthetic vowel in the bare
 form of a root ending in a cluster:
 
 ```yaml
-- id: ager
-  form: "*agr"          # the root: ager.GEN.SG is *agr-ī
-  paradigm: noun-o-r    # ager.NOM.SG is *agr, and then *ager
+- id: ash
+  form: "*əčw"          # the root: ash.GEN is *əčw-i
+  paradigm: noun-c      # ash.SG.DIR is *əčw, and then *əčəw
 ```
 
 ```
-; rules/latin-morph.bsc
-/ e / C _ r #
+; rules/pe-morph.bsc
+/ ə / C _ w #
 ```
 
 Every form joined from parts goes through the morphophonology of each
@@ -339,8 +348,8 @@ stage it has a form at:
   other items formed at S see them after morphophonology.
 - An item inherited by S goes through S's rules and then S's
   morphophonology. So a stage can have morphophonology of its own for
-  cells built at an earlier stage: the cells of a paradigm built in Latin
-  go through Western Romance's when they reach Western Romance, while the
+  cells built at an earlier stage: the cells of a paradigm built at
+  Proto-Echo go through Old Azal's when they reach Old Azal, while the
   roots they are built from do not.
 - An item rebuilt by `reform` or `repattern` at S is joined from the forms
   entering S, which are those of S's parent, so it goes through the parent's
@@ -463,13 +472,16 @@ by name. A cell gets a different base (suppletion) or stem, different
 affixes, or both, and new names add cells or variants for this entry only:
 
 ```yaml
-- id: ire
-  paradigm: verb-x
+- id: ego
+  paradigm: noun
   cells:
-    PRET.3SG: { base: esse.PRET.3SG }   # suppletive: Spanish fue
-    PRS.1SG: [~, PRS.1SG.VL]            # just a different template
-    PRS.3SG~apocopated: [~, PRS.3SG.APOC]
+    SG.DIR: { base: yen }          # suppletive: built on yen
+    SG.GEN: [~, GEN.IRR]           # just a different template
+    PST.3P~dialectal: [~, PST, 3P.Š]
 ```
+
+In Romance, *ire* takes its preterite from *esse* (Spanish *fue*) with
+`PRET.3SG: { base: esse.PRET.3SG }`.
 
 A suppletive base is a real dependency, so it appears in the cell's
 source and must exist where the cell is formed.
@@ -529,7 +541,7 @@ cited by, over its paradigm's: `cite: ~` cites a verb by its stem.
 **Bound items.** `bound: true` marks an item that is not a word on its own:
 a bound root or stem. Affixes are bound by default. With a boundary symbol
 (§2), it keeps the boundaries at its edges (a written root keeps its `-`;
-one built from parts keeps its outer boundaries), so it is cited as *kant-*. stemma warns about a bound item whose form has no `-`.
+one built from parts keeps its outer boundaries), so it is cited as *ber-*. stemma warns about a bound item whose form has no `-`.
 In Typst, `dictionary(stage, bound: false)` leaves bound entries out;
 entries with a paradigm are always listed.
 
@@ -595,10 +607,10 @@ act on the analogical form, so if you change them, it follows.
 ### `reform`
 
 ```yaml
-- reform: { at: old-french }
+- reform: { at: azal }
 ```
 
-This rebuilds the item from its `source`, using the forms entering old-french,
+This rebuilds the item from its `source`, using the forms entering azal,
 and puts the result through the parent stage's morphophonology (§2). Since
 those are the parent's forms, the allomorphs in force at the parent are
 chosen (§2).
@@ -629,10 +641,10 @@ paradigm, and Typst's `paradigm()` uses the one in force at the stage.
 
 ```yaml
 - loan:
-    at: old-spanish            # replaces the inherited form here
-    from: old-french           # donor stage
+    at: wiyan                  # replaces the inherited form here
+    from: azal                 # donor stage
     id: other-item             # optional; default: the same item
-    adapt: rules/french-into-spanish.bsc   # optional loan phonology
+    adapt: rules/azal-into-wiyan.bsc   # optional loan phonology
 ```
 
 The donor's form is taken from the end of the `from` stage, then run
@@ -655,9 +667,10 @@ redundant.
 ## 5. Fate
 
 ```yaml
-fate:
-  old-french: lost                      # no reflex here or below
-  spanish: { replaced-by: germanus }    # frater, replaced by hermano
+- id: capitia                            # Spanish cabeza
+  fate: { old-french: lost }              # no reflex here or below
+- id: frater
+  fate: { spanish: { replaced-by: germanus } }   # hermano
 ```
 
 Lost words still get would-be reflexes (see `!` in §7).
@@ -770,9 +783,8 @@ forms that have an `expect` or are quoted in notes.
 ## Known limitations
 
 - Without a boundary symbol (§2), bare stems and affixes run through the
-  rules as if they were words, which gives meaningless forms (a bare ending
-  such as *\*-um* stressed and diphthongised as a word). They appear in
-  `forms.tsv`, and in the Typst
+  rules as if they were words, which gives meaningless forms (Azal *heh* for
+  the bare dative *\*-xx*). They appear in `forms.tsv`, and in the Typst
   dictionary only if they are roots or derivatives.
 - When the rules give several outputs, the first one is used to build
   derivatives, and a warning is issued.
