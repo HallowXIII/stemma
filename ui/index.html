@@ -365,7 +365,7 @@ function index(lex) {
   const hay = new Map();
   for (const it of Object.values(lex.items)) {
     const parts = [it.id, it.gloss];
-    for (const r of Object.values(it.reflexes)) parts.push(...(r.forms || []), ...(r.spelled || []));
+    for (const r of Object.values(it.reflexes)) parts.push(...(r.forms || []), ...(r.spelled || []), r.gloss ?? "");
     hay.set(it.id, norm(parts.join(" ")));
   }
   return { stages, depth, children, treeOrder, usedIn, hay };
@@ -417,6 +417,12 @@ function categoryAt(it, s) {
     if (hits.length) return hits[hits.length - 1].is;
   }
   return null;
+}
+
+// The gloss in force at a stage: a reflex has one where it differs from
+// the item's (expandLexicon fills in the rest).
+function glossAt(it, s) {
+  return it.reflexes[s]?.gloss ?? it.gloss ?? null;
 }
 
 // The item an entry is cited by at a stage, as stemma.typ's `entry` gives it:
@@ -551,6 +557,7 @@ function expandLexicon(lex, traces) {
         forms, spelled, regular,
         regular_spelled: r.regular_spelled ?? (lost ? regular : spelled),
         category: r.category ?? null,
+        gloss: r.gloss ?? it.gloss ?? null,
         origin: lost ? null : t.origin ?? "inherited",
         events: t.events ?? [], input: t.input ?? null, trace: t.trace ?? [],
       };
@@ -674,7 +681,7 @@ function renderList(selId) {
     const shown = f != null ? fmt(f, S.stage) : `${fmt(formsAt(id, it.formed), it.formed, "faint")}`;
     return `<a href="${href(id)}" class="${id === selId ? "sel" : ""} ${it.kind === "cell" ? "cell" : ""}">
       <span>${shown}</span><span class="kd">${esc(it.kind === "cell" ? id.slice((it.owner || "").length + 1) : it.kind)}</span>
-      <span class="gl">${esc(it.gloss ?? id)}</span></a>`;
+      <span class="gl">${esc(glossAt(it, S.stage) ?? id)}</span></a>`;
   }).join("");
 }
 
@@ -765,7 +772,7 @@ function reflexTable(id) {
   const stages = IX.treeOrder.filter((s) => it.reflexes[s]);
   const base = IX.depth(it.formed);
   let h = `<div class="card"><table>
-    <tr><th>Stage</th><th>Form</th><th>Phonemic</th><th>Category</th><th>Notes</th></tr>`;
+    <tr><th>Stage</th><th>Form</th><th>Phonemic</th><th>Category, gloss</th><th>Notes</th></tr>`;
   for (const s of stages) {
     const r = it.reflexes[s];
     const key = id + "|" + s;
@@ -782,7 +789,7 @@ function reflexTable(id) {
       <td class="name" style="padding-left:${10 + 16 * (IX.depth(s) - base)}px"><span class="tw">${traced ? "▸" : ""}</span> ${esc(stageName(s))}</td>
       <td>${fmt(formsAt(id, s), s)}</td>
       <td>${r.forms ? `<span class="f ph">/${esc(r.forms.join(" ~ "))}/</span>` : ""}</td>
-      <td>${r.category ? `<span class="sc">${esc(r.category)}</span>` : ""}</td>
+      <td>${r.category ? `<span class="sc">${esc(r.category)}</span>` : ""}${r.gloss && r.gloss !== it.gloss ? ` “${esc(r.gloss)}”` : ""}</td>
       <td>${notes.join(" ")}</td></tr>`;
     if (open && traced) h += `<tr class="trace"><td colspan="5">${traceHtml(r, s)}</td></tr>`;
   }
@@ -864,7 +871,7 @@ function viewDict() {
     const hw = (headAt(it, stage) || []).join(" ~ ") + (it.bound && !it.cells.length ? "-" : "");
     return `<div class="e"><a href="${href(id)}" class="hw f">${esc(hw)}</a>
       ${r.category ? ` <span class="sc">${esc(r.category)}</span>` : ""}
-      ${it.gloss ? ` “${esc(it.gloss)}”` : ""}
+      ${r.gloss ? ` “${esc(r.gloss)}”` : ""}
       ${chain ? ` <span class="ety">&lt; ${chain}</span>` : ""}
       ${it.source ? ` <span class="muted">(${linkSource(it.source)})</span>` : ""}
       ${it.notes?.length ? `<div class="n notes">${renderNotes(it.notes)}</div>` : ""}</div>`;
@@ -920,7 +927,7 @@ function viewShifts(arg) {
       ${found.map((f) => {
         const it = S.lex.items[f.id];
         return `<tr><td><a href="${href(f.id)}">${fmt(formsAt(f.id, it.formed), it.formed)}</a> <span class="faint mono">${esc(f.id)}</span></td>
-        <td class="muted">${esc(it.gloss ?? "")}</td><td>${esc(stageName(f.leaf))}</td>
+        <td class="muted">${esc(glossAt(it, f.leaf) ?? "")}</td><td>${esc(stageName(f.leaf))}</td>
         <td><span class="cat"><span class="tag">${esc(f.a[0])}</span><span class="at">${esc(stageAbbr(f.a[1]))}</span></span></td>
         <td class="faint">›</td>
         <td><span class="cat"><span class="tag">${esc(f.c[0])}</span><span class="at">${esc(stageAbbr(f.c[1]))}</span></span></td></tr>`;
@@ -1641,7 +1648,7 @@ function rulesPanel(file, lines, info, stats, outline, s, e) {
       h += `<p class="muted">Applied ${forms.length} time${forms.length === 1 ? "" : "s"}, to ${new Set(forms.map((x) => x.id + "|" + x.stage)).size} form(s)${oneStage ? ` in ${esc(stageName(forms[0].stage))}` : ""}:</p>
         <div class="card"><table><tr><th>Item</th><th>Before</th><th>After</th></tr>${forms.slice(0, 300).map((x) => {
           const it = src.lex.items[x.id];
-          return `<tr><td>${S.lex.items[x.id] ? `<a href="${href(x.id)}">${esc(x.id)}</a>` : esc(x.id)}${oneStage ? "" : ` <span class="faint">${esc(stageAbbr(x.stage))}</span>`}<div class="faint" style="font-size:12px">${esc(it?.gloss ?? "")}</div></td>
+          return `<tr><td>${S.lex.items[x.id] ? `<a href="${href(x.id)}">${esc(x.id)}</a>` : esc(x.id)}${oneStage ? "" : ` <span class="faint">${esc(stageAbbr(x.stage))}</span>`}<div class="faint" style="font-size:12px">${esc(it?.reflexes?.[x.stage]?.gloss ?? it?.gloss ?? "")}</div></td>
             <td><span class="f ph">${esc(x.before ?? "—")}</span></td>
             <td>${x.after == null ? `<span class="badge lost">deleted</span>` : `<span class="f ph">${esc(x.after)}</span>`}</td></tr>`;
         }).join("")}</table></div>${forms.length > 300 ? `<p class="muted">…and ${forms.length - 300} more</p>` : ""}`;

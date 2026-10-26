@@ -561,6 +561,23 @@ stemma shifts AUX FUT         # forms of habēre that became future endings
 stemma shifts DEM '*'         # everything a demonstrative turned into
 ```
 
+### Gloss history
+
+`gloss` is a string, or, where the meaning changes, a map from stages to
+glosses. At any stage, the gloss in force is the one given at the nearest
+stage on the path back to the root, as for categories:
+
+```yaml
+- id: magis
+  gloss: { latin: "more", old-french: "more; but", french: "but" }
+```
+
+The gloss says what the word means at a stage; how it came to mean that
+belongs in `notes`. A stage with no gloss on its path has none. In
+`lexicon.json`, an item's `gloss` is the one where it is formed, and a
+reflex has its own `gloss` where that differs. Typst's `entry` and
+`dictionary`, and `ui/`, show the gloss of the stage.
+
 ---
 
 ## 4. Events
@@ -750,7 +767,7 @@ applies. A parse error gives `ok: false` with the message, `line` and
 `build` writes to `DIR/build/`:
 
 - `lexicon.json` has every item, and for each stage: the forms, spelled
-  forms, regular forms and category. Notes are pre-resolved into runs.
+  forms, regular forms and category, and the gloss where it changes. Notes are pre-resolved into runs.
   Each stage carries its `rules`, `morphophonology` and `orthography` references as written
   in `family.yaml`. An affix with allomorphs has them as written, under
   `allomorphs`, by stage. An entry with cells has `cite`: the item it is
@@ -768,7 +785,7 @@ applies. A parse error gives `ok: false` with the message, `line` and
 can be inferred. Item fields that are null or empty are omitted, and
 `bound` is written only when true. In a reflex, `spelled` and `regular`
 are omitted when they equal `forms`, and `regular_spelled` when it equals
-`spelled`. A lost reflex has `"lost": true` and no `forms`; its
+`spelled`, and `gloss` when it equals the item's. A lost reflex has `"lost": true` and no `forms`; its
 `regular_spelled` defaults to `regular`. A stage whose reflex is the same
 as at its parent stage is omitted, so the reflex at a stage is the one at
 the nearest stage above it that has one, back to the stage where the item

@@ -19,6 +19,7 @@ module Stemma.Load
   , allomorphItems
   , paradigmAt
   , citedAt
+  , glossAt
   ) where
 
 import Control.Applicative ((<|>))
@@ -70,7 +71,7 @@ data Item = Item
   , itBuild :: Build
   , itBound :: Bool
   -- ^ Not a word on its own: an affix, a bound root or stem.
-  , itGloss :: Maybe Text
+  , itGloss :: Maybe Gloss
   , itCategory :: [CatShift]
   , itNotes :: Maybe Text
   , itEvents :: [Event]
@@ -489,6 +490,7 @@ validate Project {..} = do
           ++ [s | Event {evKind = Loan s _ _} <- itEvents it]
           ++ Map.keys (itFate it) ++ Map.keys (itExpect it)
           ++ map csAt (itCategory it)
+          ++ glossStages (itGloss it)
           ++ [s | BSource (SLoan s _ _) <- [itBuild it]]
       itemRefs it =
         itemDeps it
@@ -674,6 +676,11 @@ paradigmAt :: Project -> Item -> StageId -> Maybe Text
 paradigmAt proj it s =
   listToMaybe [p | d <- ancestorsOrSelf (famStages (prFamily proj)) s, Just p <- [lookup d (itRepatterns it)]]
     <|> itParadigm it
+
+-- | The gloss in force at a stage: the one given at the nearest stage on
+-- the path back to the root.
+glossAt :: Project -> Item -> StageId -> Maybe Text
+glossAt proj it s = itGloss it >>= (`glossIn` ancestorsOrSelf (famStages (prFamily proj)) s)
 
 -- | The item an entry is cited by at a stage, as a headword: the cell its
 -- own @cite@ names, or else the one the paradigm in force there names, or

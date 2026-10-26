@@ -231,6 +231,15 @@ checkInputs = do
   spaced <- buildWith "- id: ka\n  form: \"*ka\"\n  events:\n    - analogy: { at: azal, replace: { a: a i } }\n"
   wide <- buildWith "- id: ka\n  form: \"*ka\"\n  events:\n    - analogy: { at: azal, replace: { ka: x } }\n"
   uncited <- buildWith "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cite: NOPE\n"
+  glossed <- buildWith "- id: ka\n  form: \"*ka\"\n  gloss: { proto: water, azal: river }\n"
+  misglossed <- buildWith "- id: ka\n  form: \"*ka\"\n  gloss: { nowhere: water }\n"
+  glossJson <- withSystemTempDirectory "stemma-gloss" $ \tmp -> case glossed of
+    Left _ -> pure ""
+    Right b -> writeBuild tmp b >> T.filter (/= ' ') <$> TIO.readFile (tmp </> "lexicon.json")
+  let glosses = case glossed of
+        Right b | Just it <- Map.lookup "ka" (prItems (bProject b)) ->
+          [glossAt (bProject b) it s | s <- ["proto", "azal", "wiyan"]]
+        _ -> []
   let failures =
         [ "an id read as a boolean should say so: " <> describe r
         | r <- [onId, onBase], not (failsWith "read as a boolean; quote it" r) ]
@@ -240,6 +249,12 @@ checkInputs = do
              | not (failsWith "is not one grapheme" wide) ]
           ++ [ "a citation naming an unknown cell should be an error: " <> describe uncited
              | not (failsWith "cite names unknown cell NOPE" uncited) ]
+          ++ [ "a gloss should hold from its stage down its own line: " <> T.pack (show glosses)
+             | glosses /= [Just "water", Just "river", Just "water"] ]
+          ++ [ "lexicon.json should give the gloss where it is formed, and a reflex's where it differs"
+             | not (all (`T.isInfixOf` glossJson) ["\"gloss\":\"water\"", "\"gloss\":\"river\""]) ]
+          ++ [ "a gloss at an unknown stage should be an error: " <> describe misglossed
+             | not (failsWith "ka: unknown stage nowhere" misglossed) ]
   forM_ failures $ \f -> TIO.putStrLn ("inputs: " <> f)
   TIO.putStrLn (if null failures then "inputs: misread input is reported" else "inputs: FAILED")
   pure (null failures)

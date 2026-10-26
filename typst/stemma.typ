@@ -59,6 +59,8 @@
       regular: regular,
       regular_spelled: r.at("regular_spelled", default: if lost { regular } else { spelled }),
       category: r.at("category", default: none),
+      // A reflex gives a gloss only where it differs from the item's.
+      gloss: r.at("gloss", default: it.gloss),
     )
   }
 
@@ -129,7 +131,7 @@
     block(breakable: false, {
       strong(form-style(head))
       if r.category != none { [ #h(0.3em) #smallcaps(lower(r.category))] }
-      if it.gloss != none { [ #h(0.3em) "#it.gloss"] }
+      if r.gloss != none { [ #h(0.3em) "#r.gloss"] }
       if chain.len() > 0 { [ #h(0.3em) < #chain.join([ < ])] }
       if it.source != none { [ (#it.source)] }
       if it.notes != none { par(text(size: 0.9em, notes(id))) }

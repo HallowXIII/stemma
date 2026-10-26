@@ -24,6 +24,9 @@ module Stemma.Types
   , Expect (..)
   , Cite (..)
   , citations
+  , Gloss (..)
+  , glossIn
+  , glossStages
   , CatShift (..)
   , parseRulesRef
   , renderRulesRef
@@ -283,7 +286,7 @@ data Entry = Entry
   , enForm :: Maybe Text
   , enSource :: Maybe Source
   , enStage :: Maybe StageId
-  , enGloss :: Maybe Text
+  , enGloss :: Maybe Gloss
   , enCategory :: [CatShift]
   , enParadigm :: Maybe Text
   , enBound :: Maybe Bool
@@ -436,6 +439,30 @@ instance FromJSON Cite where
     where
       cell Null = pure Nothing
       cell v = Just <$> name "cell name" v
+
+-- | What an entry means: one gloss for every stage, or one from each of
+-- some stages on, as for a citation.
+data Gloss = GlossAlways Text | GlossFrom (Map StageId Text)
+  deriving (Show)
+
+-- | The gloss in force at a stage, given the stages on the path back to the
+-- root, nearest first.
+glossIn :: Gloss -> [StageId] -> Maybe Text
+glossIn (GlossAlways g) _ = Just g
+glossIn (GlossFrom m) path = case [g | s <- path, Just g <- [Map.lookup s m]] of
+  g : _ -> Just g
+  [] -> Nothing
+
+-- | The stages a gloss names.
+glossStages :: Maybe Gloss -> [StageId]
+glossStages = \case
+  Just (GlossFrom m) -> Map.keys m
+  _ -> []
+
+instance FromJSON Gloss where
+  parseJSON = \case
+    Object o -> GlossFrom . Map.fromList <$> traverse (\(k, v) -> (Key.toText k,) <$> parseJSON v) (KM.toList o)
+    v -> GlossAlways <$> parseJSON v
 
 data Fate = Lost | ReplacedBy ItemId
   deriving (Show)

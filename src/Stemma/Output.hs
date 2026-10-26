@@ -124,7 +124,7 @@ itemJson b it = do
     [ "kind" .=? Just (kindName (itKind it))
     , "bound" .=? (if itBound it then Just True else Nothing)
     , "owner" .=? itOwner it
-    , "gloss" .=? itGloss it
+    , "gloss" .=? glossAt proj it (itStage it)
     , "formed" .=? Just (itStage it)
     , "source" .=? sourceText proj it
     , "cells" .=? nonEmpty (itCells it)
@@ -192,6 +192,7 @@ itemJson b it = do
         , "regular" .=? (if forms == Nothing then regular else differing forms regular)
         , "regular_spelled" .=? differing (maybe regular Just spelled) regularSpelled
         , "category" .=? categoryAt proj it s
+        , "gloss" .=? differing (glossAt proj it (itStage it)) (glossAt proj it s)
         ]
     fateJson = \case
       Lost -> toJSON ("lost" :: Text)
