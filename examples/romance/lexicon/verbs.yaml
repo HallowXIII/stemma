@@ -34,6 +34,14 @@
     spanish: { INF: amáɾ, PRS.1SG: ámo, PRS.2SG: ámas, PRS.3SG: áma, PRS.1PL: amámos, PRS.2PL: amájs, PRS.3PL: áman, FUT.1SG: amaɾé, FUT.3SG: amaɾá, PRET.3SG: amó, PTCP: amádo }
     old-french: { INF: amer, PRS.1SG: ajm, PRS.2SG: ajməs, PRS.3SG: ajmə, PRS.1PL: amons, PRS.2PL: amets, PRS.3PL: ajmənt, FUT.1SG: aməraj, FUT.3SG: aməra, PRET.3SG: ama, PTCP: ame }
     french: { INF: eme, PRS.1SG: ɛm, PRS.2SG: ɛm, PRS.3SG: ɛm, PRS.1PL: emɔ̃, PRS.2PL: eme, PRS.3PL: ɛm, FUT.1SG: emʁe, FUT.3SG: emʁa, PRET.3SG: ema, PTCP: eme }
+  derivatives:
+    # The participle as a noun, which kept the regular pretonic a of amer
+    # when the verb took aim- in every form.
+    - id: amant
+      source: { base: amare, morph: PTCP.PRS.A }
+      gloss: "lover"
+      category: [{ at: latin, is: ADJ }, { at: old-french, is: "N" }]
+      expect: { old-french: amant, french: amɑ̃, spanish: amánte }
 
 - id: habere
   form: "*hab-"

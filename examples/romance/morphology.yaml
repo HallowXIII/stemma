@@ -64,6 +64,8 @@ affixes:
   PRS.1PL.O: { form: "-ómos", stage: western-romance }
   PRET.3SG.A: { form: "*-āwit" }
   PTCP.A:   { form: "*-ātum" }
+  # the present participle, here only in derivatives (amant)
+  PTCP.PRS.A: { form: "*-antem" }
   # second conjugation
   INF.E:    { form: "*-ēre" }
   PRS.1SG.E: { form: "*-eō" }
