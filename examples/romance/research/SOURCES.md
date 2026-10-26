@@ -32,12 +32,13 @@ handbook pass.
 - **TLFi:** *Trésor de la langue française informatisé.* ATILF (CNRS &
   Université de Lorraine). Online at atilf.fr/tlfi; readable through the
   CNRTL API (`cnrtl.fr/api/word/<form>/…`), which batch 5 used.
+- **Penny, Ralph.** *A History of the Spanish Language.* 2nd ed.
+  Cambridge: Cambridge University Press, 2002. The handbook pass: the
+  Spanish u-perfects (*ove*, *tove*, *pude*). Still to check: Old Spanish
+  /b/ vs /β/, the sibilants, the 2pl *-ades* > *-áis*, the *-go* verbs.
 
 ## Still to consult
 
-- **Penny, Ralph.** *A History of the Spanish Language.* 2nd ed.
-  Cambridge: Cambridge University Press, 2002. Old Spanish /b/ vs /β/, the
-  sibilants, the 2pl *-ades* > *-áis*, the *-go* verbs.
 - **Lloyd, Paul M.** *From Latin to Spanish.* Vol. 1: *Historical
   Phonology and Morphology of the Spanish Language.* Philadelphia:
   American Philosophical Society, 1987 (Memoirs of the APS, 173). The

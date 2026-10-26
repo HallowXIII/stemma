@@ -354,6 +354,13 @@ Found while building the full word list, batch by batch.
     has it influenced by *fui* but not fully explained. `irregular` count:
     31.
 
+    **Spanish strong perfects** (Penny): the *w* of *-uī* moves into the
+    preceding syllable and *aŭ* > *o* (*habuī* > *ove*), as the rules
+    already had it. *tovo* follows the pattern of *ove* rather than
+    *tenuī*; *pudo* takes the *u* of 1sg *pude*, where *ō* was raised by
+    the glide and *-ī* together; Spanish *estuvo* follows *tuve*,
+    *anduve*. All three are analogies now. `irregular` count: 28.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.

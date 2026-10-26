@@ -86,7 +86,8 @@
     - analogy: { at: old-french, cell: PRS.3PL, replace: { á: ó }, model: "sont" }
     # The strong perfect stetit, remade differently on each line
     - irregular: { at: old-spanish, cell: PRET.3SG, form: "estído", reason: "stetit, with the i of 1sg *stiti" }
-    - irregular: { at: spanish, cell: PRET.3SG, form: "estúbo", reason: "after tuvo, anduvo" }
+    # Spanish estuvo, after tuve, anduve (Penny)
+    - analogy: { at: spanish, cell: PRET.3SG, rule: "í d o / ú β o / _ #", model: "tuve, anduve" }
     - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "ɛ́ / í / _ t w", model: "crut, but" }
   expect:
     old-spanish: { INF: estáɾ, PRS.1SG: estó, PRS.2SG: estás, PRS.3SG: está, PRS.1PL: estámos, PRS.2PL: estádes, PRS.3PL: están, FUT.1SG: estaɾé, FUT.3SG: estaɾá, PRET.3SG: estído, PTCP: estádo }
@@ -136,7 +137,8 @@
     PRS.3PL: { at: french, stem: "pœv-", morph: [~, PRS.3PL.E] }
   events:
     - irregular: { at: old-french, cell: PRS.1SG, form: "pyjs", reason: "from *possio" }
-    - irregular: { at: old-spanish, cell: PRET.3SG, form: "púdo", reason: "with the u of 1sg pude, and -o" }
+    # OSp pudo: the u of 1sg pude, where ō was raised by the glide and -ī (Penny)
+    - analogy: { at: old-spanish, cell: PRET.3SG, rule: "ó / ú / # p _", model: "1sg pude" }
     - analogy: { at: french, cell: PRET.3SG, rule: "ɔ t / y t / _ #", model: "mourut, crut" }
     # French peux, after peut
     - analogy: { at: french, cell: PRS.1SG, replace: { y: ø, j: "", s: "" }, model: "peut" }
@@ -161,7 +163,8 @@
   events:
     # Spanish tengo, after digo, fago
     - analogy: { at: old-spanish, cell: PRS.1SG, replace: { j: "", ɲ: n g }, model: "digo" }
-    - irregular: { at: old-spanish, cell: PRET.3SG, form: "tóβo", reason: "after ovo" }
+    # OSp tovo, on the pattern of ove rather than from tenuī (Penny)
+    - analogy: { at: ibero-romance, cell: PRET.3SG, rule: "ɛ́ n w / á b w / # t _", model: "ove" }
     - analogy: { at: spanish, cell: PRET.3SG, replace: { ó: ú }, model: "hube" }
     # OF tint: the i of 1sg tin (teniō, tēnī, with umlaut), and vint (Pope)
     - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "ɛ́ n w e t / í n t / _ #", model: "1sg tin, vint" }
