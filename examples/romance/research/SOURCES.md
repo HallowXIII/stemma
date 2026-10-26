@@ -42,6 +42,10 @@ handbook pass.
   American Philosophical Society, 1987 (Memoirs of the APS, 173). The
   handbook pass: *mn* > *mbr* (*omne*, *nombre*). Still to check: the
   Spanish rule order.
+- **DCECH:** Corominas, Joan, and José A. Pascual. *Diccionario crítico
+  etimológico castellano e hispánico.* 6 vols. Madrid: Gredos,
+  1980–1991. The handbook pass: *no* (s.v. *no*). Still to check: Spanish
+  etyma and first attestations (*perro*, *preste*, *frágil*).
 
 ## Still to consult
 
@@ -61,10 +65,6 @@ handbook pass.
   *l*-vocalisation.
 - **FEW:** Wartburg, Walther von. *Französisches Etymologisches
   Wörterbuch.* 1922–2002. French etyma (*\*allāre*, *\*stēla*, *haut*).
-- **DCECH:** Corominas, Joan, and José A. Pascual. *Diccionario crítico
-  etimológico castellano e hispánico.* 6 vols. Madrid: Gredos,
-  1980–1991. Spanish etyma and first attestations (*perro*, *preste*,
-  *frágil*).
 - **CORDE:** Real Academia Española, *Corpus diacrónico del español*
   (corpus.rae.es). Whether an Old Spanish form is attested c. 1200.
 - **Modern pronunciations:** *Le Petit Robert* for French /e/ against /ɛ/

@@ -381,6 +381,16 @@ Found while building the full word list, batch by batch.
     spelling rather than a sound lag (finding 16). If the build ever gets
     a spelling layer, they would belong there. `irregular` count: 26.
 
+    *no* (DCECH): Old Spanish kept the full *non* but already said *no*
+    at the end of a phrase and before the enclitics, *lo*, *nos*, where
+    the *-n* was lost or assimilated. *no* replaced *non* through the 15th
+    century (the *Corbacho* still has *non*, the *Celestina* hardly), and
+    *non* lived on as an archaism of the romances of chivalry. So Spanish
+    *no* is a sandhi variant generalised, now an analogy. Corominas leaves
+    open whether the word was proclitic in the Middle Ages, as it is in
+    much of America, Catalan and Galician; the build stresses it, as
+    Peninsular Spanish does. `irregular` count: 25.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.

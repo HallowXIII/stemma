@@ -125,7 +125,10 @@
   gloss: "not"
   category: [{ at: latin, is: ADV }]
   events:
-    - irregular: { at: spanish, form: "nó", reason: "proclitic before the verb" }
+    # Spanish no: OSp non lost its n at the end of a phrase and by
+    # assimilation before lo, nos; that no replaced non everywhere by the
+    # late 15th century (DCECH s.v. no; Pidal, Cid)
+    - analogy: { at: spanish, rule: "n / / ó _ #", model: "sandhi no, generalised" }
   expect:
     old-spanish: nón
     spanish: nó
