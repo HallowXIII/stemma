@@ -609,7 +609,9 @@
     # French sais (1sg), on sais (2sg)
     PRS.1SG: { at: french, base: sapere.PRS.2SG, morph: ~ }
   events:
-    - irregular: { at: old-spanish, cell: PRS.1SG, form: "sé", reason: "*sapiō > *saipo" }
+    # OSp sé, after he (< habeō): saber and haber share much of their
+    # morphology (Penny; Pidal)
+    - analogy: { at: ibero-romance, cell: PRS.1SG, rule: "á p j o / é / _ #", model: "he" }
     - irregular: { at: old-french, cell: PRS.1SG, form: "saj", reason: "*sapiō > *saipo" }
     - analogy: { at: spanish, cell: PRET.3SG, rule: "ó / ú / _", model: "hube" }
     - analogy: { at: french, cell: PRET.3SG, rule: "ɔ t / y t / _ #", model: "mourut, crut" }

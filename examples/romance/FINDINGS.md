@@ -367,6 +367,11 @@ Found while building the full word list, batch by batch.
     1sg *\*estide*, raised by *-ī*: *-er* verbs allow high root vowels as
     *-ir* verbs do. An analogy now. `irregular` count: 27.
 
+    *sé* (Penny, as Pidal): after *he* < *habeō*, since *saber* and
+    *haber* share much of their morphology; *sapiō* would give *\*sepo*.
+    The analogy is at Ibero-Romance, where *he* already stands. OF *sai*
+    keeps its *\*sapiō* > *\*saipo* `irregular`. `irregular` count: 26.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
