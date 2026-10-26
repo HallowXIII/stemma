@@ -78,6 +78,7 @@
     # OSp estido, from *stetut with the weak ending (Penny); OF estut, from
     # the u-perfect *stetuit, remade after crut (open ę does not rise)
     PRET.3SG:
+      - { stem: "*stet-", morph: [~, PRET.3SG.S] }
       - { at: vulgar-latin, stem: "*stet-", morph: [~, PRET.3SG.UT] }
       - { at: gallo-romance, stem: "estɛ́tw-", morph: [~, PRET.3SG.S] }
   events:
