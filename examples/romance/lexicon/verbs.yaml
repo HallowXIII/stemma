@@ -163,7 +163,8 @@
     - analogy: { at: old-spanish, cell: PRS.1SG, replace: { j: "", ɲ: n g }, model: "digo" }
     - irregular: { at: old-spanish, cell: PRET.3SG, form: "tóβo", reason: "after ovo" }
     - analogy: { at: spanish, cell: PRET.3SG, replace: { ó: ú }, model: "hube" }
-    - irregular: { at: old-french, cell: PRET.3SG, form: "tint", reason: "after vint" }
+    # OF tint: the i of 1sg tin (teniō, tēnī, with umlaut), and vint (Pope)
+    - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "ɛ́ n w e t / í n t / _ #", model: "1sg tin, vint" }
   expect:
     old-spanish: { INF: tenéɾ, PRS.1SG: téngo, PRS.2SG: tjénes, PRS.3SG: tjéne, PRS.1PL: tenémos, PRS.2PL: tenédes, PRS.3PL: tjénen, FUT.1SG: teɾné, FUT.3SG: teɾná, PRET.3SG: tóβo, PTCP: tenído }
     spanish: { INF: tenéɾ, PRS.1SG: téngo, PRS.2SG: tjénes, PRS.3SG: tjéne, PRS.1PL: tenémos, PRS.2PL: tenéjs, PRS.3PL: tjénen, FUT.1SG: tendɾé, FUT.3SG: tendɾá, PRET.3SG: túbo, PTCP: tenído }
@@ -238,10 +239,9 @@
     - irregular: { at: old-spanish, cell: PRS.2PL, form: "fétʃes", reason: "reduced, after fecho" }
     # fizo, fist: the i of 1sg fēcī
     - analogy: { at: old-spanish, cell: PRET.3SG, replace: { é: í }, model: "1sg fize" }
-    - irregular: { at: old-french, cell: PRET.3SG, form: "fist", reason: "the i of 1sg fis, s after dist, mist" }
+    # OF fist: the i of 1sg fis (fēcī, with umlaut), s after dist, mist (Pope)
+    - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "é dz / í s / _", model: "1sg fis" }
     - irregular: { at: old-french, cell: PRS.1SG, form: "fats", reason: "faciō, with ts as kj gives" }
-    - irregular: { at: old-french, cell: PRS.1PL, form: "fajməs", reason: "the old -mes of facimus (somes)" }
-    - irregular: { at: old-french, cell: PRS.2PL, form: "fajtəs", reason: "syncopated facitis" }
     - irregular: { at: old-french, cell: PRS.3PL, form: "font", reason: "after sont, vont" }
   expect:
     old-spanish: { INF: fadzéɾ, PRS.1SG: fágo, PRS.2SG: fádzes, PRS.3SG: fádze, PRS.1PL: fémos, PRS.2PL: fétʃes, PRS.3PL: fádzen, FUT.1SG: faɾé, FUT.3SG: faɾá, PRET.3SG: fídzo, PTCP: fétʃo }
@@ -270,8 +270,6 @@
     # the reduced future of Vulgar Latin *dire
     - analogy: { at: ibero-romance, cell: FUT.1SG, replace: { dz: "", e: "" }, model: "VL *dire" }
     - analogy: { at: ibero-romance, cell: FUT.3SG, replace: { dz: "", e: "" }, model: "VL *dire" }
-    - irregular: { at: old-french, cell: PRS.1PL, form: "diməs", reason: "the old -mes of dīcimus (somes)" }
-    - irregular: { at: old-french, cell: PRS.2PL, form: "ditəs", reason: "syncopated dīcitis" }
   expect:
     old-spanish: { INF: dedzíɾ, PRS.1SG: dígo, PRS.2SG: dídzes, PRS.3SG: dídze, PRS.1PL: dedzímos, PRS.2PL: dedzídes, PRS.3PL: dídzen, FUT.1SG: diɾé, FUT.3SG: diɾá, PRET.3SG: díʃo, PTCP: dítʃo }
     spanish: { INF: deθíɾ, PRS.1SG: dígo, PRS.2SG: díθes, PRS.3SG: díθe, PRS.1PL: deθímos, PRS.2PL: deθís, PRS.3PL: díθen, FUT.1SG: diɾé, FUT.3SG: diɾá, PRET.3SG: díxo, PTCP: dítʃo }

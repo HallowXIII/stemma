@@ -429,14 +429,19 @@ paradigms:
       - analogy: { at: spanish, cell: PRS.2PL, rule: "í d e s / í s / _ #", model: "the 2pl" }
     cells:
       - INF: [INF.C, { at: ibero-romance, morph: [~, INF.I] }]
-      - PRS.1PL: [PRS.1PL.C, { at: gallo-romance, morph: [~, PRS.1PL.O] }, { at: ibero-romance, morph: [~, PRS.1PL.I] }]
-      - PRS.2PL: [PRS.2PL.C, { at: gallo-romance, morph: [~, PRS.2PL.A] }, { at: ibero-romance, morph: [~, PRS.2PL.I] }]
+      # OF dimes, dites keep the Latin endings, as in verb-c-s
+      - PRS.1PL: [PRS.1PL.C, { at: ibero-romance, morph: [~, PRS.1PL.I] }]
+      - PRS.2PL: [PRS.2PL.C, { at: ibero-romance, morph: [~, PRS.2PL.I] }]
 
   # Third-conjugation verbs with a strong perfect and participle (fizo,
   # hecho), kept in Spanish.
   verb-c-s:
     extends: verb-c
     cells:
+      # OF faimes, faites, dimes, dites: the regular reflexes of facimus,
+      # dicimus, -itis, last survivors before -ons and -ez spread (Pope)
+      - PRS.1PL: [PRS.1PL.C, { at: ibero-romance, morph: [~, PRS.1PL.E] }]
+      - PRS.2PL: [PRS.2PL.C, { at: ibero-romance, morph: [~, PRS.2PL.E] }]
       - PRET.3SG: PRET.3SG.S
       - PTCP: PTCP.S
 

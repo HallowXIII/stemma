@@ -339,6 +339,14 @@ Found while building the full word list, batch by batch.
     vowel, and Pope's paradigm has none for it where the other u-perfects
     have one. `irregular` count: 40.
 
+    **Handbook pass, the allegro forms** (Pope): OF *faimes*, *dimes*,
+    *faites*, *dites* are the regular reflexes of *facimus*, *dicimus*,
+    *-itis*, the last survivors before *-ons* (from *sons* < *sumus*) and
+    *-ez* spread; those two verbs now keep their Latin 1pl and 2pl in
+    Gallo-Romance. *fist* and *tint* take the vowel of the 1sg, which has
+    umlaut (*fēcī* > *fis*; *teneō* > *teniō*, *tēnī* > *tin*): analogies
+    now. `irregular` count: 34.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
