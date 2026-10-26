@@ -3,7 +3,8 @@
 These fix the dates, the notation and the format of the attested data, so
 that forms researched separately can be compared, and so that the rules
 have one target. They follow the choices made in the spike
-(`research/pilot-notes.md`).
+(`research/pilot-notes.md`). The handbooks and reference works are listed in
+`research/SOURCES.md`.
 
 ## Stages and dates
 
