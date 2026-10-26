@@ -1,5 +1,5 @@
--- | Build the Echo example and check it reproduces the forms in the Azal
--- grammar (recorded as `expect` in the lexicon), then do the same for the
+-- | Build the Romance example and check it reproduces the attested forms
+-- (recorded as `expect` in the lexicon), then do the same for the
 -- fixtures, which each test one feature.
 module Main (main) where
 
@@ -24,7 +24,7 @@ import Stemma.View
 import Server.StageRules (addStageRules)
 
 projects :: [FilePath]
-projects = ["examples/echo", "examples/romance", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs", "test/fixtures/becomes"]
+projects = ["examples/romance","test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs", "test/fixtures/becomes"]
 
 main :: IO ()
 main = do
@@ -40,15 +40,15 @@ main = do
 checkTypst :: IO Bool
 checkTypst = do
   source <- B.readFile "typst/stemma.typ"
-  proj <- loadProject "examples/echo"
-  let dict = either (const "") (\p -> dictionaryTyp p "azal" "build/lexicon.json") proj
+  proj <- loadProject "examples/romance"
+  let dict = either (const "") (\p -> dictionaryTyp p "old-french" "build/lexicon.json") proj
       failures =
         [ "the embedded stemma.typ should be typst/stemma.typ" | not (source `B.isSuffixOf` stemmaTyp) ]
           ++ [ "the dictionary should read the given lexicon and list the stage"
-             | not (all (`T.isInfixOf` dict) ["json(\"build/lexicon.json\")", "#heading(\"Azal\")", "#dictionary(\"azal\")"]) ]
+             | not (all (`T.isInfixOf` dict) ["json(\"build/lexicon.json\")", "#heading(\"Old French\")", "#dictionary(\"old-french\")"]) ]
           ++ [ "relative paths should go up where needed: " <> T.pack (show paths)
-             | let paths = [relativePath "/p/docs" "/p/echo/build/lexicon.json", relativePath "/p/echo" "/p/echo/build/lexicon.json"]
-             , paths /= ["../echo/build/lexicon.json", "build/lexicon.json"] ]
+             | let paths = [relativePath "/p/docs" "/p/romance/build/lexicon.json", relativePath "/p/romance" "/p/romance/build/lexicon.json"]
+             , paths /= ["../romance/build/lexicon.json", "build/lexicon.json"] ]
   forM_ failures $ \f -> TIO.putStrLn ("typst: " <> f)
   TIO.putStrLn (if null failures then "typst: stemma.typ embedded, dictionary written" else "typst: FAILED")
   pure (null failures)
@@ -58,17 +58,17 @@ checkTypst = do
 -- deleted.
 checkOverlay :: IO Bool
 checkOverlay = withSystemTempDirectory "stemma-test" $ \tmp -> do
-  src <- readSources "examples/echo"
+  src <- readSources "examples/romance"
   forM_ (Map.toList (srcFiles src)) $ \(f, b) -> do
     createDirectoryIfMissing True (takeDirectory (tmp </> f))
     B.writeFile (tmp </> f) b
-  let rules = "rules/pe-to-azal.bsc"
+  let rules = "rules/wr-to-french.bsc"
       edited = maybe "" (<> "\na / o\n") (sourceFile rules src)
   B.writeFile (tmp </> rules) edited
-  original <- forms =<< loadProject "examples/echo"
+  original <- forms =<< loadProject "examples/romance"
   onDisk <- forms =<< loadProject tmp
-  inMemory <- forms =<< loadProjectWith (overlay (Map.singleton rules edited) []) "examples/echo"
-  deleted <- forms =<< loadProjectWith (overlay Map.empty [rules]) "examples/echo"
+  inMemory <- forms =<< loadProjectWith (overlay (Map.singleton rules edited) []) "examples/romance"
+  deleted <- forms =<< loadProjectWith (overlay Map.empty [rules]) "examples/romance"
   let failures =
         [ "the edit should change some forms" | onDisk == original ]
           ++ [ "an overlaid edit should build like the same edit on disk" | inMemory /= onDisk ]
@@ -108,15 +108,14 @@ checkStageRules = do
       , ("proto", "name: Test\n", Left "family.yaml has no top-level stages: block")
       ]
 
--- | Expectations must all hold. Warnings fail a fixture, but not the
--- example, whose Wiyan stage has no rules yet.
+-- | Expectations must all hold, and warnings fail a project.
 check :: FilePath -> IO Bool
 check dir = do
   proj <- loadProject dir >>= either die' pure
   built <- build brassicaEngine proj >>= either die' pure
   _ <- writeBuild (dir <> "/build") built >>= either die' pure
   let failed = checkExpectations built
-      warned = if dir == "examples/echo" then [] else bWarnings built
+      warned = bWarnings built
       views = viewFailures dir built
   forM_ failed $ \f -> TIO.putStrLn (T.pack dir <> ": " <> f)
   forM_ warned $ \w -> TIO.putStrLn (T.pack dir <> ": warning: " <> w)
