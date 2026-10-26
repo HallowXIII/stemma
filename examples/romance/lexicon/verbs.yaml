@@ -330,10 +330,11 @@
     - analogy: { at: spanish, cell: PTCP, replace: { e: "" }, model: "ser" }
     # Spanish ser, from seer
     - analogy: { at: spanish, cell: INF, rule: "e é / é / _", model: "contraction in a short verb" }
-    - irregular: { at: old-french, cell: PRS.1SG, form: "syj", reason: "Vulgar Latin *suī" }
-    - irregular: { at: old-french, cell: PRS.1PL, form: "soməs", reason: "sumus, with the -es of estes" }
-    - irregular: { at: old-french, cell: PRS.2PL, form: "ɛstəs", reason: "estis, with a supporting -e" }
-    - irregular: { at: french, cell: PRS.2SG, form: "ɛ", reason: "es, after est" }
+    - irregular: { at: old-french, cell: PRS.1SG, form: "syj", reason: "influenced by fui, not fully explained (Pope)" }
+    # OF somes, the alternative form beside the regular sons (Pope)
+    - analogy: { at: old-french, cell: PRS.1PL, rule: "o / ə / m _ s #", model: "faimes, dimes" }
+    # French es continues the unstressed OF ẹs, not ies (Pope)
+    - analogy: { at: french, cell: PRS.2SG, rule: "j e / ɛ / # _", model: "the unstressed form" }
   expect:
     old-spanish: { INF: seéɾ, PRS.1SG: só, PRS.2SG: éɾes, PRS.3SG: és, PRS.1PL: sómos, PRS.2PL: sódes, PRS.3PL: són, FUT.1SG: seɾé, FUT.3SG: seɾá, PRET.3SG: fwé, PTCP: seído }
     spanish: { INF: séɾ, PRS.1SG: sój, PRS.2SG: éɾes, PRS.3SG: és, PRS.1PL: sómos, PRS.2PL: sójs, PRS.3PL: són, FUT.1SG: seɾé, FUT.3SG: seɾá, PRET.3SG: fwé, PTCP: sído }

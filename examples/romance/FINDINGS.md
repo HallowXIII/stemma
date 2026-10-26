@@ -347,6 +347,13 @@ Found while building the full word list, batch by batch.
     umlaut (*fēcī* > *fis*; *teneō* > *teniō*, *tēnī* > *tin*): analogies
     now. `irregular` count: 34.
 
+    *esse* (Pope): *sumus* gives the regular *sons*, the source of *-ons*;
+    *somes* is the alternative form, like *faimes*, and French settled on
+    *-ons* but *sommes*. *estes* is regular, as *faites*, *dites*. French
+    *es* continues the unstressed OF *ẹs*. *sui* stays `irregular`: Pope
+    has it influenced by *fui* but not fully explained. `irregular` count:
+    31.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
