@@ -427,11 +427,14 @@ Found while building the full word list, batch by batch.
       stress alone does not give them.
     - *fils*: its *l* is only written, and *fiz* gives *fi* regularly.
       The /s/ is a spelling pronunciation.
-    - *vois*, *vais* (*vādō*, VL *\*vao*): *-s* is a later addition, but
-      the rules give *va*. Pope's *\*vei* > *voi* is *videō* (*veoir*),
-      which the build already gives as *voj*.
+    - *vois* (*vādō*, VL *\*vao*): irregular in Pope too, who supposes a
+      form in *-sjo* like *\*possjo*. French *vais* is now an analogy: OF
+      *vǫis* > *vwęs* > *vę* (Pope) takes the *ę* outcome of *oi*, as
+      *-ais* and *français* do, where the rules give *wa*. Which words
+      took *ę* is a lexical split, so it is one word's analogy, not a
+      rule. (Pope's *\*vei* > *voi* is *videō*, which the build gives.)
 
-    `irregular` count: 17.
+    `irregular` count: 16.
 
 ## Data
 

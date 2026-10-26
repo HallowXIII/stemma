@@ -379,8 +379,10 @@
   events:
     - analogy: { at: spanish, cell: PRS.1SG, replace: { ó: ó j }, model: "soy" }
     - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á n t / áu n t / _ #", model: "sunt" }
-    - irregular: { at: old-french, cell: PRS.1SG, form: "vojs", reason: "vādō, VL *vao; -s added later (Pope)" }
-    - irregular: { at: french, cell: PRS.1SG, form: "vɛ", reason: "vais continues OF vai, beside vois" }
+    - irregular: { at: old-french, cell: PRS.1SG, form: "vojs", reason: "for *vao; Pope too, who supposes a form in *-sjo" }
+    # French vais: oi > wę > ę, the outcome of -ais and français rather than
+    # wa (Pope: vǫis > vwęs > vę)
+    - analogy: { at: french, cell: PRS.1SG, rule: "o j / ɛ / # v _ s #", model: "the ę of -ais, français" }
   expect:
     old-spanish: { INF: íɾ, PRS.1SG: βó, PRS.2SG: βás, PRS.3SG: βá, PRS.1PL: ímos, PRS.2PL: ídes, PRS.3PL: βán, FUT.1SG: iɾé, FUT.3SG: iɾá, PRET.3SG: fwé, PTCP: ído }
     spanish: { INF: íɾ, PRS.1SG: bój, PRS.2SG: bás, PRS.3SG: bá, PRS.1PL: bámos, PRS.2PL: bájs, PRS.3PL: bán, FUT.1SG: iɾé, FUT.3SG: iɾá, PRET.3SG: fwé, PTCP: ído }
