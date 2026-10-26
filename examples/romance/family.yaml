@@ -1,5 +1,5 @@
-# SPIKE: a few words from Latin to Spanish and French, to find out what
-# stemma needs before the Romance example can replace Echo. See FINDINGS.md.
+# Latin to Spanish and French, through Western Romance: about a hundred
+# words, checked against attested.tsv. See README.md.
 name: Romance
 
 notation:

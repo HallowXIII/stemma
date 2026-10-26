@@ -12,8 +12,10 @@ have one target. The handbooks and reference works are listed in
 | `latin` | Classical Latin, with vowel length | |
 | `vulgar-latin` | spoken Latin; not attested, no expectations | |
 | `western-romance` | reconstructed; no expectations | |
+| `ibero-romance` | reconstructed, to *pl-*, *kl-* > *ʎ-*; no expectations | |
 | `old-spanish` | Castilian, as in the *Cantar de mio Cid* | c. 1200 |
 | `spanish` | peninsular standard | today |
+| `gallo-romance` | reconstructed, to the voicing of *p t k*; no expectations | |
 | `old-french` | Francien | c. 1150 |
 | `french` | standard | today |
 

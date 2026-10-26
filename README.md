@@ -28,7 +28,7 @@ of what changed.
    idiosyncratic to structure. Changes of part of speech or grammatical
    function (N.ADESS > POSTP, DEF > SG) are structured, so you can query
    grammaticalisation paths.
-5. **Prose quotes forms by reference.** `{ir.DIR @ azal}` in a note is
+5. **Prose quotes forms by reference.** `{homo.ACC.SG @ old-spanish}` in a note is
    rendered with whatever the current rules produce.
 
 ## Layout of a project
@@ -44,16 +44,16 @@ rules/*.bsc          Brassica sound changes; `report` marks stage breaks
 
 ```sh
 nix develop                                  # GHC, cabal, HLS; Brassica pinned
-cabal run stemma -- -d examples/echo build   # compute; prints what changed
-cabal run stemma -- -d examples/echo paradigm ir azal
-cabal run stemma -- -d examples/echo history ir.DIR azal
-cabal run stemma -- -d examples/echo trace ir.DIR
-cabal run stemma -- -d examples/echo trace ir.DIR azal
-cabal run stemma -- -d examples/echo shifts '*' '*'
-cabal test                                   # the Echo example must reproduce the grammar
+cabal run stemma -- -d examples/romance build      # compute; prints what changed
+cabal run stemma -- -d examples/romance paradigm facere old-french
+cabal run stemma -- -d examples/romance history homo.ACC.SG spanish
+cabal run stemma -- -d examples/romance trace homo.ACC.SG
+cabal run stemma -- -d examples/romance trace homo.ACC.SG spanish
+cabal run stemma -- -d examples/romance shifts '*' '*'
+cabal test                                        # the example must reproduce its attested forms
 ```
 
-Or use `nix build` to get `result/bin/stemma`, or `nix run . -- -d examples/echo build`.
+Or use `nix build` to get `result/bin/stemma`, or `nix run . -- -d examples/romance build`.
 
 To install it, use `nix profile add github:HallowXIII/stemma` (`.` from a
 clone; `nix profile install` on Nix older than 2.26), or add it to a NixOS
@@ -73,9 +73,9 @@ The installed package holds only the executables (`stemma` and
 To browse a build, run the UI server that comes with stemma:
 
 ```sh
-stemma-server -d examples/echo                # http://127.0.0.1:8737
-cabal run stemma-server -- -d examples/echo   # from a checkout
-nix run .#server -- -d examples/echo
+stemma-server -d examples/romance                # http://127.0.0.1:8737
+cabal run stemma-server -- -d examples/romance   # from a checkout
+nix run .#server -- -d examples/romance
 ```
 
 It shows each entry's reflexes at every stage, with the rule-by-rule trace
@@ -129,20 +129,20 @@ In Typst, `stemma typst` writes `stemma.typ` next to the project, and
 `--stage` adds a document with that stage's dictionary to start from:
 
 ```sh
-stemma -d examples/echo build
-stemma -d examples/echo typst --stage azal   # stemma.typ, dictionary-azal.typ
-typst compile examples/echo/dictionary-azal.typ
+stemma -d examples/romance build
+stemma -d examples/romance typst --stage old-french   # stemma.typ, dictionary-old-french.typ
+typst compile examples/romance/dictionary-old-french.typ
 ```
 
 ```typst
 #import "stemma.typ": stemma
 #let (reflex, notes, entry, dictionary) = stemma(json("build/lexicon.json"))
-The direct form is #reflex("ir.DIR", "azal").
+Latin _hominem_ gives Old Spanish #reflex("homo.ACC.SG", "old-spanish").
 ```
 
-See [`docs/schema.md`](docs/schema.md) for the format,
-[`examples/echo/`](examples/echo/) for a worked example, and
-`examples/echo/dictionary.typ` for the Typst side.
+See [`docs/schema.md`](docs/schema.md) for the format, and
+[`examples/romance/`](examples/romance/) for a worked example: Latin to
+Spanish and French, about a hundred words checked against attested forms.
 
 ## Engines
 

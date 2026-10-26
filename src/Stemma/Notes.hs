@@ -1,10 +1,10 @@
 -- | Resolving form references in prose notes.
 --
--- > {ir}              the form where the item was formed (starred if proto)
--- > {ir @ azal}       the Azal reflex, spelled
--- > {ir.GEN @ azal}   a paradigm cell
--- > {ir @ azal /}     phonemic rather than spelled
--- > {ir @ azal !}     the regularly expected form, ignoring all events
+-- > {magis}                     the form where the item was formed (starred if proto)
+-- > {magis @ spanish}           the Spanish reflex, spelled
+-- > {homo.ACC.SG @ old-spanish} a paradigm cell
+-- > {magis @ spanish /}         phonemic rather than spelled
+-- > {magis @ spanish !}         the regularly expected form, ignoring all events
 --
 -- Write @{{@ for a literal brace.
 module Stemma.Notes

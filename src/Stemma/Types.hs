@@ -49,7 +49,7 @@ type ItemId = Text
 
 -- | A rules file, optionally restricted to one segment. Segments are the
 -- stretches between Brassica @report@ statements, numbered from 1:
--- @rules/azal.bsc#2@ is everything between the first and second @report@.
+-- @rules/wr-to-french.bsc#2@ is everything between the first and second @report@.
 data RulesRef = RulesRef
   { rrFile :: FilePath
   , rrSegment :: Maybe Int

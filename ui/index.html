@@ -600,7 +600,7 @@ function showDrop(msg) {
     <h2>Open a stemma build</h2>
     <p class="muted">${esc(msg || "Drop a build/lexicon.json here, or choose one.")}</p>
     <p><button class="primary" onclick="document.getElementById('file').click()">Choose lexicon.json…</button></p>
-    <p class="muted" style="font-size:13px">For live rebuilds, run<br><code>stemma-server -d examples/echo</code></p>
+    <p class="muted" style="font-size:13px">For live rebuilds, run<br><code>stemma-server -d examples/romance</code></p>
   </div></div>`;
   $("#controls").hidden = !S.live;
 }
@@ -2476,7 +2476,7 @@ async function runChangeset(apply) {
 
 // Lines that differ between two texts, as - and + lines with a little
 // context. A patience diff: lines that occur once in each text anchor the
-// alignment, so repeated lines (parent: proto-echo) don't pair up wrongly.
+// alignment, so repeated lines (parent: western-romance) don't pair up wrongly.
 function diffOps(x, y) {
   let p = 0;
   while (p < x.length && p < y.length && x[p] === y[p]) p++;
