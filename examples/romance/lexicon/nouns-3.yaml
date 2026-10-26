@@ -18,9 +18,11 @@
     # uemne and OF huem: the word was often unstressed.
     - analogy: { at: ibero-romance, replace: { ɔ́: ó }, model: "unstressed use" }
     - analogy: { at: old-french, replace: { ɔ́: ɔ }, model: "unstressed use" }
-    # omne kept while mn > mbr spread (nombre already by 1200)
-    - irregular: { at: old-spanish, cell: ACC.SG, form: "ómne", reason: "conservative, beside nombre" }
-    - irregular: { at: old-spanish, cell: ACC.PL, form: "ómnes", reason: "conservative, beside nombres" }
+    # omne beside nombre (both by 1200), though mn > mbr is one change
+    # (Lloyd): probably the old spelling of a frequent word, often
+    # abbreviated ome with a tilde, rather than a later sound change
+    - irregular: { at: old-spanish, cell: ACC.SG, form: "ómne", reason: "conservative spelling, beside nombre" }
+    - irregular: { at: old-spanish, cell: ACC.PL, form: "ómnes", reason: "conservative spelling, beside nombres" }
   expect:
     old-spanish: { ACC.SG: ómne, ACC.PL: ómnes }
     spanish: { ACC.SG: ómbɾe, ACC.PL: ómbɾes }

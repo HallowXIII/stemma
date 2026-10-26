@@ -372,6 +372,15 @@ Found while building the full word list, batch by batch.
     The analogy is at Ibero-Romance, where *he* already stands. OF *sai*
     keeps its *\*sapiō* > *\*saipo* `irregular`. `irregular` count: 26.
 
+    *omne* (Lloyd): the nasals of syncopated *hómine*, *nómine* stay
+    apart, unlike Latin *mn* > *nn*; Castile then dissimilates *n* to *r*
+    and inserts *b*, as the rules do. Lloyd gives no reason why *nombre*
+    came before *ombre*. The likeliest one is spelling: *omne*, often
+    abbreviated *ome* with a tilde, may be the old written form of a
+    frequent word. So the two `irregular`s stay, now as a conservative
+    spelling rather than a sound lag (finding 16). If the build ever gets
+    a spelling layer, they would belong there. `irregular` count: 26.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.

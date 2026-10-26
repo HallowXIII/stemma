@@ -37,14 +37,14 @@ handbook pass.
   Spanish u-perfects (*ove*, *tove*, *pude*) and *estido* (*\*stetut*).
   Still to check: Old Spanish /b/ vs /β/, the sibilants, the 2pl *-ades* >
   *-áis*, the *-go* verbs.
-
-## Still to consult
-
 - **Lloyd, Paul M.** *From Latin to Spanish.* Vol. 1: *Historical
   Phonology and Morphology of the Spanish Language.* Philadelphia:
   American Philosophical Society, 1987 (Memoirs of the APS, 173). The
-  Spanish rule order; *mn* > *mbr*; the strong perfects (*tovo*, *pudo*,
-  *estido*).
+  handbook pass: *mn* > *mbr* (*omne*, *nombre*). Still to check: the
+  Spanish rule order.
+
+## Still to consult
+
 - **Buridant, Claude.** *Grammaire nouvelle de l'ancien français.* Paris:
   SEDES, 2000; revised as *Grammaire du français médiéval (XIe–XIVe
   siècles)*, Strasbourg: ÉLiPhi, 2019. The Old French verb: the allegro
