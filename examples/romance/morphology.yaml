@@ -95,6 +95,9 @@ affixes:
   # stress on the ending (*morūit > OF morut), which kept its u
   PRET.3SG.U: { form: "*-uit" }
   PRET.3SG.UU: { form: "*-ūit" }
+  # -ut, the ending of the weak perfect *-aut carried to strong ones, whence
+  # OSp -o in the third person (*stetut > estido; Penny)
+  PRET.3SG.UT: { form: "*-ut" }
   # Vulgar Latin participles in -ūtum (OF venu, eu)
   PTCP.U:   { form: "*-ūtum" }
   # strong participles, on a stem of their own (fact-um)

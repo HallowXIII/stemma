@@ -361,6 +361,12 @@ Found while building the full word list, batch by batch.
     the glide and *-ī* together; Spanish *estuvo* follows *tuve*,
     *anduve*. All three are analogies now. `irregular` count: 28.
 
+    *estido* (Penny): the third-person *-o* of strong perfects was taken
+    from the weak *-aut* (*\*dīxut*), which set 3sg apart from 1sg; hence
+    *\*stetut*, a Vulgar Latin re-forming of the cell. Its *i* is that of
+    1sg *\*estide*, raised by *-ī*: *-er* verbs allow high root vowels as
+    *-ir* verbs do. An analogy now. `irregular` count: 27.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.

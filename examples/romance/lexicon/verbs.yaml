@@ -75,9 +75,11 @@
   paradigm: verb-a
   fate: { french: lost }
   cells:
-    # OF estut, from the u-perfect *stetuit, remade after crut (open ę
-    # does not rise)
-    PRET.3SG: { at: gallo-romance, stem: "estɛ́tw-", morph: [~, PRET.3SG.S] }
+    # OSp estido, from *stetut with the weak ending (Penny); OF estut, from
+    # the u-perfect *stetuit, remade after crut (open ę does not rise)
+    PRET.3SG:
+      - { at: vulgar-latin, stem: "*stet-", morph: [~, PRET.3SG.UT] }
+      - { at: gallo-romance, stem: "estɛ́tw-", morph: [~, PRET.3SG.S] }
   events:
     # Spanish estoy, after soy, doy, voy
     - analogy: { at: spanish, cell: PRS.1SG, replace: { ó: ó j }, model: "soy" }
@@ -85,7 +87,9 @@
     - analogy: { at: old-french, cell: PRS.1SG, replace: { ó: ó j s }, model: "vois" }
     - analogy: { at: old-french, cell: PRS.3PL, replace: { á: ó }, model: "sont" }
     # The strong perfect stetit, remade differently on each line
-    - irregular: { at: old-spanish, cell: PRET.3SG, form: "estído", reason: "stetit, with the i of 1sg *stiti" }
+    # OSp estido: the i of 1sg *stetī, raised by -ī, as -er and -ir verbs
+    # alike allow (Penny)
+    - analogy: { at: ibero-romance, cell: PRET.3SG, rule: "ɛ́ / í / # e s t _", model: "1sg *estide" }
     # Spanish estuvo, after tuve, anduve (Penny)
     - analogy: { at: spanish, cell: PRET.3SG, rule: "í d o / ú β o / _ #", model: "tuve, anduve" }
     - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "ɛ́ / í / _ t w", model: "crut, but" }

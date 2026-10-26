@@ -34,8 +34,9 @@ handbook pass.
   CNRTL API (`cnrtl.fr/api/word/<form>/…`), which batch 5 used.
 - **Penny, Ralph.** *A History of the Spanish Language.* 2nd ed.
   Cambridge: Cambridge University Press, 2002. The handbook pass: the
-  Spanish u-perfects (*ove*, *tove*, *pude*). Still to check: Old Spanish
-  /b/ vs /β/, the sibilants, the 2pl *-ades* > *-áis*, the *-go* verbs.
+  Spanish u-perfects (*ove*, *tove*, *pude*) and *estido* (*\*stetut*).
+  Still to check: Old Spanish /b/ vs /β/, the sibilants, the 2pl *-ades* >
+  *-áis*, the *-go* verbs.
 
 ## Still to consult
 
