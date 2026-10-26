@@ -1,0 +1,165 @@
+# Function words. Expected forms are generated from attested.tsv by
+# research/expect.sh, which gives sources. ° marks a clitic (morphology.yaml).
+
+- id: ego
+  form: "*mē"
+  gloss: "I"
+  category: [{ at: latin, is: PRON }]
+  paradigm: pron
+  cells:
+    # Vulgar Latin *eó, with the stress on the second vowel (yo)
+    NOM: { stem: "*eṓ-" }
+    CLITIC: { stem: "*mē°-" }
+    # Spanish mí, from mihi
+    TONIC: { at: old-spanish, stem: "mí-", morph: ~ }
+  events:
+    # jo > je, unstressed before the verb
+    - analogy: { at: old-french, cell: NOM, replace: { ó: ə }, model: "unstressed use" }
+  expect:
+    old-spanish: { NOM: jó, TONIC: mí, CLITIC: me }
+    spanish: { NOM: ʝó, TONIC: mí, CLITIC: me }
+    old-french: { NOM: dʒə, TONIC: moj, CLITIC: mə }
+    french: { NOM: ʒə, TONIC: mwa, CLITIC: mə }
+
+- id: tu
+  form: "*tē"
+  gloss: "you (singular)"
+  category: [{ at: latin, is: PRON }]
+  paradigm: pron
+  cells:
+    NOM: { stem: "*tū-" }
+    CLITIC: { stem: "*tē°-" }
+    # Spanish ti, from tibi
+    TONIC: { at: old-spanish, stem: "tí-", morph: ~ }
+  expect:
+    old-spanish: { NOM: tú, TONIC: tí, CLITIC: te }
+    spanish: { NOM: tú, TONIC: tí, CLITIC: te }
+    old-french: { NOM: ty, TONIC: toj, CLITIC: tə }
+    french: { NOM: ty, TONIC: twa, CLITIC: tə }
+
+- id: ille
+  form: "*ill-"
+  gloss: { latin: "that", western-romance: "the; he" }
+  category: [{ at: latin, is: DEM }, { at: western-romance, is: DEF }]
+  paradigm: ille
+  cells:
+    # Spanish el and él continue the nominative ille
+    ART.M.SG: { at: ibero-romance, morph: [~, D.E] }
+    PRON.M.SG: { at: ibero-romance, stem: "éll-", morph: [~, D.E.T] }
+  events:
+    # il: the i of *illī (metaphony)
+    - analogy: { at: old-french, cell: PRON.M.SG, replace: { é: í }, model: "the final -ī" }
+  expect:
+    old-spanish: { ART.M.SG: el, ART.F.SG: la, ART.M.PL: los, ART.F.PL: las, PRON.M.SG: él, CLITIC.M: lo, CLITIC.F: la }
+    spanish: { ART.M.SG: el, ART.F.SG: la, ART.M.PL: los, ART.F.PL: las, PRON.M.SG: él, CLITIC.M: lo, CLITIC.F: la }
+    old-french: { ART.M.SG: lə, ART.M.NOM.SG: li, ART.F.SG: la, ART.M.PL: les, ART.M.NOM.PL: li, ART.F.PL: les, PRON.M.SG: il, CLITIC.M: lə, CLITIC.F: la }
+    french: { ART.M.SG: lə, ART.F.SG: la, ART.M.PL: le, ART.F.PL: le, PRON.M.SG: il, CLITIC.M: lə, CLITIC.F: la }
+
+- id: qui
+  form: "*kʷī"
+  gloss: "who"
+  category: [{ at: latin, is: PRON }]
+  paradigm: rel
+  cells:
+    # quem (Spanish quien)
+    ACC: { stem: "*kʷem-" }
+  events:
+    - irregular: { at: old-french, cell: ACC, form: "kui", reason: "from cui" }
+    # French qui, Spanish quien in both cells
+    - analogy: { at: french, cell: ACC, replace: { u: "" }, model: "qui" }
+    - analogy: { at: spanish, cell: NOM, replace: { í: j é n }, model: "quien" }
+  expect:
+    old-spanish: { NOM: kí, ACC: kjén }
+    spanish: { NOM: kjén, ACC: kjén }
+    old-french: { NOM: ki, ACC: kui }
+    french: { NOM: ki, ACC: ki }
+
+- id: unus
+  form: "*ūn-"
+  gloss: { latin: "one", western-romance: "one; a" }
+  category: [{ at: latin, is: NUM }]
+  paradigm: adj-o-a
+  expect:
+    old-spanish: { M.ACC.SG: úno, F.ACC.SG: úna }
+    spanish: { M.ACC.SG: úno, F.ACC.SG: úna }
+    old-french: { M.NOM.SG: yns, M.ACC.SG: yn, F.ACC.SG: ynə }
+    french: { M.ACC.SG: œ̃, F.ACC.SG: yn }
+
+- id: duo
+  form: "*dōs"
+  gloss: "two"
+  category: [{ at: latin, is: NUM }]
+  paradigm: case2
+  notes: Vulgar Latin *dōs for duōs.
+  events:
+    # OF dui, from *duī, after the second-declension plural
+    - analogy: { at: vulgar-latin, cell: M.NOM, rule: "ō s / u ī / _ #", model: "the plural -ī" }
+  expect:
+    old-spanish: { M.ACC: dós }
+    spanish: { M.ACC: dós }
+    old-french: { M.NOM: dyj, M.ACC: dows }
+    french: { M.ACC: dø }
+
+- id: tres
+  form: "*trēs"
+  gloss: "three"
+  category: [{ at: latin, is: NUM }]
+  expect:
+    old-spanish: tɾés
+    spanish: tɾés
+    old-french: trojs
+    french: tʁwa
+
+- id: quattuor
+  form: "*kʷattro"
+  stage: vulgar-latin
+  gloss: "four"
+  category: [{ at: vulgar-latin, is: NUM }]
+  expect:
+    old-spanish: kwátɾo
+    spanish: kwátɾo
+    old-french: kwatrə
+    french: katʁ
+
+- id: non
+  form: "*nōn"
+  gloss: "not"
+  category: [{ at: latin, is: ADV }]
+  events:
+    # Spanish no: OSp non lost its n at the end of a phrase and by
+    # assimilation before lo, nos; that no replaced non everywhere by the
+    # late 15th century (DCECH s.v. no; Pidal, Cid)
+    - analogy: { at: spanish, rule: "n / / ó _ #", model: "sandhi no, generalised" }
+  expect:
+    old-spanish: nón
+    spanish: nó
+    old-french: non
+    french: nɔ̃
+
+- id: magis
+  form: "*magis"
+  gloss: { latin: "more", old-french: "more; but", french: "but" }
+  category: [{ at: latin, is: ADV }, { at: french, is: CONJ }]
+  events:
+    # OSp mas, contracted from maes (Leonese maes, mais into the 13th
+    # century; mas from the Glosas Emilianenses, c. 950; DCECH s.v. mas)
+    - analogy: { at: old-spanish, rule: "á e s / á s / _", model: "contraction in a short word" }
+  expect:
+    old-spanish: más
+    spanish: más
+    old-french: majs
+    french: mɛ
+  notes: |
+    The regular Old Spanish form would be {magis @ old-spanish !}, which
+    Leonese texts write as maes; Castilian {magis @ old-spanish} is
+    contracted.
+
+- id: bene
+  form: "*bene"
+  gloss: "well"
+  category: [{ at: latin, is: ADV }]
+  expect:
+    old-spanish: bjén
+    spanish: bjén
+    old-french: bjen
+    french: bjɛ̃

@@ -1,0 +1,13 @@
+; Old French > Old Spanish in loans: schwa as e, and stress on the first
+; syllable. Only what the example's words need.
+
+categories
+V = a e i o u ə ɛ ɔ y
+C = p b t d k g f v s z m n l r j w
+end
+
+ə / e / _
+; prestre > preste
+t r / t / s _
+[e ɛ] / é / # C* _
+r / ɾ / _

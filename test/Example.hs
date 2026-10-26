@@ -1,5 +1,5 @@
--- | Build the Echo example and check it reproduces the forms in the Azal
--- grammar (recorded as `expect` in the lexicon), then do the same for the
+-- | Build the Romance example and check it reproduces the attested forms
+-- (recorded as `expect` in the lexicon), then do the same for the
 -- fixtures, which each test one feature.
 module Main (main) where
 
@@ -24,7 +24,7 @@ import Stemma.View
 import Server.StageRules (addStageRules)
 
 projects :: [FilePath]
-projects = ["examples/echo", "test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs", "test/fixtures/becomes"]
+projects = ["examples/romance","test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs", "test/fixtures/becomes"]
 
 main :: IO ()
 main = do
@@ -32,22 +32,43 @@ main = do
   overlaid <- checkOverlay
   stageRules <- checkStageRules
   typst <- checkTypst
-  unless (and ok && overlaid && stageRules && typst) exitFailure
+  inputs <- checkInputs
+  noRules <- checkNoRules
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules) exitFailure
+
+-- | A stage without rules copies its parent's forms, with a warning.
+checkNoRules :: IO Bool
+checkNoRules = do
+  family <- B.readFile "examples/romance/family.yaml"
+  let extended = family <> "\n  catalan:\n    name: Catalan\n    parent: western-romance\n"
+  built <- either (pure . Left) (build brassicaEngine)
+    =<< loadProjectWith (overlay (Map.singleton "family.yaml" extended) []) "examples/romance"
+  let failures = case built of
+        Left errs -> ["the project should build: " <> T.intercalate "; " errs]
+        Right b ->
+          [ "the stage should be warned about: " <> T.pack (show (bWarnings b))
+          | not (any ("catalan: no rules" `T.isPrefixOf`) (bWarnings b)) ]
+            ++ [ "its forms should be its parent's"
+               | spelledAt b False "catalan" "magis" /= spelledAt b False "western-romance" "magis"
+                   || spelledAt b False "catalan" "magis" == Nothing ]
+  forM_ failures $ \f -> TIO.putStrLn ("no rules: " <> f)
+  TIO.putStrLn (if null failures then "no rules: forms are copied, with a warning" else "no rules: FAILED")
+  pure (null failures)
 
 -- | @stemma typst@ writes the repository's stemma.typ, and a dictionary
 -- that finds the lexicon from wherever it is written.
 checkTypst :: IO Bool
 checkTypst = do
   source <- B.readFile "typst/stemma.typ"
-  proj <- loadProject "examples/echo"
-  let dict = either (const "") (\p -> dictionaryTyp p "azal" "build/lexicon.json") proj
+  proj <- loadProject "examples/romance"
+  let dict = either (const "") (\p -> dictionaryTyp p "old-french" "build/lexicon.json") proj
       failures =
         [ "the embedded stemma.typ should be typst/stemma.typ" | not (source `B.isSuffixOf` stemmaTyp) ]
           ++ [ "the dictionary should read the given lexicon and list the stage"
-             | not (all (`T.isInfixOf` dict) ["json(\"build/lexicon.json\")", "#heading(\"Azal\")", "#dictionary(\"azal\")"]) ]
+             | not (all (`T.isInfixOf` dict) ["json(\"build/lexicon.json\")", "#heading(\"Old French\")", "#dictionary(\"old-french\")"]) ]
           ++ [ "relative paths should go up where needed: " <> T.pack (show paths)
-             | let paths = [relativePath "/p/docs" "/p/echo/build/lexicon.json", relativePath "/p/echo" "/p/echo/build/lexicon.json"]
-             , paths /= ["../echo/build/lexicon.json", "build/lexicon.json"] ]
+             | let paths = [relativePath "/p/docs" "/p/romance/build/lexicon.json", relativePath "/p/romance" "/p/romance/build/lexicon.json"]
+             , paths /= ["../romance/build/lexicon.json", "build/lexicon.json"] ]
   forM_ failures $ \f -> TIO.putStrLn ("typst: " <> f)
   TIO.putStrLn (if null failures then "typst: stemma.typ embedded, dictionary written" else "typst: FAILED")
   pure (null failures)
@@ -57,17 +78,17 @@ checkTypst = do
 -- deleted.
 checkOverlay :: IO Bool
 checkOverlay = withSystemTempDirectory "stemma-test" $ \tmp -> do
-  src <- readSources "examples/echo"
+  src <- readSources "examples/romance"
   forM_ (Map.toList (srcFiles src)) $ \(f, b) -> do
     createDirectoryIfMissing True (takeDirectory (tmp </> f))
     B.writeFile (tmp </> f) b
-  let rules = "rules/pe-to-azal.bsc"
+  let rules = "rules/wr-to-french.bsc"
       edited = maybe "" (<> "\na / o\n") (sourceFile rules src)
   B.writeFile (tmp </> rules) edited
-  original <- forms =<< loadProject "examples/echo"
+  original <- forms =<< loadProject "examples/romance"
   onDisk <- forms =<< loadProject tmp
-  inMemory <- forms =<< loadProjectWith (overlay (Map.singleton rules edited) []) "examples/echo"
-  deleted <- forms =<< loadProjectWith (overlay Map.empty [rules]) "examples/echo"
+  inMemory <- forms =<< loadProjectWith (overlay (Map.singleton rules edited) []) "examples/romance"
+  deleted <- forms =<< loadProjectWith (overlay Map.empty [rules]) "examples/romance"
   let failures =
         [ "the edit should change some forms" | onDisk == original ]
           ++ [ "an overlaid edit should build like the same edit on disk" | inMemory /= onDisk ]
@@ -107,15 +128,14 @@ checkStageRules = do
       , ("proto", "name: Test\n", Left "family.yaml has no top-level stages: block")
       ]
 
--- | Expectations must all hold. Warnings fail a fixture, but not the
--- example, whose Wiyan stage has no rules yet.
+-- | Expectations must all hold, and warnings fail a project.
 check :: FilePath -> IO Bool
 check dir = do
   proj <- loadProject dir >>= either die' pure
   built <- build brassicaEngine proj >>= either die' pure
   _ <- writeBuild (dir <> "/build") built >>= either die' pure
   let failed = checkExpectations built
-      warned = if dir == "examples/echo" then [] else bWarnings built
+      warned = bWarnings built
       views = viewFailures dir built
   forM_ failed $ \f -> TIO.putStrLn (T.pack dir <> ": " <> f)
   forM_ warned $ \w -> TIO.putStrLn (T.pack dir <> ": warning: " <> w)
@@ -169,6 +189,15 @@ viewFailures dir b
             && ordered "bes.NPST.1S" "bes.NPST.1S~archaic" bes
             && ordered "bes.PST.3P" "bes.PST.3P~dialectal" bes
           _ -> False) ]
+      ++ [ "an entry should be cited by its first cell by default, or as it says"
+         | [cite "ego" "proto", cite "bes" "proto"] /= ["ego.SG.DIR", "bes"] ]
+      ++ [ "cells with the same stem should share one internal item"
+         | [i | i <- Map.keys (prItems (bProject b)), "homo~" `T.isPrefixOf` i] /= ["homo~stem~1"]
+             || any ("~stem" `T.isInfixOf`) (prItemOrder (bProject b))
+             || any (any ("~stem" `T.isInfixOf`) . Map.keys) (Map.elems (bActual b)) ]
+  | dir == "test/fixtures/becomes" =
+      [ "the citation should follow the paradigm in force, unless the entry gives one: " <> T.pack (show cites)
+      | cites /= ["see.PST.1S", "see.NPST.1S", "see.PST.1S", "go.PST.1S", "go"] ]
   | dir == "test/fixtures/allomorphs" =
       [ "the affix's own reflex should list the allomorphs in force"
       | [spelledAt b False s "DAT" | s <- ["mid", "late", "other"]]
@@ -183,9 +212,55 @@ viewFailures dir b
              || any (any ("~" `T.isInfixOf`) . Map.keys) (Map.elems (bActual b)) ]
   | otherwise = []
   where
+    cite i s = maybe "" (\it -> citedAt (bProject b) it s) (Map.lookup i (prItems (bProject b)))
+    cites = [cite "see" "mid", cite "see" "late", cite "see" "other", cite "go" "mid", cite "go" "late"]
     respelled =b {bSpelled = Map.adjust (Map.insert "valyk.SG.DIR" ["written"]) "azal" (bSpelled b)}
     ordered mainCell variant xs = case (findIndex mainCell xs, findIndex variant xs) of
       (Just a, Just c) -> c == a + 1
       _ -> False
     findIndex needle xs = lookup needle
       (zip (map (T.takeWhile (/= ' ') . T.stripStart) (drop 1 xs)) [0 :: Int ..])
+
+-- | Input that would otherwise be silently misread: an id that YAML reads
+-- as a boolean, and an analogy key that is not one grapheme. A replacement
+-- may be written with spaces between its graphemes.
+checkInputs :: IO Bool
+checkInputs = do
+  onId <- buildWith "- id: on\n  form: \"*on\"\n"
+  onBase <- buildWith "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cells:\n    SG.DIR: { base: off }\n"
+  spaced <- buildWith "- id: ka\n  form: \"*ka\"\n  events:\n    - analogy: { at: azal, replace: { a: a i } }\n"
+  wide <- buildWith "- id: ka\n  form: \"*ka\"\n  events:\n    - analogy: { at: azal, replace: { ka: x } }\n"
+  uncited <- buildWith "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cite: NOPE\n"
+  glossed <- buildWith "- id: ka\n  form: \"*ka\"\n  gloss: { proto: water, azal: river }\n"
+  misglossed <- buildWith "- id: ka\n  form: \"*ka\"\n  gloss: { nowhere: water }\n"
+  glossJson <- withSystemTempDirectory "stemma-gloss" $ \tmp -> case glossed of
+    Left _ -> pure ""
+    Right b -> writeBuild tmp b >> T.filter (/= ' ') <$> TIO.readFile (tmp </> "lexicon.json")
+  let glosses = case glossed of
+        Right b | Just it <- Map.lookup "ka" (prItems (bProject b)) ->
+          [glossAt (bProject b) it s | s <- ["proto", "azal", "wiyan"]]
+        _ -> []
+  let failures =
+        [ "an id read as a boolean should say so: " <> describe r
+        | r <- [onId, onBase], not (failsWith "read as a boolean; quote it" r) ]
+          ++ [ "a replacement with spaces should be split into graphemes: " <> describe spaced
+             | either (const True) (\b -> spelledAt b False "azal" "ka" /= Just ["kai"]) spaced ]
+          ++ [ "an analogy key of several graphemes should be an error: " <> describe wide
+             | not (failsWith "is not one grapheme" wide) ]
+          ++ [ "a citation naming an unknown cell should be an error: " <> describe uncited
+             | not (failsWith "cite names unknown cell NOPE" uncited) ]
+          ++ [ "a gloss should hold from its stage down its own line: " <> T.pack (show glosses)
+             | glosses /= [Just "water", Just "river", Just "water"] ]
+          ++ [ "lexicon.json should give the gloss where it is formed, and a reflex's where it differs"
+             | not (all (`T.isInfixOf` glossJson) ["\"gloss\":\"water\"", "\"gloss\":\"river\""]) ]
+          ++ [ "a gloss at an unknown stage should be an error: " <> describe misglossed
+             | not (failsWith "ka: unknown stage nowhere" misglossed) ]
+  forM_ failures $ \f -> TIO.putStrLn ("inputs: " <> f)
+  TIO.putStrLn (if null failures then "inputs: misread input is reported" else "inputs: FAILED")
+  pure (null failures)
+  where
+    buildWith entries = do
+      proj <- loadProjectWith (overlay (Map.singleton "lexicon/zz.yaml" entries) []) "test/fixtures/lost"
+      either (pure . Left) (build brassicaEngine) proj
+    describe = either (T.intercalate "; ") (\b -> "built, ka at azal is " <> T.pack (show (spelledAt b False "azal" "ka")))
+    failsWith msg = either (any (msg `T.isInfixOf`)) (const False)

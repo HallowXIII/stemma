@@ -1,0 +1,97 @@
+; Latin > Vulgar Latin: the loss of h.
+; Vulgar Latin > Western Romance: stress, the vowel merger, the first
+; lenition. Stress comes after Vulgar Latin, since cells re-formed at
+; Western Romance are joined from Vulgar Latin forms and need stressing.
+
+categories
+B = &+
+Vs = a e i o u
+Vl = ā ē ī ō ū ae au oe
+Ss = á é í ó ú
+Sl = ā́ ḗ ī́ ṓ ū́ áe áu óe
+V = Vs Vl
+S = Ss Sl
+Stop = p b t d k g kʷ gʷ
+L = l r
+C = Stop f s h m n l r j w z β ʎ ɲ ts dz
+; ° marks a clitic; it keeps stress off the word
+U = ° ŭ
+end
+
+h / / _
+; the weak perfect: -āvit > -aut, stressed (Spanish cantó)
+ā w i t / áu t / _ #
+; and -īvit > -ió (Spanish murió)
+ī w i t / j ṓ t / _ #
+
+report
+
+; Forms are joined without boundaries inside them (family.yaml). Those at
+; the edges of bound items keep stems and affixes from being stressed as
+; words.
+
+; --- Stress ---
+; monosyllables
+V / S / # C* _ C* #
+; a heavy penult: long, or closed (not before a stop and liquid)
+Vl / Sl / _ C* V C* #
+Vs / Ss / _ C C C* V C* # // _ Stop L V C* #
+; otherwise the antepenult, if there is one
+V / S / _ C* Vs (C) V C* # / _ C* Vs Stop L V C* #
+; otherwise the penult
+V / S / _ C* V C* # // S C* _
+
+; u in hiatus after a consonant: the u-perfect (hábuit > hábwit), as ŭ until
+; v has become β
+u / ŭ / [C B] _ V
+
+; clitics stay unstressed
+° / / _
+
+; --- Vowels ---
+; quem > quien: final m of a stressed monosyllable
+m / n / # C* S _ #
+m / / [V S] _ #
+; final n of neuters in -men
+n / / V _ #
+[e i] / j / _ [V S] // r _ á
+[ā́ á ḗ é ī́ í ṓ ó ū́ ú áe óe áu] / [á á é ɛ́ í é ó ɔ́ ú ó ɛ́ é áu]
+[ā ē ī ō ū ae oe i u] / [a e i o u e e e o]
+
+categories
+Vw = a e i o u au
+Sw = á é ɛ́ í ó ɔ́ ú áu
+W = Vw Sw
+end
+
+; --- Consonants ---
+; prothesis before s and a stop
+/ e / # _ s [p t k]
+s / z / W _ W
+; ns > s, after the voicing: Spanish pesar keeps its s (OF peser voices it
+; again)
+n s / s / _
+; palatalisation and yod
+; between vowels, voiced (dezir, plaisir); tj stays voiceless (cabeça)
+k / dz / W _ [e i é í ɛ́ j]
+k / ts / _ [e i é í ɛ́ j]
+g / j / _ [e i é í ɛ́]
+; Latin g between vowels, before a back vowel (legō > leo)
+g / / W _ [o u ó ú]
+l j / ʎ / _
+n j / ɲ / _
+k t / j t / _
+t j / ts / _
+ts j / ts / _
+; Latin d: voiced stops, unlike t, are already weak (pede > pie, pié)
+d / ð / W _ [W r]
+w / β / _
+b / β / [W r l] _ [W r l]
+ŭ / w / _
+; The voicing of p, t, k is not shared: Old French has syncope before it
+; (comite > conte, doit), Spanish after it (conde).
+
+; post-tonic vowel before l in a proparoxytone (oculus, populus)
+o / / Sw C _ l W C* #
+; -kl-, -gl-
+[k g] l / ʎ / W _

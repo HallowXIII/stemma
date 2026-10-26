@@ -1,0 +1,124 @@
+; Western Romance > Ibero-Romance (to pl-, kl- > ʎ-) > Old Spanish
+; (Castilian, c. 1200) > Spanish.
+
+categories
+B = &+
+Vu = a e i o u au
+Vs = á é ɛ́ í ó ɔ́ ú áu
+V = Vu Vs
+C = p b t d k g kʷ gʷ f s z m n l r R ɾ j w β ð ʎ ɲ tʃ ts dz ʃ ʒ
+end
+
+; cells re-formed here are joined from Western Romance forms, so k and g
+; before a front vowel again (fazer, re-formed on the second conjugation)
+k / dz / V _ [e i é í ɛ́ j]
+k / ts / _ [e i é í ɛ́ j]
+g / j / _ [e i é í ɛ́ j]
+j j / j / _
+b / β / V _ [V j]
+d / ð / V _ V
+[d ð] j / j / V _
+; final unstressed i (venīs > vienes)
+i / e / _ (C) #
+; the infinitive's -e before the auxiliary in the future
+e / / r _ Vs
+; voicing, before the syncope (comite > conde)
+[p t k kʷ] / [b d g gʷ] / V _ [V r l]
+; the u-perfect: the w moves into the stem (habuit > ovo, placuit > plogo);
+; p, after the voicing, stays (sapuit > sopo)
+/ w / [á ɔ́] _ [p b t k] w
+w / / [á ɔ́] w [p b t k] _
+b / β / w _
+[á ɔ́] w / ó / _
+[k t] / [g d] / V _ V
+; intervocalic j after a front vowel (digitus)
+j / / é _ e C V
+; and after a before a front vowel (magistrum > maestro, magis > maes)
+j / / [a á] _ [e é i í]
+é e / é / _ d
+; syncope of the post-tonic vowel of a proparoxytone
+[e i o u] / / Vs C _ C V C* #
+; intertonic vowels (civitatem > cibdad)
+[e i o] / / V C _ C Vs
+β / b / _ d
+m / n / _ d
+j / / # _ e
+; Latin d (pede > pie), but kept after a consonant (viride > verde)
+ð / d / C _
+ð / / _
+[ó o] l t / [ú u] tʃ / _
+k k / k / _
+t t / t / _
+p p / p / _
+; omne > omre > ombre, spreading through the lexicon (nombre by 1200)
+; the future: venrá > verná
+n r / r n / V _ Vs
+; yod raising (murió)
+o / u / _ r (m) j
+n / ɾ / m _
+/ b / m _ ɾ
+; diphthongisation, in open and closed syllables alike, but not before a
+; palatal; then the open-mid vowels merge with the close-mid
+ɛ́ / j é / _ // _ [j ʎ]
+ɔ́ / w é / _ // _ [j ʎ]
+[ɛ́ ɔ́] / [é ó] / _
+é e / é / j _
+; vao > vo, fuet > fue
+á o / ó / _ #
+ú e / w é / _
+áu / ó / _
+au / o / _
+; *ajo (habēre, the future), not cayo
+á j o / é / [# r n] _ #
+; clitics: elle > el; illum > lo
+e / / V l l _ #
+l l / l / _ #
+e / / # _ l l V
+l l / l / # _
+; palatals: Western Romance ʎ (filius, oculus) > ʒ, then ll > ʎ
+ʎ / ʒ / _
+l l / ʎ / _
+n n / ɲ / _
+á / é / _ j t
+j t / tʃ / _
+k s / ʃ / V _ V
+; pl-, kl-, fl-
+[p k] l / ʎ / # _
+
+report
+
+; Ibero-Romance > Old Spanish
+kʷ / k / _ [i í j e é]
+kʷ / k w / _
+gʷ / g w / _
+; apocope after a single dental or alveolar
+e / / V [d l n r s z j] _ #
+; final -t goes after the apocope, so the verb keeps its -e (tiene, from tenet)
+t / / _ #
+; tap and trill
+r r / R / _
+r / ɾ / _ // # _
+ɾ / r / [n l s] _
+R / r / _
+
+report
+
+; Old Spanish > Spanish
+; omne > omre > ombre
+n / ɾ / m _
+/ b / m _ ɾ
+β / b / _
+; f- > h- > zero, except before w, r, l
+f / / # _ [V j]
+j / ʝ / # _
+; verná > vendrá
+ɾ n / n d ɾ / _
+j é / í / _ ʎ
+; the sibilants
+[ʒ ʃ] / x / _
+z / s / _
+i b / j u / _ d
+j / ʝ / V _ V
+[ts dz] / θ / _
+; vió
+í o / j ó / # C _ #

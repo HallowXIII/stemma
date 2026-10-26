@@ -365,7 +365,7 @@ function index(lex) {
   const hay = new Map();
   for (const it of Object.values(lex.items)) {
     const parts = [it.id, it.gloss];
-    for (const r of Object.values(it.reflexes)) parts.push(...(r.forms || []), ...(r.spelled || []));
+    for (const r of Object.values(it.reflexes)) parts.push(...(r.forms || []), ...(r.spelled || []), r.gloss ?? "");
     hay.set(it.id, norm(parts.join(" ")));
   }
   return { stages, depth, children, treeOrder, usedIn, hay };
@@ -419,11 +419,20 @@ function categoryAt(it, s) {
   return null;
 }
 
-// Headword at a stage: an item with a paradigm is cited by its first cell.
-function headAt(it, stage) {
-  const cid = it.cells.length ? it.cells[0] : it.id;
-  return formsAt(cid, stage);
+// The gloss in force at a stage: a reflex has one where it differs from
+// the item's (expandLexicon fills in the rest).
+function glossAt(it, s) {
+  return it.reflexes[s]?.gloss ?? it.gloss ?? null;
 }
+
+// The item an entry is cited by at a stage, as stemma.typ's `entry` gives it:
+// lexicon.json's cite gives it where it changes. Where that has no form, the
+// entry itself.
+function headId(it, stage) {
+  const cid = path(stage).reverse().map((s) => it.cite?.[s]).find((c) => c != null);
+  return cid != null && formsAt(cid, stage) != null ? cid : it.id;
+}
+const headAt = (it, stage) => formsAt(headId(it, stage), stage);
 
 function irregularAt(r) { return r && r.forms != null && !same(r.forms, r.regular); }
 
@@ -548,6 +557,7 @@ function expandLexicon(lex, traces) {
         forms, spelled, regular,
         regular_spelled: r.regular_spelled ?? (lost ? regular : spelled),
         category: r.category ?? null,
+        gloss: r.gloss ?? it.gloss ?? null,
         origin: lost ? null : t.origin ?? "inherited",
         events: t.events ?? [], input: t.input ?? null, trace: t.trace ?? [],
       };
@@ -597,7 +607,7 @@ function showDrop(msg) {
     <h2>Open a stemma build</h2>
     <p class="muted">${esc(msg || "Drop a build/lexicon.json here, or choose one.")}</p>
     <p><button class="primary" onclick="document.getElementById('file').click()">Choose lexicon.json…</button></p>
-    <p class="muted" style="font-size:13px">For live rebuilds, run<br><code>stemma-server -d examples/echo</code></p>
+    <p class="muted" style="font-size:13px">For live rebuilds, run<br><code>stemma-server -d examples/romance</code></p>
   </div></div>`;
   $("#controls").hidden = !S.live;
 }
@@ -671,7 +681,7 @@ function renderList(selId) {
     const shown = f != null ? fmt(f, S.stage) : `${fmt(formsAt(id, it.formed), it.formed, "faint")}`;
     return `<a href="${href(id)}" class="${id === selId ? "sel" : ""} ${it.kind === "cell" ? "cell" : ""}">
       <span>${shown}</span><span class="kd">${esc(it.kind === "cell" ? id.slice((it.owner || "").length + 1) : it.kind)}</span>
-      <span class="gl">${esc(it.gloss ?? id)}</span></a>`;
+      <span class="gl">${esc(glossAt(it, S.stage) ?? id)}</span></a>`;
   }).join("");
 }
 
@@ -762,7 +772,7 @@ function reflexTable(id) {
   const stages = IX.treeOrder.filter((s) => it.reflexes[s]);
   const base = IX.depth(it.formed);
   let h = `<div class="card"><table>
-    <tr><th>Stage</th><th>Form</th><th>Phonemic</th><th>Category</th><th>Notes</th></tr>`;
+    <tr><th>Stage</th><th>Form</th><th>Phonemic</th><th>Category, gloss</th><th>Notes</th></tr>`;
   for (const s of stages) {
     const r = it.reflexes[s];
     const key = id + "|" + s;
@@ -779,7 +789,7 @@ function reflexTable(id) {
       <td class="name" style="padding-left:${10 + 16 * (IX.depth(s) - base)}px"><span class="tw">${traced ? "▸" : ""}</span> ${esc(stageName(s))}</td>
       <td>${fmt(formsAt(id, s), s)}</td>
       <td>${r.forms ? `<span class="f ph">/${esc(r.forms.join(" ~ "))}/</span>` : ""}</td>
-      <td>${r.category ? `<span class="sc">${esc(r.category)}</span>` : ""}</td>
+      <td>${r.category ? `<span class="sc">${esc(r.category)}</span>` : ""}${r.gloss && r.gloss !== it.gloss ? ` “${esc(r.gloss)}”` : ""}</td>
       <td>${notes.join(" ")}</td></tr>`;
     if (open && traced) h += `<tr class="trace"><td colspan="5">${traceHtml(r, s)}</td></tr>`;
   }
@@ -849,17 +859,19 @@ function viewDict() {
   const entries = ids.map((id) => {
     const it = S.lex.items[id];
     const r = it.reflexes[stage];
+    // The etymology follows the item the entry is cited by.
+    const hid = headId(it, stage), h = S.lex.items[hid];
     const line = path(stage);
-    const earlier = line.slice(line.indexOf(it.formed), line.length - 1).reverse();
+    const earlier = line.slice(line.indexOf(h.formed), line.length - 1).reverse();
     const shown = earlier.filter((s, k) => {
       const next = earlier[k + 1];
-      return next == null || !same(it.reflexes[s]?.forms, it.reflexes[next]?.forms);
+      return next == null || !same(h.reflexes[s]?.forms, h.reflexes[next]?.forms);
     });
-    const chain = shown.map((s) => `${esc(stageAbbr(s))} ${fmt(formsAt(id, s), s)}`).join(" &lt; ");
+    const chain = shown.map((s) => `${esc(stageAbbr(s))} ${fmt(formsAt(hid, s), s)}`).join(" &lt; ");
     const hw = (headAt(it, stage) || []).join(" ~ ") + (it.bound && !it.cells.length ? "-" : "");
     return `<div class="e"><a href="${href(id)}" class="hw f">${esc(hw)}</a>
       ${r.category ? ` <span class="sc">${esc(r.category)}</span>` : ""}
-      ${it.gloss ? ` “${esc(it.gloss)}”` : ""}
+      ${r.gloss ? ` “${esc(r.gloss)}”` : ""}
       ${chain ? ` <span class="ety">&lt; ${chain}</span>` : ""}
       ${it.source ? ` <span class="muted">(${linkSource(it.source)})</span>` : ""}
       ${it.notes?.length ? `<div class="n notes">${renderNotes(it.notes)}</div>` : ""}</div>`;
@@ -915,7 +927,7 @@ function viewShifts(arg) {
       ${found.map((f) => {
         const it = S.lex.items[f.id];
         return `<tr><td><a href="${href(f.id)}">${fmt(formsAt(f.id, it.formed), it.formed)}</a> <span class="faint mono">${esc(f.id)}</span></td>
-        <td class="muted">${esc(it.gloss ?? "")}</td><td>${esc(stageName(f.leaf))}</td>
+        <td class="muted">${esc(glossAt(it, f.leaf) ?? "")}</td><td>${esc(stageName(f.leaf))}</td>
         <td><span class="cat"><span class="tag">${esc(f.a[0])}</span><span class="at">${esc(stageAbbr(f.a[1]))}</span></span></td>
         <td class="faint">›</td>
         <td><span class="cat"><span class="tag">${esc(f.c[0])}</span><span class="at">${esc(stageAbbr(f.c[1]))}</span></span></td></tr>`;
@@ -1636,7 +1648,7 @@ function rulesPanel(file, lines, info, stats, outline, s, e) {
       h += `<p class="muted">Applied ${forms.length} time${forms.length === 1 ? "" : "s"}, to ${new Set(forms.map((x) => x.id + "|" + x.stage)).size} form(s)${oneStage ? ` in ${esc(stageName(forms[0].stage))}` : ""}:</p>
         <div class="card"><table><tr><th>Item</th><th>Before</th><th>After</th></tr>${forms.slice(0, 300).map((x) => {
           const it = src.lex.items[x.id];
-          return `<tr><td>${S.lex.items[x.id] ? `<a href="${href(x.id)}">${esc(x.id)}</a>` : esc(x.id)}${oneStage ? "" : ` <span class="faint">${esc(stageAbbr(x.stage))}</span>`}<div class="faint" style="font-size:12px">${esc(it?.gloss ?? "")}</div></td>
+          return `<tr><td>${S.lex.items[x.id] ? `<a href="${href(x.id)}">${esc(x.id)}</a>` : esc(x.id)}${oneStage ? "" : ` <span class="faint">${esc(stageAbbr(x.stage))}</span>`}<div class="faint" style="font-size:12px">${esc(it?.reflexes?.[x.stage]?.gloss ?? it?.gloss ?? "")}</div></td>
             <td><span class="f ph">${esc(x.before ?? "—")}</span></td>
             <td>${x.after == null ? `<span class="badge lost">deleted</span>` : `<span class="f ph">${esc(x.after)}</span>`}</td></tr>`;
         }).join("")}</table></div>${forms.length > 300 ? `<p class="muted">…and ${forms.length - 300} more</p>` : ""}`;
@@ -2471,7 +2483,7 @@ async function runChangeset(apply) {
 
 // Lines that differ between two texts, as - and + lines with a little
 // context. A patience diff: lines that occur once in each text anchor the
-// alignment, so repeated lines (parent: proto-echo) don't pair up wrongly.
+// alignment, so repeated lines (parent: western-romance) don't pair up wrongly.
 function diffOps(x, y) {
   let p = 0;
   while (p < x.length && p < y.length && x[p] === y[p]) p++;

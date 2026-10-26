@@ -16,6 +16,7 @@
 - id: bes
   form: "*bes"
   paradigm: verb
+  cite: ~                          # the bare stem
   cells:
     PST.3P~dialectal: [~, PST, P3P.DIAL]
   expect:
@@ -25,3 +26,15 @@
       NPST.3P~archaic: besnair
       PST.3P: besvar
       PST.3P~dialectal: besvaš
+
+# A stem of its own for every cell but the singular direct, shared by the
+# cells that give it.
+- id: homo
+  form: "*homō"
+  paradigm: noun
+  cells:
+    SG.GEN: { stem: "*homin" }
+    PL.DIR: { stem: "*homin" }
+    PL.GEN: { stem: "*homin", morph: [~, PL, GEN.IRR] }
+  expect:
+    proto: { SG.DIR: homōn, SG.GEN: homini, PL.DIR: hominran, PL.GEN: hominraō }

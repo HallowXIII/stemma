@@ -1,0 +1,707 @@
+# Verbs. Expected forms are generated from attested.tsv by
+# research/expect.sh, which gives sources. Strong perfects and participles
+# are built on stems of their own.
+
+- id: cantare
+  form: "*kant-"
+  gloss: "sing"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  expect:
+    old-spanish: { INF: kantáɾ, PRS.1SG: kánto, PRS.2SG: kántas, PRS.3SG: kánta, PRS.1PL: kantámos, PRS.2PL: kantádes, PRS.3PL: kántan, FUT.1SG: kantaɾé, FUT.3SG: kantaɾá, PRET.3SG: kantó, PTCP: kantádo }
+    spanish: { INF: kantáɾ, PRS.1SG: kánto, PRS.2SG: kántas, PRS.3SG: kánta, PRS.1PL: kantámos, PRS.2PL: kantájs, PRS.3PL: kántan, FUT.1SG: kantaɾé, FUT.3SG: kantaɾá, PRET.3SG: kantó, PTCP: kantádo }
+    old-french: { INF: tʃanter, PRS.1SG: tʃant, PRS.2SG: tʃantəs, PRS.3SG: tʃantə, PRS.1PL: tʃantons, PRS.2PL: tʃantets, PRS.3PL: tʃantənt, FUT.1SG: tʃantəraj, FUT.3SG: tʃantəra, PRET.3SG: tʃanta, PTCP: tʃante }
+    french: { INF: ʃɑ̃te, PRS.1SG: ʃɑ̃t, PRS.2SG: ʃɑ̃t, PRS.3SG: ʃɑ̃t, PRS.1PL: ʃɑ̃tɔ̃, PRS.2PL: ʃɑ̃te, PRS.3PL: ʃɑ̃t, FUT.1SG: ʃɑ̃tʁe, FUT.3SG: ʃɑ̃tʁa, PRET.3SG: ʃɑ̃ta, PTCP: ʃɑ̃te }
+
+- id: amare
+  form: "*am-"
+  gloss: "love"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  cells:
+    # The stem-stressed aim- is generalised (by Middle French).
+    FUT.1SG: { at: french, stem: "ajm-", morph: [~, INF.A, FUT.1SG] }
+    FUT.3SG: { at: french, stem: "ajm-", morph: [~, INF.A, FUT.3SG] }
+    PRET.3SG: { at: french, stem: "ajm-", morph: [~, PRET.3SG.GR] }
+  events:
+    - analogy: { at: french, cell: INF, replace: { a: aj }, model: "aime" }
+    - analogy: { at: french, cell: PRS.1SG, replace: { a: aj }, model: "aime" }
+    - analogy: { at: french, cell: PRS.1PL, replace: { a: aj }, model: "aime" }
+    - analogy: { at: french, cell: PRS.2PL, replace: { a: aj }, model: "aime" }
+    - analogy: { at: french, cell: PTCP, replace: { a: aj }, model: "aime" }
+  expect:
+    old-spanish: { INF: amáɾ, PRS.1SG: ámo, PRS.2SG: ámas, PRS.3SG: áma, PRS.1PL: amámos, PRS.2PL: amádes, PRS.3PL: áman, FUT.1SG: amaɾé, FUT.3SG: amaɾá, PRET.3SG: amó, PTCP: amádo }
+    spanish: { INF: amáɾ, PRS.1SG: ámo, PRS.2SG: ámas, PRS.3SG: áma, PRS.1PL: amámos, PRS.2PL: amájs, PRS.3PL: áman, FUT.1SG: amaɾé, FUT.3SG: amaɾá, PRET.3SG: amó, PTCP: amádo }
+    old-french: { INF: amer, PRS.1SG: ajm, PRS.2SG: ajməs, PRS.3SG: ajmə, PRS.1PL: amons, PRS.2PL: amets, PRS.3PL: ajmənt, FUT.1SG: aməraj, FUT.3SG: aməra, PRET.3SG: ama, PTCP: ame }
+    french: { INF: eme, PRS.1SG: ɛm, PRS.2SG: ɛm, PRS.3SG: ɛm, PRS.1PL: emɔ̃, PRS.2PL: eme, PRS.3PL: ɛm, FUT.1SG: emʁe, FUT.3SG: emʁa, PRET.3SG: ema, PTCP: eme }
+  derivatives:
+    # The participle as a noun, which kept the regular pretonic a of amer
+    # when the verb took aim- in every form.
+    - id: amant
+      source: { base: amare, morph: PTCP.PRS.A }
+      gloss: "lover"
+      category: [{ at: latin, is: ADJ }, { at: old-french, is: "N" }]
+      expect: { old-french: amant, french: amɑ̃, spanish: amánte }
+
+- id: habere
+  form: "*hab-"
+  gloss: { latin: "have", spanish: "have (auxiliary)" }
+  category: [{ at: latin, is: V }]
+  paradigm: verb-e
+  cells:
+    # the u-perfect habuit (OSp ovo, OF ot)
+    PRET.3SG: [~, PRET.3SG.U]
+  events:
+    # Reduced in auxiliary use, the source of the future endings.
+    - irregular: { at: vulgar-latin, cell: PRS.1SG, form: "ájo", reason: "auxiliary reduction" }
+    - irregular: { at: vulgar-latin, cell: PRS.2SG, form: "ás", reason: "auxiliary reduction" }
+    - irregular: { at: vulgar-latin, cell: PRS.3SG, form: "át", reason: "auxiliary reduction" }
+    - irregular: { at: vulgar-latin, cell: PRS.3PL, form: "ánt", reason: "auxiliary reduction" }
+    # OF ont, from *aunt: one analogy with *faunt, *vaunt, *staunt; the model
+    # sunt is assumed
+    - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á n t / áu n t / _ #", model: "sunt" }
+    # Spanish hemos, after he
+    - analogy: { at: spanish, cell: PRS.1PL, replace: { a: "", β: "" }, model: "he" }
+    # French aurai
+    - analogy: { at: french, cell: FUT.1SG, replace: { v: w }, model: "the vocalised l of saurai" }
+    # Spanish hubo, with the u of 1sg hube
+    - analogy: { at: spanish, cell: PRET.3SG, replace: { ó: ú }, model: "hube" }
+    # French eut: type A remade on the other u-perfects (Pope)
+    - analogy: { at: french, cell: PRET.3SG, rule: "ɔ t / y t / _ #", model: "mourut, crut" }
+    # OF eü, without the b of *habūtum
+    - analogy: { at: gallo-romance, cell: PTCP, replace: { β: "" }, model: "the loss of b before u" }
+    - analogy: { at: french, cell: FUT.3SG, replace: { v: w }, model: "the vocalised l of saurai" }
+  expect:
+    old-spanish: { INF: aβéɾ, PRS.1SG: é, PRS.2SG: ás, PRS.3SG: á, PRS.1PL: aβémos, PRS.2PL: aβédes, PRS.3PL: án, FUT.1SG: aβɾé, FUT.3SG: aβɾá, PRET.3SG: óβo, PTCP: aβído }
+    spanish: { INF: abéɾ, PRS.1SG: é, PRS.2SG: ás, PRS.3SG: á, PRS.1PL: émos, PRS.2PL: abéjs, PRS.3PL: án, FUT.1SG: abɾé, FUT.3SG: abɾá, PRET.3SG: úbo, PTCP: abído }
+    old-french: { INF: avojr, PRS.1SG: aj, PRS.2SG: as, PRS.3SG: a, PRS.1PL: avons, PRS.2PL: avets, PRS.3PL: ont, FUT.1SG: avraj, FUT.3SG: avra, PRET.3SG: ɔt, PTCP: əy }
+    french: { INF: avwaʁ, PRS.1SG: e, PRS.2SG: a, PRS.3SG: a, PRS.1PL: avɔ̃, PRS.2PL: ave, PRS.3PL: ɔ̃, FUT.1SG: ɔʁe, FUT.3SG: ɔʁa, PRET.3SG: "y", PTCP: "y" }
+
+- id: stare
+  form: "*st-"
+  gloss: { latin: "stand", ibero-romance: "stand; be" }
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  fate: { french: lost }
+  cells:
+    # OSp estido, from *stetut with the weak ending (Penny); OF estut, from
+    # the u-perfect *stetuit, remade after crut (open ę does not rise)
+    PRET.3SG:
+      - { stem: "*stet-", morph: [~, PRET.3SG.S] }
+      - { at: vulgar-latin, stem: "*stet-", morph: [~, PRET.3SG.UT] }
+      - { at: gallo-romance, stem: "estɛ́tw-", morph: [~, PRET.3SG.S] }
+  events:
+    # Spanish estoy, after soy, doy, voy
+    - analogy: { at: spanish, cell: PRS.1SG, replace: { ó: ó j }, model: "soy" }
+    # OF estois, after vois; estont, from *staunt (as ont)
+    - analogy: { at: old-french, cell: PRS.1SG, replace: { ó: ó j s }, model: "vois" }
+    - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á n t / áu n t / _ #", model: "sunt" }
+    # The strong perfect stetit, remade differently on each line
+    # OSp estido: the i of 1sg *stetī, raised by -ī, as -er and -ir verbs
+    # alike allow (Penny)
+    - analogy: { at: ibero-romance, cell: PRET.3SG, rule: "ɛ́ / í / # e s t _", model: "1sg *estide" }
+    # Spanish estuvo, after tuve, anduve (Penny)
+    - analogy: { at: spanish, cell: PRET.3SG, rule: "í d o / ú β o / _ #", model: "tuve, anduve" }
+    - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "ɛ́ / í / _ t w", model: "crut, but" }
+  expect:
+    old-spanish: { INF: estáɾ, PRS.1SG: estó, PRS.2SG: estás, PRS.3SG: está, PRS.1PL: estámos, PRS.2PL: estádes, PRS.3PL: están, FUT.1SG: estaɾé, FUT.3SG: estaɾá, PRET.3SG: estído, PTCP: estádo }
+    spanish: { INF: estáɾ, PRS.1SG: estój, PRS.2SG: estás, PRS.3SG: está, PRS.1PL: estámos, PRS.2PL: estájs, PRS.3PL: están, FUT.1SG: estaɾé, FUT.3SG: estaɾá, PRET.3SG: estúbo, PTCP: estádo }
+    old-french: { INF: ester, PRS.1SG: estojs, PRS.2SG: estas, PRS.3SG: esta, PRS.1PL: estons, PRS.2PL: estets, PRS.3PL: estont, FUT.1SG: estəraj, FUT.3SG: estəra, PRET.3SG: estyt, PTCP: este }
+
+- id: videre
+  form: "*wid-"
+  gloss: "see"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-e
+  cells:
+    PRET.3SG: { stem: "*wīd-" }
+    # veo, voi: *vedo, without the yod of videō
+    PRS.1SG: [~, PRS.1SG]
+    PRS.2PL: { at: french, stem: "voj-", morph: [~, PRS.2PL.A] }
+    # French voyons, on the stem of voi
+    PRS.1PL: { at: french, stem: "voj-", morph: [~, PRS.1PL.O] }
+    # Spanish visto, from *vīstum
+    PTCP: { at: ibero-romance, stem: "βíst-", morph: [~, O.ACC.SG] }
+  events:
+    # Spanish ver, ves, vemos: veer contracted (creer, leer did not)
+    - analogy: { at: spanish, rule: "e é / é / _", model: "contraction in a short verb" }
+    - analogy: { at: spanish, rule: "é e / é / _", model: "contraction in a short verb" }
+  expect:
+    old-spanish: { INF: βeéɾ, PRS.1SG: βéo, PRS.2SG: βées, PRS.3SG: βée, PRS.1PL: βeémos, PRS.2PL: βeédes, PRS.3PL: βéen, FUT.1SG: βeɾé, FUT.3SG: βeɾá, PRET.3SG: βío, PTCP: βísto }
+    spanish: { INF: béɾ, PRS.1SG: béo, PRS.2SG: bés, PRS.3SG: bé, PRS.1PL: bémos, PRS.2PL: béjs, PRS.3PL: bén, FUT.1SG: beɾé, FUT.3SG: beɾá, PRET.3SG: bjó, PTCP: bísto }
+    old-french: { INF: vəojr, PRS.1SG: voj, PRS.2SG: vojts, PRS.3SG: vojt, PRS.1PL: vəons, PRS.2PL: vəets, PRS.3PL: vojənt, FUT.1SG: verraj, FUT.3SG: verra, PRET.3SG: vit, PTCP: vəy }
+    french: { INF: vwaʁ, PRS.1SG: vwa, PRS.2SG: vwa, PRS.3SG: vwa, PRS.1PL: vwajɔ̃, PRS.2PL: vwaje, PRS.3PL: vwa, FUT.1SG: vɛʁe, FUT.3SG: vɛʁa, PRET.3SG: vi, PTCP: vy }
+
+- id: potere
+  form: "*pot-"
+  stage: vulgar-latin
+  gloss: "be able"
+  category: [{ at: vulgar-latin, is: V }]
+  paradigm: verb-e
+  cells:
+    # puedo, without the yod of *poteō
+    PRS.1SG: [~, PRS.1SG]
+    # the u-perfect potuit (OF pot)
+    PRET.3SG: [~, PRET.3SG.U]
+    PRS.2PL: { at: french, stem: "puv-", morph: [~, PRS.2PL.A] }
+    # French pouvoir, pouvons, pouvez, peuvent: v from the imperfect
+    # pouvoie and from mouvoir
+    INF: { at: french, stem: "puv-", morph: [~, INF.E] }
+    PRS.1PL: { at: french, stem: "puv-", morph: [~, PRS.1PL.O] }
+    PRS.3PL: { at: french, stem: "pœv-", morph: [~, PRS.3PL.E] }
+  events:
+    # OF puis, from *possjo for possum, perhaps after the subjunctives
+    # *monja, *audja (Pope)
+    - analogy: { at: gallo-romance, cell: PRS.1SG, rule: "t o / s s j o / # p ɔ́ _ #", model: "subjunctive *monja, *audja" }
+    # OSp pudo: the u of 1sg pude, where ō was raised by the glide and -ī (Penny)
+    - analogy: { at: old-spanish, cell: PRET.3SG, rule: "ó / ú / # p _", model: "1sg pude" }
+    - analogy: { at: french, cell: PRET.3SG, rule: "ɔ t / y t / _ #", model: "mourut, crut" }
+    # French peux, after peut
+    - analogy: { at: french, cell: PRS.1SG, replace: { y: ø, j: "", s: "" }, model: "peut" }
+  expect:
+    old-spanish: { INF: podéɾ, PRS.1SG: pwédo, PRS.2SG: pwédes, PRS.3SG: pwéde, PRS.1PL: podémos, PRS.2PL: podédes, PRS.3PL: pwéden, FUT.1SG: podɾé, FUT.3SG: podɾá, PRET.3SG: púdo, PTCP: podído }
+    spanish: { INF: podéɾ, PRS.1SG: pwédo, PRS.2SG: pwédes, PRS.3SG: pwéde, PRS.1PL: podémos, PRS.2PL: podéjs, PRS.3PL: pwéden, FUT.1SG: podɾé, FUT.3SG: podɾá, PRET.3SG: púdo, PTCP: podído }
+    old-french: { INF: poojr, PRS.1SG: pyjs, PRS.2SG: pwɛts, PRS.3SG: pwɛt, PRS.1PL: poons, PRS.2PL: poets, PRS.3PL: pwɛənt, FUT.1SG: porraj, FUT.3SG: porra, PRET.3SG: pɔt, PTCP: pəy }
+    french: { INF: puvwaʁ, PRS.1SG: pø, PRS.2SG: pø, PRS.3SG: pø, PRS.1PL: puvɔ̃, PRS.2PL: puve, PRS.3PL: pœv, FUT.1SG: puʁe, FUT.3SG: puʁa, PRET.3SG: py, PTCP: py }
+
+- id: tenere
+  form: "*ten-"
+  gloss: { latin: "hold", spanish: "have, hold" }
+  category: [{ at: latin, is: V }]
+  paradigm: verb-e
+  cells:
+    PRET.3SG: { stem: "*tenu-" }
+    # OF tenir, on the fourth conjugation (venir)
+    INF: { at: gallo-romance, morph: [~, INF.I] }
+    # French tiendrai, on the stem of tient
+    FUT.1SG: { at: french, stem: "tjendr-", morph: [~, FUT.1SG] }
+    FUT.3SG: { at: french, stem: "tjendr-", morph: [~, FUT.3SG] }
+  events:
+    # Spanish tengo, after digo, fago
+    - analogy: { at: old-spanish, cell: PRS.1SG, replace: { j: "", ɲ: n g }, model: "digo" }
+    # OSp tovo, on the pattern of ove rather than from tenuī (Penny)
+    - analogy: { at: ibero-romance, cell: PRET.3SG, rule: "ɛ́ n w / á b w / # t _", model: "ove" }
+    - analogy: { at: spanish, cell: PRET.3SG, replace: { ó: ú }, model: "hube" }
+    # OF tint: the i of 1sg tin (teniō, tēnī, with umlaut), and vint (Pope)
+    - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "ɛ́ n w e t / í n t / _ #", model: "1sg tin, vint" }
+  expect:
+    old-spanish: { INF: tenéɾ, PRS.1SG: téngo, PRS.2SG: tjénes, PRS.3SG: tjéne, PRS.1PL: tenémos, PRS.2PL: tenédes, PRS.3PL: tjénen, FUT.1SG: teɾné, FUT.3SG: teɾná, PRET.3SG: tóβo, PTCP: tenído }
+    spanish: { INF: tenéɾ, PRS.1SG: téngo, PRS.2SG: tjénes, PRS.3SG: tjéne, PRS.1PL: tenémos, PRS.2PL: tenéjs, PRS.3PL: tjénen, FUT.1SG: tendɾé, FUT.3SG: tendɾá, PRET.3SG: túbo, PTCP: tenído }
+    old-french: { INF: tənir, PRS.1SG: tjeɲ, PRS.2SG: tjens, PRS.3SG: tjent, PRS.1PL: tənons, PRS.2PL: tənets, PRS.3PL: tjenənt, FUT.1SG: tandraj, FUT.3SG: tandra, PRET.3SG: tint, PTCP: təny }
+    french: { INF: təniʁ, PRS.1SG: tjɛ̃, PRS.2SG: tjɛ̃, PRS.3SG: tjɛ̃, PRS.1PL: tənɔ̃, PRS.2PL: təne, PRS.3PL: tjɛn, FUT.1SG: tjɛ̃dʁe, FUT.3SG: tjɛ̃dʁa, PRET.3SG: tɛ̃, PTCP: təny }
+
+- id: venire
+  form: "*wen-"
+  gloss: "come"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-iu
+  cells:
+    PRET.3SG: { stem: "*wēn-", morph: [~, PRET.3SG.S] }
+    # French viendrai, on the stem of vient
+    FUT.1SG: { at: french, stem: "vjendr-", morph: [~, FUT.1SG] }
+    FUT.3SG: { at: french, stem: "vjendr-", morph: [~, FUT.3SG] }
+  events:
+    - analogy: { at: old-spanish, cell: PRS.1SG, replace: { j: "", ɲ: n g }, model: "digo" }
+    # vint, vino: the i of 1sg vīnī
+    - analogy: { at: western-romance, cell: PRET.3SG, replace: { ē: ī }, model: "1sg vīnī" }
+  expect:
+    old-spanish: { INF: βeníɾ, PRS.1SG: βéngo, PRS.2SG: βjénes, PRS.3SG: βjéne, PRS.1PL: βenímos, PRS.2PL: βenídes, PRS.3PL: βjénen, FUT.1SG: βeɾné, FUT.3SG: βeɾná, PRET.3SG: βíno, PTCP: βenído }
+    spanish: { INF: beníɾ, PRS.1SG: béngo, PRS.2SG: bjénes, PRS.3SG: bjéne, PRS.1PL: benímos, PRS.2PL: benís, PRS.3PL: bjénen, FUT.1SG: bendɾé, FUT.3SG: bendɾá, PRET.3SG: bíno, PTCP: benído }
+    old-french: { INF: vənir, PRS.1SG: vjeɲ, PRS.2SG: vjens, PRS.3SG: vjent, PRS.1PL: vənons, PRS.2PL: vənets, PRS.3PL: vjenənt, FUT.1SG: vandraj, FUT.3SG: vandra, PRET.3SG: vint, PTCP: vəny }
+    french: { INF: vəniʁ, PRS.1SG: vjɛ̃, PRS.2SG: vjɛ̃, PRS.3SG: vjɛ̃, PRS.1PL: vənɔ̃, PRS.2PL: vəne, PRS.3PL: vjɛn, FUT.1SG: vjɛ̃dʁe, FUT.3SG: vjɛ̃dʁa, PRET.3SG: vɛ̃, PTCP: vəny }
+
+- id: mori
+  form: "*mor-"
+  stage: vulgar-latin
+  gloss: "die"
+  category: [{ at: vulgar-latin, is: V }]
+  paradigm: verb-i
+  cells:
+    # the u-perfect *morūit, stressed on the ending, which kept its u (OF
+    # morut); Spanish murió is weak
+    PRET.3SG: [[~, PRET.3SG.UU], { at: ibero-romance, morph: [~, PRET.3SG.I] }, { at: gallo-romance, morph: [~, PRET.3SG.UU] }]
+    # Spanish muero, without the yod of *moriō (OF muir keeps it); French
+    # meurs, on meurs (2sg), replacing muir
+    PRS.1SG: [{ at: ibero-romance, stem: "mɔ́r-", morph: [~, PRS.1SG] }, { at: french, base: mori.PRS.2SG, morph: ~ }]
+    # Spanish moriré, remade on the infinitive
+    FUT.1SG: { at: spanish, stem: "moɾiɾ-", morph: [~, FUT.1SG] }
+    FUT.3SG: { at: spanish, stem: "moɾiɾ-", morph: [~, FUT.3SG] }
+    PTCP: { stem: "*mort-", morph: [~, PTCP.S] }
+  expect:
+    old-spanish: { INF: moɾíɾ, PRS.1SG: mwéɾo, PRS.2SG: mwéɾes, PRS.3SG: mwéɾe, PRS.1PL: moɾímos, PRS.2PL: moɾídes, PRS.3PL: mwéɾen, FUT.1SG: moré, FUT.3SG: morá, PRET.3SG: muɾjó, PTCP: mwéɾto }
+    spanish: { INF: moɾíɾ, PRS.1SG: mwéɾo, PRS.2SG: mwéɾes, PRS.3SG: mwéɾe, PRS.1PL: moɾímos, PRS.2PL: moɾís, PRS.3PL: mwéɾen, FUT.1SG: moɾiɾé, FUT.3SG: moɾiɾá, PRET.3SG: muɾjó, PTCP: mwéɾto }
+    old-french: { INF: morir, PRS.1SG: myjr, PRS.2SG: mwɛrs, PRS.3SG: mwɛrt, PRS.1PL: morons, PRS.2PL: morets, PRS.3PL: mwɛrənt, FUT.1SG: morraj, FUT.3SG: morra, PRET.3SG: mory, PTCP: mɔrt }
+    french: { INF: muʁiʁ, PRS.1SG: mœʁ, PRS.2SG: mœʁ, PRS.3SG: mœʁ, PRS.1PL: muʁɔ̃, PRS.2PL: muʁe, PRS.3PL: mœʁ, FUT.1SG: muʁʁe, FUT.3SG: muʁʁa, PRET.3SG: muʁy, PTCP: mɔʁ }
+
+- id: facere
+  form: "*fak-"
+  gloss: "do, make"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-c-s
+  cells:
+    PRET.3SG: { stem: "*fēk-" }
+    PTCP: { stem: "*fakt-" }
+    # Spanish hacemos, hacéis, remade on the infinitive
+    PRS.1PL: [{ at: spanish, stem: "fadz-", morph: [~, PRS.1PL.E] }, { at: french, stem: "fəz-", morph: [~, PRS.1PL.O] }]
+    PRS.2PL: { at: spanish, stem: "fadz-", morph: [~, PRS.2PL.E] }
+    # faciō: OF faz; French fais, on fais (2sg), from the 13th century (Pope)
+    PRS.1SG: [{ stem: "*faki-" }, { at: french, base: facere.PRS.2SG, morph: ~ }]
+  events:
+    # the reduced future of Vulgar Latin *fare
+    - analogy: { at: gallo-romance, cell: FUT.1SG, replace: { dz: "", e: "", a: ə }, model: "VL *fare" }
+    - analogy: { at: gallo-romance, cell: FUT.3SG, replace: { dz: "", e: "", a: ə }, model: "VL *fare" }
+    - analogy: { at: ibero-romance, cell: FUT.1SG, replace: { dz: "", e: "" }, model: "VL *fare" }
+    - analogy: { at: ibero-romance, cell: FUT.3SG, replace: { dz: "", e: "" }, model: "VL *fare" }
+    # OSp femos, feches keep the stress of facimus, facitis, but their
+    # syncope came before the palatalisation (kt > ch, as fecho): the rules
+    # syncopate later, as in diezmo, plazdo
+    - irregular: { at: old-spanish, cell: PRS.1PL, form: "fémos", reason: "early syncope, *fac'mus, with the Latin stress" }
+    - irregular: { at: old-spanish, cell: PRS.2PL, form: "fétʃes", reason: "early syncope, *fac'tis, with the Latin stress" }
+    # fizo, fist: the i of 1sg fēcī
+    - analogy: { at: old-spanish, cell: PRET.3SG, replace: { é: í }, model: "1sg fize" }
+    # OF fist: the i of 1sg fis (fēcī, with umlaut), s after dist, mist (Pope)
+    - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "é dz / í s / _", model: "1sg fis" }
+    # OSp fago, without the yod of faciō, as digo
+    - analogy: { at: ibero-romance, cell: PRS.1SG, rule: "dz j o / g o / _ #", model: "digo" }
+    # OF font, from *faunt for *facunt, after *aunt, *vaunt (Pope)
+    - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á dz e n t / áu n t / _ #", model: "*aunt, *vaunt" }
+  expect:
+    old-spanish: { INF: fadzéɾ, PRS.1SG: fágo, PRS.2SG: fádzes, PRS.3SG: fádze, PRS.1PL: fémos, PRS.2PL: fétʃes, PRS.3PL: fádzen, FUT.1SG: faɾé, FUT.3SG: faɾá, PRET.3SG: fídzo, PTCP: fétʃo }
+    spanish: { INF: aθéɾ, PRS.1SG: ágo, PRS.2SG: áθes, PRS.3SG: áθe, PRS.1PL: aθémos, PRS.2PL: aθéjs, PRS.3PL: áθen, FUT.1SG: aɾé, FUT.3SG: aɾá, PRET.3SG: íθo, PTCP: étʃo }
+    old-french: { INF: fajrə, PRS.1SG: fats, PRS.2SG: fajs, PRS.3SG: fajt, PRS.1PL: fajməs, PRS.2PL: fajtəs, PRS.3PL: font, FUT.1SG: fəraj, FUT.3SG: fəra, PRET.3SG: fist, PTCP: fajt }
+    french: { INF: fɛʁ, PRS.1SG: fɛ, PRS.2SG: fɛ, PRS.3SG: fɛ, PRS.1PL: fəzɔ̃, PRS.2PL: fɛt, PRS.3PL: fɔ̃, FUT.1SG: fəʁe, FUT.3SG: fəʁa, PRET.3SG: fi, PTCP: fɛ }
+
+- id: dicere
+  form: "*dīk-"
+  gloss: "say"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-c-ir
+  cells:
+    PRET.3SG: { stem: "*dīks-" }
+    # *dīctum, with the ī of dīcere
+    PTCP: { stem: "*dīkt-" }
+    # French disons, on the stem of disent
+    PRS.1PL: { at: french, stem: "diz-", morph: [~, PRS.1PL.O] }
+    # French disent
+    PRS.3PL: { at: french, stem: "diz-", morph: [~, PRS.3PL.E] }
+  events:
+    # dezir: i > e before the stressed i (dissimilation)
+    - analogy: { at: old-spanish, cell: INF, replace: { i: e }, model: "dissimilation" }
+    - analogy: { at: old-spanish, cell: PRS.1PL, replace: { i: e }, model: "dissimilation" }
+    - analogy: { at: old-spanish, cell: PRS.2PL, replace: { i: e }, model: "dissimilation" }
+    # the reduced future of Vulgar Latin *dire
+    - analogy: { at: ibero-romance, cell: FUT.1SG, replace: { dz: "", e: "" }, model: "VL *dire" }
+    - analogy: { at: ibero-romance, cell: FUT.3SG, replace: { dz: "", e: "" }, model: "VL *dire" }
+  expect:
+    old-spanish: { INF: dedzíɾ, PRS.1SG: dígo, PRS.2SG: dídzes, PRS.3SG: dídze, PRS.1PL: dedzímos, PRS.2PL: dedzídes, PRS.3PL: dídzen, FUT.1SG: diɾé, FUT.3SG: diɾá, PRET.3SG: díʃo, PTCP: dítʃo }
+    spanish: { INF: deθíɾ, PRS.1SG: dígo, PRS.2SG: díθes, PRS.3SG: díθe, PRS.1PL: deθímos, PRS.2PL: deθís, PRS.3PL: díθen, FUT.1SG: diɾé, FUT.3SG: diɾá, PRET.3SG: díxo, PTCP: dítʃo }
+    old-french: { INF: dirə, PRS.1SG: di, PRS.2SG: dis, PRS.3SG: dit, PRS.1PL: diməs, PRS.2PL: ditəs, PRS.3PL: diənt, FUT.1SG: diraj, FUT.3SG: dira, PRET.3SG: dist, PTCP: dit }
+    french: { INF: diʁ, PRS.1SG: di, PRS.2SG: di, PRS.3SG: di, PRS.1PL: dizɔ̃, PRS.2PL: dit, PRS.3PL: diz, FUT.1SG: diʁe, FUT.3SG: diʁa, PRET.3SG: di, PTCP: di }
+
+# esse and ire are suppletive: their cells continue other verbs on one
+# line or both. Each cell has a stem or base of its own (verb-x).
+
+- id: sedere
+  form: "*sed-"
+  gloss: { latin: "sit", old-spanish: "sit; be", spanish: "be" }
+  category: [{ at: latin, is: V }]
+  paradigm: verb-e
+  cells:
+    # seído, on the stem as it is in Ibero-Romance
+    PTCP: { at: ibero-romance, stem: "seð-", morph: [~, PTCP.I] }
+  notes: The Spanish infinitive, future and participle of {esse}.
+
+- id: allare
+  form: "*all-"
+  stage: vulgar-latin
+  gloss: "go"
+  category: [{ at: vulgar-latin, is: V }]
+  paradigm: verb-a
+  fate: { ibero-romance: lost }
+  notes: |
+    Of disputed origin (ambulāre?). The French infinitive, plurals,
+    preterite and participle of {ire}.
+
+- id: esse
+  form: "*esse"
+  gloss: "be"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-x
+  cells:
+    # Vulgar Latin *essere; Spanish ser, from sedēre
+    INF: [{ stem: "*essere-" }, { at: ibero-romance, base: sedere.INF, morph: ~ }]
+    # Vulgar Latin *sō (OSp so)
+    PRS.1SG: { stem: "*sō-" }
+    # Spanish eres, from the future eris
+    PRS.2SG: [{ stem: "*es-" }, { at: ibero-romance, stem: "ér-", morph: [~, PRS.2SG.C] }]
+    PRS.3SG: { stem: "*est-" }
+    PRS.1PL: { stem: "*sumus-" }
+    # Vulgar Latin *sutis in Spanish (sodes)
+    PRS.2PL: [{ stem: "*estis-" }, { at: ibero-romance, stem: "sót-", morph: [~, PRS.2SG.C] }]
+    PRS.3PL: { stem: "*sunt-" }
+    FUT.1SG: [{ at: western-romance, stem: "*ser-", morph: [~, FUT.1SG] }, { at: ibero-romance, base: sedere.FUT.1SG, morph: ~ }]
+    FUT.3SG: [{ at: western-romance, stem: "*ser-", morph: [~, FUT.3SG] }, { at: ibero-romance, base: sedere.FUT.3SG, morph: ~ }]
+    PRET.3SG: { stem: "*fūit-" }
+    # OF esté from stātum (stare); Spanish sido from sedēre
+    PTCP: [{ base: stare.PTCP }, { at: ibero-romance, base: sedere.PTCP, morph: ~ }]
+  events:
+    # es, not *ies: unstressed
+    - analogy: { at: ibero-romance, cell: PRS.3SG, replace: { ɛ́: é }, model: "unstressed use" }
+    - analogy: { at: spanish, cell: PRS.1SG, replace: { ó: ó j }, model: "hay, ley" }
+    - analogy: { at: spanish, cell: PRS.2PL, replace: { d: "", e: j }, model: "the 2pl -áis" }
+    - analogy: { at: spanish, cell: PTCP, replace: { e: "" }, model: "ser" }
+    # Spanish ser, from seer
+    - analogy: { at: spanish, cell: INF, rule: "e é / é / _", model: "contraction in a short verb" }
+    - irregular: { at: old-french, cell: PRS.1SG, form: "syj", reason: "influenced by fui, not fully explained (Pope)" }
+    # OF somes, the alternative form beside the regular sons (Pope)
+    - analogy: { at: old-french, cell: PRS.1PL, rule: "o / ə / m _ s #", model: "faimes, dimes" }
+    # French es continues the unstressed OF ẹs, not ies (Pope)
+    - analogy: { at: french, cell: PRS.2SG, rule: "j e / ɛ / # _", model: "the unstressed form" }
+  expect:
+    old-spanish: { INF: seéɾ, PRS.1SG: só, PRS.2SG: éɾes, PRS.3SG: és, PRS.1PL: sómos, PRS.2PL: sódes, PRS.3PL: són, FUT.1SG: seɾé, FUT.3SG: seɾá, PRET.3SG: fwé, PTCP: seído }
+    spanish: { INF: séɾ, PRS.1SG: sój, PRS.2SG: éɾes, PRS.3SG: és, PRS.1PL: sómos, PRS.2PL: sójs, PRS.3PL: són, FUT.1SG: seɾé, FUT.3SG: seɾá, PRET.3SG: fwé, PTCP: sído }
+    old-french: { INF: ɛstrə, PRS.1SG: syj, PRS.2SG: jes, PRS.3SG: ɛst, PRS.1PL: soməs, PRS.2PL: ɛstəs, PRS.3PL: sont, FUT.1SG: səraj, FUT.3SG: səra, PRET.3SG: fy, PTCP: este }
+    french: { INF: ɛtʁ, PRS.1SG: sɥi, PRS.2SG: ɛ, PRS.3SG: ɛ, PRS.1PL: sɔm, PRS.2PL: ɛt, PRS.3PL: sɔ̃, FUT.1SG: səʁe, FUT.3SG: səʁa, PRET.3SG: fy, PTCP: ete }
+
+- id: ire
+  form: "*īre"
+  gloss: "go"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-x
+  cells:
+    # French aller, from *allāre
+    INF: [{ stem: "*īre-" }, { at: gallo-romance, base: allare.INF, morph: ~ }]
+    # the singular and 3pl from vādere: Vulgar Latin *vao, *vas, *vat, *vant
+    PRS.1SG: { stem: "*wao-" }
+    PRS.2SG: { stem: "*was-" }
+    PRS.3SG: { stem: "*wat-" }
+    # Spanish vamos, vais (vādere); French alons, alez (*allāre)
+    PRS.1PL: [{ stem: "*īmus-" }, { at: spanish, stem: "βámos-", morph: ~ }, { at: gallo-romance, base: allare.PRS.1PL, morph: ~ }]
+    PRS.2PL: [{ stem: "*ītis-" }, { at: spanish, stem: "βájs-", morph: ~ }, { at: gallo-romance, base: allare.PRS.2PL, morph: ~ }]
+    PRS.3PL: { stem: "*want-" }
+    FUT.1SG: { at: western-romance, stem: "*īr-", morph: [~, FUT.1SG] }
+    FUT.3SG: { at: western-romance, stem: "*īr-", morph: [~, FUT.3SG] }
+    # Spanish fue (esse); French ala (*allāre)
+    PRET.3SG: [{ base: esse.PRET.3SG }, { at: gallo-romance, base: allare.PRET.3SG, morph: ~ }]
+    PTCP: [{ stem: "*īt-", morph: [~, PTCP.S] }, { at: gallo-romance, base: allare.PTCP, morph: ~ }]
+  events:
+    - analogy: { at: spanish, cell: PRS.1SG, replace: { ó: ó j }, model: "soy" }
+    - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á n t / áu n t / _ #", model: "sunt" }
+    - irregular: { at: old-french, cell: PRS.1SG, form: "vojs", reason: "for *vao; Pope too, who supposes a form in *-sjo" }
+    # French vais: oi > wę > ę, the outcome of -ais and français rather than
+    # wa (Pope: vǫis > vwęs > vę)
+    - analogy: { at: french, cell: PRS.1SG, rule: "o j / ɛ / # v _ s #", model: "the ę of -ais, français" }
+  expect:
+    old-spanish: { INF: íɾ, PRS.1SG: βó, PRS.2SG: βás, PRS.3SG: βá, PRS.1PL: ímos, PRS.2PL: ídes, PRS.3PL: βán, FUT.1SG: iɾé, FUT.3SG: iɾá, PRET.3SG: fwé, PTCP: ído }
+    spanish: { INF: íɾ, PRS.1SG: bój, PRS.2SG: bás, PRS.3SG: bá, PRS.1PL: bámos, PRS.2PL: bájs, PRS.3PL: bán, FUT.1SG: iɾé, FUT.3SG: iɾá, PRET.3SG: fwé, PTCP: ído }
+    old-french: { INF: aler, PRS.1SG: vojs, PRS.2SG: vas, PRS.3SG: va, PRS.1PL: alons, PRS.2PL: alets, PRS.3PL: vont, FUT.1SG: iraj, FUT.3SG: ira, PRET.3SG: ala, PTCP: ale }
+    french: { INF: ale, PRS.1SG: vɛ, PRS.2SG: va, PRS.3SG: va, PRS.1PL: alɔ̃, PRS.2PL: ale, PRS.3PL: vɔ̃, FUT.1SG: iʁe, FUT.3SG: iʁa, PRET.3SG: ala, PTCP: ale }
+
+# Batch 5: mostly weak verbs.
+
+- id: lavare
+  form: "*law-"
+  gloss: "wash"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  events:
+    # French lave: the stem of lavons, laver levelled into lef, leves
+    - analogy: { at: french, rule: "e / a / # l _ v", model: "lavons" }
+  expect:
+    old-spanish: { INF: laβáɾ, PRS.1SG: láβo, PRS.2SG: láβas, PRS.3SG: láβa, PRS.1PL: laβámos, PRS.2PL: laβádes, PRS.3PL: láβan, FUT.1SG: laβaɾé, FUT.3SG: laβaɾá, PRET.3SG: laβó, PTCP: laβádo }
+    spanish: { INF: labáɾ, PRS.1SG: lábo, PRS.2SG: lábas, PRS.3SG: lába, PRS.1PL: labámos, PRS.2PL: labájs, PRS.3PL: lában, FUT.1SG: labaɾé, FUT.3SG: labaɾá, PRET.3SG: labó, PTCP: labádo }
+    old-french: { INF: laver, PRS.1SG: lef, PRS.2SG: levəs, PRS.3SG: levə, PRS.1PL: lavons, PRS.2PL: lavets, PRS.3PL: levənt, FUT.1SG: lavəraj, FUT.3SG: lavəra, PRET.3SG: lava, PTCP: lave }
+    french: { INF: lave, PRS.1SG: lav, PRS.2SG: lav, PRS.3SG: lav, PRS.1PL: lavɔ̃, PRS.2PL: lave, PRS.3PL: lav, FUT.1SG: lavʁe, FUT.3SG: lavʁa, PRET.3SG: lava, PTCP: lave }
+
+- id: clamare
+  form: "*klām-"
+  gloss: "call, cry out"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  events:
+    # French clame: the stem of clamons levelled into claim, claimes
+    - analogy: { at: french, rule: "a j / a / # k l _", model: "clamons" }
+  expect:
+    old-spanish: { INF: ʎamáɾ, PRS.1SG: ʎámo, PRS.2SG: ʎámas, PRS.3SG: ʎáma, PRS.1PL: ʎamámos, PRS.2PL: ʎamádes, PRS.3PL: ʎáman, FUT.1SG: ʎamaɾé, FUT.3SG: ʎamaɾá, PRET.3SG: ʎamó, PTCP: ʎamádo }
+    spanish: { INF: ʎamáɾ, PRS.1SG: ʎámo, PRS.2SG: ʎámas, PRS.3SG: ʎáma, PRS.1PL: ʎamámos, PRS.2PL: ʎamájs, PRS.3PL: ʎáman, FUT.1SG: ʎamaɾé, FUT.3SG: ʎamaɾá, PRET.3SG: ʎamó, PTCP: ʎamádo }
+    old-french: { INF: klamer, PRS.1SG: klajm, PRS.2SG: klajməs, PRS.3SG: klajmə, PRS.1PL: klamons, PRS.2PL: klamets, PRS.3PL: klajmənt, FUT.1SG: klaməraj, FUT.3SG: klaməra, PRET.3SG: klama, PTCP: klame }
+    french: { INF: klame, PRS.1SG: klam, PRS.2SG: klam, PRS.3SG: klam, PRS.1PL: klamɔ̃, PRS.2PL: klame, PRS.3PL: klam, FUT.1SG: klamʁe, FUT.3SG: klamʁa, PRET.3SG: klama, PTCP: klame }
+
+- id: pensare
+  form: "*pēns-"
+  gloss: "weigh"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  cells:
+    # French pèse (1sg), on the 3sg
+    PRS.1SG: { at: french, base: pensare.PRS.3SG, morph: ~ }
+  events:
+    # French pèse, pèserai: the stressed stem levelled through the verb
+    - analogy: { at: french, rule: "o j / ɛ / # p _", model: "pèse" }
+    - analogy: { at: french, cell: FUT.1SG, rule: "ə / ɛ / # p _ z ə", model: "pèse" }
+    - analogy: { at: french, cell: FUT.3SG, rule: "ə / ɛ / # p _ z ə", model: "pèse" }
+  expect:
+    old-spanish: { INF: pesáɾ, PRS.1SG: péso, PRS.2SG: pésas, PRS.3SG: pésa, PRS.1PL: pesámos, PRS.2PL: pesádes, PRS.3PL: pésan, FUT.1SG: pesaɾé, FUT.3SG: pesaɾá, PRET.3SG: pesó, PTCP: pesádo }
+    spanish: { INF: pesáɾ, PRS.1SG: péso, PRS.2SG: pésas, PRS.3SG: pésa, PRS.1PL: pesámos, PRS.2PL: pesájs, PRS.3PL: pésan, FUT.1SG: pesaɾé, FUT.3SG: pesaɾá, PRET.3SG: pesó, PTCP: pesádo }
+    old-french: { INF: pəzer, PRS.1SG: pojs, PRS.2SG: pojzəs, PRS.3SG: pojzə, PRS.1PL: pəzons, PRS.2PL: pəzets, PRS.3PL: pojzənt, FUT.1SG: pəzəraj, FUT.3SG: pəzəra, PRET.3SG: pəza, PTCP: pəze }
+    french: { INF: pəze, PRS.1SG: pɛz, PRS.2SG: pɛz, PRS.3SG: pɛz, PRS.1PL: pəzɔ̃, PRS.2PL: pəze, PRS.3PL: pɛz, FUT.1SG: pɛzʁe, FUT.3SG: pɛzʁa, PRET.3SG: pəza, PTCP: pəze }
+
+- id: pensare-l
+  form: "*pens-"
+  gloss: "think"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-a
+  events:
+    # Learned: the n of Latin pensāre, restored in the inherited word
+    - analogy: { at: ibero-romance, rule: "/ n / # p [e é ɛ́] _ s", model: "Latin pensāre" }
+    - analogy: { at: gallo-romance, rule: "/ n / # p [e é ɛ́] _ s", model: "Latin pensāre" }
+  expect:
+    old-spanish: { INF: pensáɾ, PRS.1SG: pjénso, PRS.2SG: pjénsas, PRS.3SG: pjénsa, PRS.1PL: pensámos, PRS.2PL: pensádes, PRS.3PL: pjénsan, FUT.1SG: pensaɾé, FUT.3SG: pensaɾá, PRET.3SG: pensó, PTCP: pensádo }
+    spanish: { INF: pensáɾ, PRS.1SG: pjénso, PRS.2SG: pjénsas, PRS.3SG: pjénsa, PRS.1PL: pensámos, PRS.2PL: pensájs, PRS.3PL: pjénsan, FUT.1SG: pensaɾé, FUT.3SG: pensaɾá, PRET.3SG: pensó, PTCP: pensádo }
+    old-french: { INF: panser, PRS.1SG: pans, PRS.2SG: pansəs, PRS.3SG: pansə, PRS.1PL: pansons, PRS.2PL: pansets, PRS.3PL: pansənt, FUT.1SG: pansəraj, FUT.3SG: pansəra, PRET.3SG: pansa, PTCP: panse }
+    french: { INF: pɑ̃se, PRS.1SG: pɑ̃s, PRS.2SG: pɑ̃s, PRS.3SG: pɑ̃s, PRS.1PL: pɑ̃sɔ̃, PRS.2PL: pɑ̃se, PRS.3PL: pɑ̃s, FUT.1SG: pɑ̃sʁe, FUT.3SG: pɑ̃sʁa, PRET.3SG: pɑ̃sa, PTCP: pɑ̃se }
+
+- id: dormire
+  form: "*dorm-"
+  gloss: "sleep"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-i
+  cells:
+    # duermo, dorm: without the yod of dormiō
+    PRS.1SG: [~, PRS.1SG]
+  events:
+    # French dors, after dort
+    - analogy: { at: french, cell: PRS.1SG, rule: "m / / r _ #", model: "dort" }
+  expect:
+    old-spanish: { INF: doɾmíɾ, PRS.1SG: dwéɾmo, PRS.2SG: dwéɾmes, PRS.3SG: dwéɾme, PRS.1PL: doɾmímos, PRS.2PL: doɾmídes, PRS.3PL: dwéɾmen, FUT.1SG: doɾmiɾé, FUT.3SG: doɾmiɾá, PRET.3SG: duɾmjó, PTCP: doɾmído }
+    spanish: { INF: doɾmíɾ, PRS.1SG: dwéɾmo, PRS.2SG: dwéɾmes, PRS.3SG: dwéɾme, PRS.1PL: doɾmímos, PRS.2PL: doɾmís, PRS.3PL: dwéɾmen, FUT.1SG: doɾmiɾé, FUT.3SG: doɾmiɾá, PRET.3SG: duɾmjó, PTCP: doɾmído }
+    old-french: { INF: dɔrmir, PRS.1SG: dɔrm, PRS.2SG: dɔrs, PRS.3SG: dɔrt, PRS.1PL: dɔrmons, PRS.2PL: dɔrmets, PRS.3PL: dɔrmənt, FUT.1SG: dɔrmiraj, FUT.3SG: dɔrmira, PRET.3SG: dɔrmi, PTCP: dɔrmi }
+    french: { INF: dɔʁmiʁ, PRS.1SG: dɔʁ, PRS.2SG: dɔʁ, PRS.3SG: dɔʁ, PRS.1PL: dɔʁmɔ̃, PRS.2PL: dɔʁme, PRS.3PL: dɔʁm, FUT.1SG: dɔʁmiʁe, FUT.3SG: dɔʁmiʁa, PRET.3SG: dɔʁmi, PTCP: dɔʁmi }
+
+- id: audire
+  form: "*aud-"
+  gloss: "hear"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-i
+  cells:
+    # Spanish oiré, French ouïrai, remade on the infinitive
+    FUT.1SG: [{ at: spanish, stem: "oiɾ-", morph: [~, FUT.1SG] }, { at: french, stem: "oir-", morph: [~, FUT.1SG] }]
+    FUT.3SG: [{ at: spanish, stem: "oiɾ-", morph: [~, FUT.3SG] }, { at: french, stem: "oir-", morph: [~, FUT.3SG] }]
+  events:
+    # OSp oyes, oye, oyen: the yod of oyo spread
+    - analogy: { at: old-spanish, rule: "ó e / ó j e / _", model: "oyo" }
+    # OSp odrá: d kept before r
+    - analogy: { at: old-spanish, cell: FUT.1SG, rule: "/ d / # o _ r", model: "oír" }
+    - analogy: { at: old-spanish, cell: FUT.3SG, rule: "/ d / # o _ r", model: "oír" }
+    - analogy: { at: spanish, cell: PRS.1SG, rule: "/ g / j _ o #", model: "caigo" }
+    # French ois, oit, oient, oyons, oyez, after voir
+    - analogy: { at: french, cell: PRS.1SG, rule: "ɔ j / o j / # _", model: "vois" }
+    - analogy: { at: french, rule: "ɔ / o j / # _ [t ə]", model: "voit" }
+    - analogy: { at: french, cell: PRS.1PL, rule: "o / ɔ j / # _", model: "voyons" }
+    - analogy: { at: french, cell: PRS.2PL, rule: "o / ɔ j / # _", model: "voyons" }
+  expect:
+    old-spanish: { INF: oíɾ, PRS.1SG: ójo, PRS.2SG: ójes, PRS.3SG: óje, PRS.1PL: oímos, PRS.2PL: oídes, PRS.3PL: ójen, FUT.1SG: odɾé, FUT.3SG: odɾá, PRET.3SG: ojó, PTCP: oído }
+    spanish: { INF: oíɾ, PRS.1SG: ójgo, PRS.2SG: óʝes, PRS.3SG: óʝe, PRS.1PL: oímos, PRS.2PL: oís, PRS.3PL: óʝen, FUT.1SG: oiɾé, FUT.3SG: oiɾá, PRET.3SG: oʝó, PTCP: oído }
+    old-french: { INF: oir, PRS.1SG: ɔj, PRS.2SG: ɔts, PRS.3SG: ɔt, PRS.1PL: oons, PRS.2PL: oets, PRS.3PL: ɔənt, FUT.1SG: orraj, FUT.3SG: orra, PRET.3SG: oi, PTCP: oi }
+    french: { INF: wiʁ, PRS.1SG: wa, PRS.2SG: wa, PRS.3SG: wa, PRS.1PL: ɔjɔ̃, PRS.2PL: ɔje, PRS.3PL: wa, FUT.1SG: wiʁe, FUT.3SG: wiʁa, PRET.3SG: wi, PTCP: wi }
+
+- id: vendere
+  form: "*wēnd-"
+  gloss: "sell"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-c
+  cells:
+    # OF vendié
+    PRET.3SG: { at: gallo-romance, morph: [~, PRET.3SG.GR.E] }
+  events:
+    # French vendit, after the -it of dormit
+    - analogy: { at: french, cell: PRET.3SG, rule: "j e / i / _ #", model: "dormit" }
+  expect:
+    old-spanish: { INF: βendéɾ, PRS.1SG: βéndo, PRS.2SG: βéndes, PRS.3SG: βénde, PRS.1PL: βendémos, PRS.2PL: βendédes, PRS.3PL: βénden, FUT.1SG: βendeɾé, FUT.3SG: βendeɾá, PRET.3SG: βendjó, PTCP: βendído }
+    spanish: { INF: bendéɾ, PRS.1SG: béndo, PRS.2SG: béndes, PRS.3SG: bénde, PRS.1PL: bendémos, PRS.2PL: bendéjs, PRS.3PL: bénden, FUT.1SG: bendeɾé, FUT.3SG: bendeɾá, PRET.3SG: bendjó, PTCP: bendído }
+    old-french: { INF: vandrə, PRS.1SG: vant, PRS.2SG: vants, PRS.3SG: vant, PRS.1PL: vandons, PRS.2PL: vandets, PRS.3PL: vandənt, FUT.1SG: vandraj, FUT.3SG: vandra, PRET.3SG: vandje, PTCP: vandy }
+    french: { INF: vɑ̃dʁ, PRS.1SG: vɑ̃, PRS.2SG: vɑ̃, PRS.3SG: vɑ̃, PRS.1PL: vɑ̃dɔ̃, PRS.2PL: vɑ̃de, PRS.3PL: vɑ̃d, FUT.1SG: vɑ̃dʁe, FUT.3SG: vɑ̃dʁa, PRET.3SG: vɑ̃di, PTCP: vɑ̃dy }
+
+- id: credere
+  form: "*krēd-"
+  gloss: "believe"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-c
+  cells:
+    # the u-perfect, stressed on the stem (OF crut, but, lut: Pope krịwwịt)
+    PRET.3SG: [~, PRET.3SG.U]
+    # French croyons, croyez, croirai: on the stem of croi
+    PRS.1PL: { at: french, stem: "kroj-", morph: [~, PRS.1PL.O] }
+    PRS.2PL: { at: french, stem: "kroj-", morph: [~, PRS.2PL.A] }
+    # OSp creeré, remade on the infinitive
+    FUT.1SG: [{ at: old-spanish, stem: "kreer-", morph: [~, FUT.1SG] }, { at: french, stem: "krojr-", morph: [~, FUT.1SG] }]
+    FUT.3SG: [{ at: old-spanish, stem: "kreer-", morph: [~, FUT.3SG] }, { at: french, stem: "krojr-", morph: [~, FUT.3SG] }]
+  events:
+    # OF crerai, not *crerrai
+    - analogy: { at: old-french, cell: FUT.1SG, rule: "ð / / _ r", model: "the infinitive creire" }
+    - analogy: { at: old-french, cell: FUT.3SG, rule: "ð / / _ r", model: "the infinitive creire" }
+  expect:
+    old-spanish: { INF: kɾeéɾ, PRS.1SG: kɾéo, PRS.2SG: kɾées, PRS.3SG: kɾée, PRS.1PL: kɾeémos, PRS.2PL: kɾeédes, PRS.3PL: kɾéen, FUT.1SG: kɾeeɾé, FUT.3SG: kɾeeɾá, PRET.3SG: kɾejó, PTCP: kɾeído }
+    spanish: { INF: kɾeéɾ, PRS.1SG: kɾéo, PRS.2SG: kɾées, PRS.3SG: kɾée, PRS.1PL: kɾeémos, PRS.2PL: kɾeéjs, PRS.3PL: kɾéen, FUT.1SG: kɾeeɾé, FUT.3SG: kɾeeɾá, PRET.3SG: kɾeʝó, PTCP: kɾeído }
+    old-french: { INF: krojrə, PRS.1SG: kroj, PRS.2SG: krojts, PRS.3SG: krojt, PRS.1PL: krəons, PRS.2PL: krəets, PRS.3PL: krojənt, FUT.1SG: krəraj, FUT.3SG: krəra, PRET.3SG: kryt, PTCP: krəy }
+    french: { INF: kʁwaʁ, PRS.1SG: kʁwa, PRS.2SG: kʁwa, PRS.3SG: kʁwa, PRS.1PL: kʁwajɔ̃, PRS.2PL: kʁwaje, PRS.3PL: kʁwa, FUT.1SG: kʁwaʁe, FUT.3SG: kʁwaʁa, PRET.3SG: kʁy, PTCP: kʁy }
+
+- id: bibere
+  form: "*bib-"
+  gloss: "drink"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-c
+  cells:
+    # the u-perfect, stressed on the stem (OF crut, but, lut: Pope krịwwịt)
+    PRET.3SG: [~, PRET.3SG.U]
+    # Spanish beberé, remade on the infinitive
+    FUT.1SG: { at: spanish, stem: "beβeɾ-", morph: [~, FUT.1SG] }
+    FUT.3SG: { at: spanish, stem: "beβeɾ-", morph: [~, FUT.3SG] }
+  events:
+    # French bois, buvons, buvez, boirai: the stems levelled differently
+    - analogy: { at: french, cell: PRS.1SG, rule: "f / / _ #", model: "boit" }
+    - analogy: { at: french, cell: PRS.1PL, rule: "ə / y / # b _", model: "but, bu" }
+    - analogy: { at: french, cell: PRS.2PL, rule: "ə / y / # b _", model: "but, bu" }
+    - analogy: { at: french, cell: FUT.1SG, rule: "ə / o j / # b _", model: "boire" }
+    - analogy: { at: french, cell: FUT.3SG, rule: "ə / o j / # b _", model: "boire" }
+  expect:
+    old-spanish: { INF: beβéɾ, PRS.1SG: béβo, PRS.2SG: béβes, PRS.3SG: béβe, PRS.1PL: beβémos, PRS.2PL: beβédes, PRS.3PL: béβen, FUT.1SG: beβɾé, FUT.3SG: beβɾá, PRET.3SG: beβjó, PTCP: beβído }
+    spanish: { INF: bebéɾ, PRS.1SG: bébo, PRS.2SG: bébes, PRS.3SG: bébe, PRS.1PL: bebémos, PRS.2PL: bebéjs, PRS.3PL: bében, FUT.1SG: bebeɾé, FUT.3SG: bebeɾá, PRET.3SG: bebjó, PTCP: bebído }
+    old-french: { INF: bojvrə, PRS.1SG: bojf, PRS.2SG: bojs, PRS.3SG: bojt, PRS.1PL: bəvons, PRS.2PL: bəvets, PRS.3PL: bojvənt, FUT.1SG: bəvraj, FUT.3SG: bəvra, PRET.3SG: byt, PTCP: bəy }
+    french: { INF: bwaʁ, PRS.1SG: bwa, PRS.2SG: bwa, PRS.3SG: bwa, PRS.1PL: byvɔ̃, PRS.2PL: byve, PRS.3PL: bwav, FUT.1SG: bwaʁe, FUT.3SG: bwaʁa, PRET.3SG: by, PTCP: by }
+
+- id: legere
+  form: "*lēg-"
+  gloss: "read"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-c
+  cells:
+    # the u-perfect, stressed on the stem (OF crut, but, lut: Pope krịwwịt)
+    PRET.3SG: [~, PRET.3SG.U]
+    # OSp leeré, remade on the infinitive
+    FUT.1SG: { at: old-spanish, stem: "leer-", morph: [~, FUT.1SG] }
+    FUT.3SG: { at: old-spanish, stem: "leer-", morph: [~, FUT.3SG] }
+    # OF lisons, lisiez, lisent: z after disons, faisons
+    PRS.1PL: { at: old-french, stem: "lidz-", morph: [~, PRS.1PL.O] }
+    PRS.2PL: { at: old-french, stem: "lidz-", morph: [~, PRS.2PL.A] }
+    PRS.3PL: { at: old-french, stem: "lidz-", morph: [~, PRS.3PL.E] }
+  events:
+    # OF lire, lis: the i of lit (lēgit) through the stem
+    - analogy: { at: gallo-romance, rule: "[e é] / [i í] / # l _ j", model: "lit" }
+    # leer, lees: j lost between e's in this verb (rey, reyes keep it)
+    - analogy: { at: old-spanish, rule: "j / / [e é] _ [e é í]", model: "creer" }
+    - analogy: { at: gallo-romance, cell: PRS.1SG, rule: "é / í / # l _", model: "lit" }
+    - analogy: { at: old-french, cell: PRS.3SG, rule: "j e t / s t / _ #", model: "dist" }
+  expect:
+    old-spanish: { INF: leéɾ, PRS.1SG: léo, PRS.2SG: lées, PRS.3SG: lée, PRS.1PL: leémos, PRS.2PL: leédes, PRS.3PL: léen, FUT.1SG: leeɾé, FUT.3SG: leeɾá, PRET.3SG: lejó, PTCP: leído }
+    spanish: { INF: leéɾ, PRS.1SG: léo, PRS.2SG: lées, PRS.3SG: lée, PRS.1PL: leémos, PRS.2PL: leéjs, PRS.3PL: léen, FUT.1SG: leeɾé, FUT.3SG: leeɾá, PRET.3SG: leʝó, PTCP: leído }
+    old-french: { INF: lirə, PRS.1SG: li, PRS.2SG: lis, PRS.3SG: list, PRS.1PL: lizons, PRS.2PL: lizjets, PRS.3PL: lizənt, FUT.1SG: liraj, FUT.3SG: lira, PRET.3SG: lyt, PTCP: ləy }
+    french: { INF: liʁ, PRS.1SG: li, PRS.2SG: li, PRS.3SG: li, PRS.1PL: lizɔ̃, PRS.2PL: lize, PRS.3PL: liz, FUT.1SG: liʁe, FUT.3SG: liʁa, PRET.3SG: ly, PTCP: ly }
+
+- id: mittere
+  form: "*mitt-"
+  gloss: { latin: "send", western-romance: "put" }
+  category: [{ at: latin, is: V }]
+  paradigm: verb-c
+  cells:
+    # mīsit, mīsum: OF mist, mis (Spanish metió, metido are weak)
+    PRET.3SG: { stem: "*mīs-" }
+    PTCP: { stem: "*mīs-", morph: [~, PTCP.S] }
+  expect:
+    old-spanish: { INF: metéɾ, PRS.1SG: méto, PRS.2SG: métes, PRS.3SG: méte, PRS.1PL: metémos, PRS.2PL: metédes, PRS.3PL: méten, FUT.1SG: meteɾé, FUT.3SG: meteɾá, PRET.3SG: metjó, PTCP: metído }
+    spanish: { INF: metéɾ, PRS.1SG: méto, PRS.2SG: métes, PRS.3SG: méte, PRS.1PL: metémos, PRS.2PL: metéjs, PRS.3PL: méten, FUT.1SG: meteɾé, FUT.3SG: meteɾá, PRET.3SG: metjó, PTCP: metído }
+    old-french: { INF: metrə, PRS.1SG: met, PRS.2SG: mets, PRS.3SG: met, PRS.1PL: metons, PRS.2PL: metets, PRS.3PL: metənt, FUT.1SG: metraj, FUT.3SG: metra, PRET.3SG: mist, PTCP: mis }
+    french: { INF: mɛtʁ, PRS.1SG: mɛ, PRS.2SG: mɛ, PRS.3SG: mɛ, PRS.1PL: metɔ̃, PRS.2PL: mete, PRS.3PL: mɛt, FUT.1SG: mɛtʁe, FUT.3SG: mɛtʁa, PRET.3SG: mi, PTCP: mi }
+
+- id: sapere
+  form: "*sap-"
+  stage: vulgar-latin
+  gloss: { vulgar-latin: "taste; be wise", western-romance: "know" }
+  category: [{ at: vulgar-latin, is: V }]
+  paradigm: verb-e
+  cells:
+    # the u-perfect sapuit (OSp sopo, OF sot)
+    PRET.3SG: [~, PRET.3SG.U]
+    # French sais (1sg), on sais (2sg)
+    PRS.1SG: { at: french, base: sapere.PRS.2SG, morph: ~ }
+  events:
+    # OSp sé, after he (< habeō): saber and haber share much of their
+    # morphology (Penny; Pidal)
+    - analogy: { at: ibero-romance, cell: PRS.1SG, rule: "á p j o / é / _ #", model: "he" }
+    - irregular: { at: old-french, cell: PRS.1SG, form: "saj", reason: "*sapiō > *saipo" }
+    - analogy: { at: spanish, cell: PRET.3SG, rule: "ó / ú / _", model: "hube" }
+    - analogy: { at: french, cell: PRET.3SG, rule: "ɔ t / y t / _ #", model: "mourut, crut" }
+    # French savent, saurai
+    - analogy: { at: french, cell: PRS.3PL, rule: "e / a / # s _", model: "savons" }
+    - analogy: { at: french, cell: FUT.1SG, rule: "v / w / _", model: "aurai" }
+    - analogy: { at: french, cell: FUT.3SG, rule: "v / w / _", model: "aurai" }
+  expect:
+    old-spanish: { INF: sabéɾ, PRS.1SG: sé, PRS.2SG: sábes, PRS.3SG: sábe, PRS.1PL: sabémos, PRS.2PL: sabédes, PRS.3PL: sáben, FUT.1SG: sabɾé, FUT.3SG: sabɾá, PRET.3SG: sópo, PTCP: sabído }
+    spanish: { INF: sabéɾ, PRS.1SG: sé, PRS.2SG: sábes, PRS.3SG: sábe, PRS.1PL: sabémos, PRS.2PL: sabéjs, PRS.3PL: sáben, FUT.1SG: sabɾé, FUT.3SG: sabɾá, PRET.3SG: súpo, PTCP: sabído }
+    old-french: { INF: savojr, PRS.1SG: saj, PRS.2SG: ses, PRS.3SG: set, PRS.1PL: savons, PRS.2PL: savets, PRS.3PL: sevənt, FUT.1SG: savraj, FUT.3SG: savra, PRET.3SG: sɔt, PTCP: səy }
+    french: { INF: savwaʁ, PRS.1SG: sɛ, PRS.2SG: sɛ, PRS.3SG: sɛ, PRS.1PL: savɔ̃, PRS.2PL: save, PRS.3PL: sav, FUT.1SG: sɔʁe, FUT.3SG: sɔʁa, PRET.3SG: sy, PTCP: sy }
+
+- id: cadere
+  form: "*kad-"
+  stage: vulgar-latin
+  gloss: "fall"
+  category: [{ at: vulgar-latin, is: V }]
+  paradigm: verb-e
+  cells:
+    # Spanish cayo, with the yod of *cadeō; OF chié from cadō
+    PRS.1SG: [[~, PRS.1SG], { at: ibero-romance, stem: "káj-", morph: [~, PRS.1SG] }]
+    # the u-perfect *caduit (OF chut); Spanish cayó is weak
+    PRET.3SG: [[~, PRET.3SG.U], { at: ibero-romance, morph: [~, PRET.3SG.I] }]
+    # Spanish caeré, remade on the infinitive
+    FUT.1SG: { at: spanish, stem: "kaeɾ-", morph: [~, FUT.1SG] }
+    FUT.3SG: { at: spanish, stem: "kaeɾ-", morph: [~, FUT.3SG] }
+  events:
+    - analogy: { at: spanish, cell: PRS.1SG, rule: "/ g / j _ o #", model: "traigo" }
+    - analogy: { at: old-spanish, cell: FUT.1SG, rule: "/ d / # k a _ r", model: "cadere" }
+    - analogy: { at: old-spanish, cell: FUT.3SG, rule: "/ d / # k a _ r", model: "cadere" }
+    - analogy: { at: old-french, cell: FUT.1SG, rule: "k a / tʃ e / # _", model: "chiet" }
+    - analogy: { at: old-french, cell: FUT.3SG, rule: "k a / tʃ e / # _", model: "chiet" }
+    # OF chut, not *chot: after crut, but (Pope)
+    - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "k á / tʃ í / # _", model: "crut, but" }
+    # French chois, choit, choient, choirai, after choir
+    - analogy: { at: french, rule: "j e / o j / tʃ _", model: "choir" }
+    - analogy: { at: french, cell: FUT.1SG, rule: "e r r / o j r / tʃ _", model: "choir" }
+    - analogy: { at: french, cell: FUT.3SG, rule: "e r r / o j r / tʃ _", model: "choir" }
+  expect:
+    old-spanish: { INF: kaéɾ, PRS.1SG: kájo, PRS.2SG: káes, PRS.3SG: káe, PRS.1PL: kaémos, PRS.2PL: kaédes, PRS.3PL: káen, FUT.1SG: kadɾé, FUT.3SG: kadɾá, PRET.3SG: kajó, PTCP: kaído }
+    spanish: { INF: kaéɾ, PRS.1SG: kájgo, PRS.2SG: káes, PRS.3SG: káe, PRS.1PL: kaémos, PRS.2PL: kaéjs, PRS.3PL: káen, FUT.1SG: kaeɾé, FUT.3SG: kaeɾá, PRET.3SG: kaʝó, PTCP: kaído }
+    old-french: { INF: tʃəojr, PRS.1SG: tʃje, PRS.2SG: tʃjets, PRS.3SG: tʃjet, PRS.1PL: tʃəons, PRS.2PL: tʃəets, PRS.3PL: tʃjeənt, FUT.1SG: tʃerraj, FUT.3SG: tʃerra, PRET.3SG: tʃyt, PTCP: tʃəy }
+    french: { INF: ʃwaʁ, PRS.1SG: ʃwa, PRS.2SG: ʃwa, PRS.3SG: ʃwa, PRS.3PL: ʃwa, FUT.1SG: ʃwaʁe, FUT.3SG: ʃwaʁa, PRET.3SG: ʃy, PTCP: ʃy }
+
+- id: placere
+  form: "*plak-"
+  gloss: "please"
+  category: [{ at: latin, is: V }]
+  paradigm: verb-e
+  cells:
+    # OF plaisir, on the fourth conjugation
+    INF: { at: gallo-romance, morph: [~, INF.I] }
+    # the u-perfect placuit (OSp plogo, OF plot); Spanish plació is weak
+    PRET.3SG: [[~, PRET.3SG.U], { at: spanish, stem: "pladz-", morph: [~, PRET.3SG.I] }]
+    # OSp plazerá, without the syncope of the other futures
+    FUT.1SG: { at: old-spanish, stem: "pladzer-", morph: [~, FUT.1SG] }
+    FUT.3SG: { at: old-spanish, stem: "pladzer-", morph: [~, FUT.3SG] }
+    # OF plaisons, plaisiez, on the stem of plaisir
+    PRS.1PL: { at: old-french, stem: "plajdz-", morph: [~, PRS.1PL.O] }
+    PRS.2PL: { at: old-french, stem: "plajdz-", morph: [~, PRS.2PL.A] }
+    # French plais (1sg), on plaist
+    PRS.1SG: { at: french, base: placere.PRS.3SG, morph: ~ }
+  events:
+    # Spanish placer, not *llazer: pl- kept after Latin placēre
+    - analogy: { at: old-spanish, rule: "ʎ / p l / # _", model: "Latin placēre" }
+    - analogy: { at: spanish, cell: PRS.1SG, rule: "dz j o / θ k o / _ #", model: "conozco" }
+    - analogy: { at: old-french, cell: PRS.3SG, rule: "dz e t / j s t / _ #", model: "the s of plaisir" }
+    # French plais-, plair- with ɛ (but aimer has e)
+    - analogy: { at: french, rule: "a j / ɛ / # p l _", model: "plaire" }
+    - analogy: { at: french, cell: PRET.3SG, rule: "ɔ t / y t / _ #", model: "mourut, crut" }
+    - irregular: { at: french, cell: INF, form: "plɛʁ", reason: "plaire, after faire" }
+  expect:
+    old-spanish: { INF: pladzéɾ, PRS.3SG: pládze, PRS.3PL: pládzen, FUT.3SG: pladzeɾá, PRET.3SG: plógo, PTCP: pladzído }
+    spanish: { INF: plaθéɾ, PRS.3SG: pláθe, PRS.3PL: pláθen, FUT.3SG: plaθeɾá, PRET.3SG: plaθjó, PTCP: plaθído, PRS.1SG: pláθko, PRS.2SG: pláθes, PRS.1PL: plaθémos, PRS.2PL: plaθéjs, FUT.1SG: plaθeɾé }
+    old-french: { INF: plajzir, PRS.3SG: plajst, PRS.3PL: plajzənt, FUT.3SG: plajra, PRET.3SG: plɔt, PTCP: pləy, PRS.1SG: plats, PRS.2SG: plajs, PRS.1PL: plajzons, PRS.2PL: plajzjets, FUT.1SG: plajraj }
+    french: { INF: plɛʁ, PRS.3SG: plɛ, PRS.3PL: plɛz, FUT.3SG: plɛʁa, PRET.3SG: ply, PTCP: ply, PRS.1SG: plɛ, PRS.2SG: plɛ, PRS.1PL: plɛzɔ̃, PRS.2PL: plɛze, FUT.1SG: plɛʁe }

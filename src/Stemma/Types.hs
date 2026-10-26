@@ -8,6 +8,7 @@ module Stemma.Types
   , Morphology (..)
   , Paradigm (..)
   , Dimension (..)
+  , CellDef (..)
   , CellOverride (..)
   , splitVariant
   , Part (..)
@@ -18,8 +19,14 @@ module Stemma.Types
   , Source (..)
   , Event (..)
   , EventKind (..)
+  , AnalogyChange (..)
   , Fate (..)
   , Expect (..)
+  , Cite (..)
+  , citations
+  , Gloss (..)
+  , glossIn
+  , glossStages
   , CatShift (..)
   , parseRulesRef
   , renderRulesRef
@@ -27,13 +34,15 @@ module Stemma.Types
   , globMatch
   ) where
 
+import Control.Monad (forM_, when)
+import Data.Foldable (toList)
 import Data.Aeson
 import Data.Aeson.Key qualified as Key
 import Data.Aeson.KeyMap qualified as KM
 import Data.Aeson.Types (Parser)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (catMaybes, fromMaybe)
+import Data.Maybe (catMaybes)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Text.Read (readMaybe)
@@ -43,7 +52,7 @@ type ItemId = Text
 
 -- | A rules file, optionally restricted to one segment. Segments are the
 -- stretches between Brassica @report@ statements, numbered from 1:
--- @rules/azal.bsc#2@ is everything between the first and second @report@.
+-- @rules/wr-to-french.bsc#2@ is everything between the first and second @report@.
 data RulesRef = RulesRef
   { rrFile :: FilePath
   , rrSegment :: Maybe Int
@@ -71,6 +80,8 @@ data Family = Family
   , famGraphemes :: [Text]
   , famBoundary :: Maybe Text
   -- ^ The morpheme boundary symbol, if boundaries are passed to the rules.
+  , famInternalBoundaries :: Bool
+  -- ^ Whether forms joined from parts have boundaries between the parts.
   , famStages :: Map StageId Stage
   }
   deriving (Show)
@@ -91,10 +102,11 @@ instance FromJSON Family where
   parseJSON = withObject "family" $ \o -> do
     famName <- o .: "name"
     notation <- o .:? "notation"
-    (famGraphemes, famBoundary) <- case notation of
-      Nothing -> pure ([], Nothing)
+    (famGraphemes, famBoundary, famInternalBoundaries) <- case notation of
+      Nothing -> pure ([], Nothing, True)
       Just n -> flip (withObject "notation") n $ \no ->
-        (,) <$> no .:? "graphemes" .!= [] <*> (no .:? "boundary" >>= traverse boundary)
+        (,,) <$> no .:? "graphemes" .!= [] <*> (no .:? "boundary" >>= traverse boundary)
+          <*> no .:? "internal-boundaries" .!= True
     famStages <- o .: "stages"
     pure Family {..}
     where
@@ -131,10 +143,11 @@ data Paradigm = Paradigm
   , pdDimensions :: [Dimension]
   , pdTemplate :: Maybe [Text]
   -- ^ Dimension names, affix IDs and @~@, in order.
-  , pdCells :: [(Text, [Part])]
+  , pdCells :: [(Text, CellDef)]
   -- ^ In the order written: each cell is a template of affixes around the
-  -- base. See 'templateParts'. With dimensions, these override or add to
-  -- the cells the dimensions give.
+  -- base (see 'templateParts'), with any re-formings at later stages.
+  -- With dimensions, these override or add to the cells the dimensions
+  -- give.
   , pdExclude :: [Text]
   , pdLost :: Map StageId [Text]
   -- ^ Cells lost at a stage, and so on every line below it. Cell names may
@@ -142,6 +155,18 @@ data Paradigm = Paradigm
   , pdBecomes :: Map StageId Text
   -- ^ Stages where every entry with this paradigm changes to another one,
   -- as if each had a @repattern@ event there.
+  , pdCite :: Maybe Cite
+  , pdEvents :: [Event]
+  -- ^ Events for every entry with the paradigm, before the entry's own.
+  }
+  deriving (Show)
+
+-- | A paradigm cell: its template, if it is formed with the paradigm, and
+-- where it is re-formed (or, without a template, joined) on the way down,
+-- each a stage and the template used there.
+data CellDef = CellDef
+  { cdParts :: Maybe [Part]
+  , cdAt :: [(StageId, [Part])]
   }
   deriving (Show)
 
@@ -167,9 +192,14 @@ templateParts ts = case length (filter (== "~") ts) of
 
 -- | YAML reads a bare @~@ as null, so null is the base as well.
 template :: Value -> Parser [Part]
-template v = do
-  slots <- oneOrMany v
-  either fail pure (templateParts (map (fromMaybe "~") slots))
+template v = either fail pure . templateParts =<< slots "affix id" v
+
+-- | One id or a list of them, with null (a bare @~@) as the base.
+slots :: String -> Value -> Parser [Text]
+slots what v = traverse slot =<< oneOrMany v
+  where
+    slot Null = pure "~"
+    slot x = name what x
 
 instance FromJSON Morphology where
   parseJSON = withObject "morphology" $ \o -> do
@@ -185,13 +215,15 @@ instance FromJSON Morphology where
 instance FromJSON Paradigm where
   parseJSON = withObject "paradigm" $ \o -> do
     pdStage <- o .:? "stage"
-    pdExtends <- o .:? "extends"
+    pdExtends <- traverse (name "paradigm name") =<< o .:? "extends"
     pdDimensions <- traverse dimension =<< o .:? "dimensions" .!= []
-    pdTemplate <- traverse (fmap (map (fromMaybe "~")) . oneOrMany) =<< o .:? "template"
+    pdTemplate <- traverse (slots "dimension or affix id") =<< o .:? "template"
     pdCells <- traverse cell =<< o .:? "cells" .!= []
     pdExclude <- o .:? "exclude" .!= []
     pdLost <- traverse oneOrMany =<< o .:? "lost" .!= Map.empty
-    pdBecomes <- o .:? "becomes" .!= Map.empty
+    pdBecomes <- traverse (name "paradigm name") =<< o .:? "becomes" .!= Map.empty
+    pdCite <- o .:! "cite"   -- `cite: ~` is the bare form, not no cite
+    pdEvents <- o .:? "events" .!= []
     pure Paradigm {..}
     where
       dimension :: Value -> Parser Dimension
@@ -199,10 +231,40 @@ instance FromJSON Paradigm where
         Dimension k <$> (traverse member =<< parseJSON v)
       member :: Value -> Parser (Text, [ItemId])
       member = single "dimension member" "`MEMBER: affix`" $ \k v ->
-        (k,) . catMaybes <$> oneOrMany v
+        (k,) . catMaybes <$> (traverse affix =<< oneOrMany v)
+      affix Null = pure Nothing
+      affix x = Just <$> name "affix id" x
       -- Cells are a list of single-key maps, so that their order survives.
-      cell :: Value -> Parser (Text, [Part])
-      cell = single "paradigm cell" "`NAME: affix`" $ \k v -> (k,) <$> template v
+      cell :: Value -> Parser (Text, CellDef)
+      cell = single "paradigm cell" "`NAME: affix`" $ \k v -> (k,) <$> cellDef v
+
+-- | A paradigm cell is a template; or `{ at: S, morph: [...] }`, a cell joined
+-- at S; or a list of one template and such re-formings.
+cellDef :: Value -> Parser CellDef
+cellDef v = case v of
+  Object _ -> CellDef Nothing . pure <$> reform v
+  Array xs | any isObject xs -> do
+    let (objs, rest) = partitionObjects (toList xs)
+    parts <- case rest of
+      [] -> pure Nothing
+      [t] -> Just <$> template t
+      _ -> fail "a cell with re-formings may have only one template; write a longer one as a list"
+    CellDef parts <$> traverse reform objs
+  _ -> (\t -> CellDef (Just t) []) <$> template v
+  where
+    reform = withObject "cell re-forming" $ \o -> do
+      forM_ ["base", "stem"] $ \k -> when (KM.member k o) $
+        fail ("`" <> show k <> "` belongs to an entry's cells, not a paradigm's")
+      s <- o .: "at"
+      parts <- maybe (pure [PBase]) template (KM.lookup "morph" o)
+      pure (s, parts)
+
+isObject :: Value -> Bool
+isObject = \case Object _ -> True; _ -> False
+
+-- | Split a list into its objects and the rest, each in order.
+partitionObjects :: [Value] -> ([Value], [Value])
+partitionObjects = foldr (\x (os, ts) -> if isObject x then (x : os, ts) else (os, x : ts)) ([], [])
 
 -- | Lists of single-key maps keep their order, unlike maps.
 single :: String -> String -> (Text -> Value -> Parser a) -> Value -> Parser a
@@ -224,7 +286,7 @@ data Entry = Entry
   , enForm :: Maybe Text
   , enSource :: Maybe Source
   , enStage :: Maybe StageId
-  , enGloss :: Maybe Text
+  , enGloss :: Maybe Gloss
   , enCategory :: [CatShift]
   , enParadigm :: Maybe Text
   , enBound :: Maybe Bool
@@ -239,6 +301,7 @@ data Entry = Entry
   , enAllomorphs :: Map StageId [Allomorph]
   -- ^ For affixes: the allomorphs to choose from, in order, in forms joined
   -- from a stage's forms, from that stage on.
+  , enCite :: Maybe Cite
   }
   deriving (Show)
 
@@ -263,10 +326,12 @@ splitVariant c = case T.breakOn "~" c of
   (m, rest) | not (T.null rest) -> (m, Just (T.drop 1 rest))
   _ -> (c, Nothing)
 
--- | An entry's change to one cell: a different base (suppletion), different
--- affixes, or both.
+-- | An entry's change to one cell: a different base (suppletion) or stem,
+-- different affixes, or both.
 data CellOverride = CellOverride
   { coBase :: Maybe ItemId
+  , coStem :: Maybe Text
+  -- ^ A stem as written, in place of the entry's form.
   , coMorph :: Maybe [Part]
   , coAt :: Maybe StageId
   -- ^ The cell is joined at this stage, from the forms entering it, rather
@@ -274,15 +339,34 @@ data CellOverride = CellOverride
   }
   deriving (Show)
 
--- | Either @{ base: X, morph: [...], at: S }@ or just a template.
+-- | An entry's cell: one override, or a list of them, at most one without
+-- `at:` (a template in the list stands for that one).
+cellOverrides :: Value -> Parser [CellOverride]
+cellOverrides v = case v of
+  Array xs | any isObject (toList xs) -> do
+    let (objs, rest) = partitionObjects (toList xs)
+    plain <- case rest of
+      [] -> pure []
+      [t] -> (\p -> [CellOverride Nothing Nothing (Just p) Nothing]) <$> template t
+      _ -> fail "a cell with re-formings may have only one template; write a longer one as a list"
+    ovs <- (plain ++) <$> traverse parseJSON objs
+    when (length [() | ov <- ovs, coAt ov == Nothing] > 1) $
+      fail "a cell may have only one override without `at`"
+    pure ovs
+  _ -> pure <$> parseJSON v
+
+-- | Either @{ base: X, stem: T, morph: [...], at: S }@ or just a template.
 instance FromJSON CellOverride where
   parseJSON v = case v of
     Object o -> do
-      coBase <- o .:? "base"
+      coBase <- traverse (name "base id") =<< o .:? "base"
+      coStem <- o .:? "stem"
+      when (coBase /= Nothing && coStem /= Nothing) $
+        fail "a cell may have `base` or `stem`, not both"
       coMorph <- traverse template (KM.lookup "morph" o)   -- `morph: ~` is the bare base
       coAt <- o .:? "at"
       pure CellOverride {..}
-    _ -> (\t -> CellOverride Nothing (Just t) Nothing) <$> template v
+    _ -> (\t -> CellOverride Nothing Nothing (Just t) Nothing) <$> template v
 
 data Source
   = SBase ItemId
@@ -290,7 +374,8 @@ data Source
   -- ^ The base, and a template with exactly one 'PBase'.
   | SCell ItemId Text
   | SCompound [ItemId]
-  | SLoan StageId ItemId
+  | SLoan StageId ItemId (Maybe RulesRef)
+  -- ^ Donor stage, donor item, adaptation rules.
   deriving (Show)
 
 data Event = Event
@@ -300,9 +385,15 @@ data Event = Event
   }
   deriving (Show)
 
+-- | What an analogy does to a form: substitute graphemes, or apply a rule
+-- given inline (in the engine's syntax), which can be confined to a
+-- context.
+data AnalogyChange = Replace [(Text, Text)] | ByRule Text
+  deriving (Show)
+
 data EventKind
-  = Analogy [(Text, Text)] (Maybe Text)
-  -- ^ Segment substitutions, and the model of the analogy.
+  = Analogy AnalogyChange (Maybe Text)
+  -- ^ The change, and the model of the analogy.
   | Reform
   | Loan StageId (Maybe ItemId) (Maybe RulesRef)
   -- ^ Donor stage, donor item (default: the same item), adaptation rules.
@@ -326,6 +417,53 @@ eventKindName = \case
   Repattern {} -> "repattern"
   Rebuild {} -> "repattern"
 
+-- | The cell an entry with a paradigm is cited by, as a headword: one for
+-- every stage, or one from each of some stages on. 'Nothing' is the bare
+-- form.
+data Cite = CiteAlways (Maybe Text) | CiteFrom (Map StageId (Maybe Text))
+  deriving (Show)
+
+-- | The citation in force at a stage, given the stages on the path back to
+-- the root, nearest first.
+citations :: Cite -> [StageId] -> Maybe (Maybe Text)
+citations (CiteAlways c) _ = Just c
+citations (CiteFrom m) path = case [c | s <- path, Just c <- [Map.lookup s m]] of
+  c : _ -> Just c
+  [] -> Nothing
+
+-- | YAML reads a bare @~@ as null: the bare form.
+instance FromJSON Cite where
+  parseJSON = \case
+    Object o -> CiteFrom . Map.fromList <$> traverse (\(k, v) -> (Key.toText k,) <$> cell v) (KM.toList o)
+    v -> CiteAlways <$> cell v
+    where
+      cell Null = pure Nothing
+      cell v = Just <$> name "cell name" v
+
+-- | What an entry means: one gloss for every stage, or one from each of
+-- some stages on, as for a citation.
+data Gloss = GlossAlways Text | GlossFrom (Map StageId Text)
+  deriving (Show)
+
+-- | The gloss in force at a stage, given the stages on the path back to the
+-- root, nearest first.
+glossIn :: Gloss -> [StageId] -> Maybe Text
+glossIn (GlossAlways g) _ = Just g
+glossIn (GlossFrom m) path = case [g | s <- path, Just g <- [Map.lookup s m]] of
+  g : _ -> Just g
+  [] -> Nothing
+
+-- | The stages a gloss names.
+glossStages :: Maybe Gloss -> [StageId]
+glossStages = \case
+  Just (GlossFrom m) -> Map.keys m
+  _ -> []
+
+instance FromJSON Gloss where
+  parseJSON = \case
+    Object o -> GlossFrom . Map.fromList <$> traverse (\(k, v) -> (Key.toText k,) <$> parseJSON v) (KM.toList o)
+    v -> GlossAlways <$> parseJSON v
+
 data Fate = Lost | ReplacedBy ItemId
   deriving (Show)
 
@@ -345,7 +483,7 @@ data CatShift = CatShift
 
 instance FromJSON Entry where
   parseJSON v = do
-    i <- withObject "entry" (.: "id") v
+    i <- withObject "entry" (\o -> name "id" =<< o .: "id") v
     parseEntryBody i v
 
 parseEntryBody :: ItemId -> Value -> Parser Entry
@@ -355,15 +493,17 @@ parseEntryBody enId = withObject "entry" $ \o -> do
   enStage <- o .:? "stage"
   enGloss <- o .:? "gloss"
   enCategory <- o .:? "category" .!= []
-  enParadigm <- o .:? "paradigm"
+  enParadigm <- traverse (name "paradigm name") =<< o .:? "paradigm"
   enBound <- o .:? "bound"
-  enCells <- maybe [] (map (\(k, v) -> (Key.toText k, v)) . KM.toList) <$> o .:? "cells"
+  cellsRaw <- o .:? "cells" .!= KM.empty
+  enCells <- concat <$> traverse (\(k, v) -> map (Key.toText k,) <$> cellOverrides v) (KM.toList cellsRaw)
   enNotes <- o .:? "notes"
   enDerivatives <- o .:? "derivatives" .!= []
   enEvents <- o .:? "events" .!= []
   enFate <- o .:? "fate" .!= Map.empty
   enExpect <- o .:? "expect" .!= Map.empty
   enAllomorphs <- o .:? "allomorphs" .!= Map.empty
+  enCite <- o .:! "cite"
   pure Entry {..}
 
 instance FromJSON Allomorph where
@@ -380,10 +520,10 @@ instance FromJSON Allomorph where
 
 instance FromJSON Source where
   parseJSON = withObject "source" $ \o -> do
-    base <- o .:? "base"
+    base <- traverse (name "base id") =<< o .:? "base"
     morph <- o .:? "morph"
-    cell <- o .:? "cell"
-    compound <- o .:? "compound"
+    cell <- traverse (name "cell name") =<< o .:? "cell"
+    compound <- traverse (traverse (name "id")) =<< o .:? "compound"
     loan <- o .:? "loan"
     case (base, morph, cell, compound, loan) of
       (Just b, Nothing, Nothing, Nothing, Nothing) -> pure (SBase b)
@@ -391,29 +531,34 @@ instance FromJSON Source where
       (Just b, Nothing, Just c, Nothing, Nothing) -> pure (SCell b c)
       (Nothing, Nothing, Nothing, Just xs, Nothing) -> pure (SCompound xs)
       (Nothing, Nothing, Nothing, Nothing, Just l) ->
-        withObject "loan source" (\lo -> SLoan <$> lo .: "from" <*> lo .: "id") l
+        withObject "loan source" (\lo -> SLoan <$> lo .: "from" <*> (name "id" =<< lo .: "id") <*> lo .:? "adapt") l
       _ -> fail "source must be one of {base}, {base, morph}, {base, cell}, {compound}, {loan}"
 
 instance FromJSON Event where
   parseJSON = withObject "event" $ \o -> case KM.toList o of
     [(k, body)] -> flip (withObject "event body") body $ \b -> do
       evAt <- b .: "at"
-      evCell <- b .:? "cell"
+      evCell <- traverse (name "cell name") =<< b .:? "cell"
       evKind <- case Key.toText k of
         "analogy" -> do
-          repl <- b .: "replace"
-          Analogy (Map.toList repl) <$> b .:? "model"
+          repl <- b .:? "replace"
+          rule <- b .:? "rule"
+          change <- case (repl, rule) of
+            (Just r, Nothing) -> pure (Replace (Map.toList r))
+            (Nothing, Just t) -> pure (ByRule t)
+            _ -> fail "an analogy takes either `replace` or `rule`"
+          Analogy change <$> b .:? "model"
         "reform" -> pure Reform
-        "loan" -> Loan <$> b .: "from" <*> b .:? "id" <*> b .:? "adapt"
+        "loan" -> Loan <$> b .: "from" <*> (traverse (name "id") =<< b .:? "id") <*> b .:? "adapt"
         "irregular" -> Irregular <$> b .: "form" <*> b .:? "reason"
-        "repattern" -> Repattern <$> b .: "paradigm" <*> b .:? "stem"
+        "repattern" -> Repattern <$> (name "paradigm name" =<< b .: "paradigm") <*> b .:? "stem"
         other -> fail ("unknown event type: " <> T.unpack other)
       pure Event {..}
     _ -> fail "each event must be a single-key map such as `analogy: {...}`"
 
 instance FromJSON Fate where
   parseJSON (String "lost") = pure Lost
-  parseJSON v = withObject "fate" (\o -> ReplacedBy <$> o .: "replaced-by") v
+  parseJSON v = withObject "fate" (\o -> ReplacedBy <$> (name "id" =<< o .: "replaced-by")) v
 
 instance FromJSON Expect where
   parseJSON (String t) = pure (Expect (Just t) Map.empty)
@@ -433,6 +578,14 @@ instance FromJSON CatShift where
         Just (String t) -> pure t
         Just (Bool _) -> fail "category tag was read as a boolean; quote it, e.g. is: \"N\""
         Just other -> fail ("category tag must be text, not " <> show other)
+
+-- | An id or a name. YAML 1.1 reads a bare @on@, @no@, @Y@ and so on as a
+-- boolean, which would otherwise give aeson's "expected String".
+name :: String -> Value -> Parser Text
+name what = \case
+  String t -> pure t
+  Bool b -> fail (what <> " was read as a boolean; quote it, e.g. \"" <> (if b then "on" else "no") <> "\"")
+  other -> parseJSON other
 
 -- | Shell-style matching with @*@ as the only wildcard.
 globMatch :: Text -> Text -> Bool

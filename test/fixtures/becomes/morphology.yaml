@@ -5,9 +5,11 @@ affixes:
   S.1S:   { form: "*-ne" }
   # A reduced suffix, known only from mid on.
   S.1S.SHORT: { form: "-n", stage: mid }
+  PL:     { form: "*-ka" }
 
 paradigms:
   verb-old:
+    cite: PST.1S
     cells:
       - NPST.1S: [~, S.1S]
       - PST.1S: [SBJ.1S, ~, PST]
@@ -15,7 +17,38 @@ paradigms:
   # Prefixes and suffixes everywhere; the archaic variant keeps the old
   # suffix, and is new at late.
   verb:
+    cite: NPST.1S
     cells:
       - NPST.1S: [SBJ.1S, ~, S.1S.SHORT]
       - NPST.1S~archaic: [SBJ.1S, ~, S.1S]
       - PST.1S: [SBJ.1S, ~, PST, S.1S.SHORT]
+
+  # A paradigm that `becomes` another, on an entry with a repattern of its
+  # own further down: a cell both add is joined at the earlier one.
+  noun-old:
+    cells:
+      - SG: ~
+    becomes: { mid: noun-new }
+  noun-new:
+    cells:
+      - SG: ~
+      - PL: PL
+  noun-late:
+    cells:
+      - SG: ~
+      - PL: PL
+
+  # Re-formings on the paradigm: the nonpast takes the short suffix at
+  # late, on that line only, and the optative is joined at mid.
+  verb-r:
+    cells:
+      - NPST.1S: [[~, S.1S], { at: late, morph: [~, S.1S.SHORT] }]
+      - PST.1S: [~, PST]
+      - OPT: { at: mid, morph: [OBJ, ~] }
+
+  # A paradigm event: the past restores its k at late, for every verb with
+  # the paradigm, by a rule confined to the ending.
+  verb-p:
+    extends: verb-r
+    events:
+      - analogy: { at: late, cell: PST.1S, rule: "g a / k a / _ #", model: "the other pasts" }

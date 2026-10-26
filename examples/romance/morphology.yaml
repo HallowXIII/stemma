@@ -1,0 +1,467 @@
+# Latin endings are fused number-case markers, so the paradigms list their
+# cells rather than giving dimensions. The genitive is there to be lost.
+
+affixes:
+  # second declension
+  O.NOM.SG: { form: "*-us" }
+  O.ACC.SG: { form: "*-um" }
+  O.GEN.SG: { form: "*-ī" }
+  O.NOM.PL: { form: "*-ī" }
+  O.ACC.PL: { form: "*-ōs" }
+  O.GEN.PL: { form: "*-ōrum" }
+  # first declension
+  A.NOM.SG: { form: "*-a" }
+  A.ACC.SG: { form: "*-am" }
+  A.GEN.SG: { form: "*-ae" }
+  A.NOM.PL: { form: "*-ae" }
+  A.ACC.PL: { form: "*-ās" }
+  A.GEN.PL: { form: "*-ārum" }
+  # third declension
+  C.ACC.SG: { form: "*-em" }
+  C.GEN.SG: { form: "*-is" }
+  C.NOM.PL: { form: "*-ēs" }
+  C.ACC.PL: { form: "*-ēs" }
+  C.GEN.PL: { form: "*-um" }
+  # neuter plural
+  N.PL:     { form: "*-a" }
+  # third-declension neuter singular (mare)
+  N.SG.E:   { form: "*-e" }
+  # the parisyllabic nominative of Vulgar Latin (*montis, *pedis)
+  C.NOM.SG.IS: { form: "*-is" }
+  # derivational
+  DIM:      { form: "*-ikul-" }
+  AUG:      { form: "*-ātiōn-" }
+
+  # ille. ° marks a clitic: it keeps the Latin stress rules off the word,
+  # and Western Romance drops it once stress is assigned.
+  D.UM:  { form: "*-um°" }
+  D.AM:  { form: "*-am°" }
+  D.A:   { form: "*-a°" }
+  D.E:   { form: "*-e°" }
+  D.I:   { form: "*-ī°" }
+  D.OS:  { form: "*-ōs°" }
+  D.AS:  { form: "*-ās°" }
+  # stressed
+  D.I.T: { form: "*-ī" }
+  D.E.T: { form: "*-e" }
+
+  # first conjugation
+  INF.A:
+    form: "*-āre"
+    # Pretonic in the future (chanterai), where the stress is on the ending.
+    allomorphs:
+      old-french:
+        - { before: [a], form: "-ər" }
+        - { form: "-er" }
+  PRS.1SG:  { form: "*-ō" }
+  PRS.2SG.A: { form: "*-ās" }
+  PRS.3SG.A: { form: "*-at" }
+  PRS.1PL.A: { form: "*-āmus" }
+  PRS.2PL.A: { form: "*-ātis" }
+  PRS.3PL.A: { form: "*-ant" }
+  # Old French -ons, after *sumus: stressed, unlike *-umus would be by
+  # the Latin rule, so it is written at Western Romance.
+  PRS.1PL.O: { form: "-ómos", stage: western-romance }
+  PRET.3SG.A: { form: "*-āwit" }
+  PTCP.A:   { form: "*-ātum" }
+  # the present participle, here only in derivatives (amant)
+  PTCP.PRS.A: { form: "*-antem" }
+  # second conjugation
+  INF.E:    { form: "*-ēre" }
+  PRS.1SG.E: { form: "*-eō" }
+  PRS.2SG.E: { form: "*-ēs" }
+  PRS.3SG.E: { form: "*-et" }
+  PRS.1PL.E: { form: "*-ēmus" }
+  PRS.2PL.E: { form: "*-ētis" }
+  PRS.3PL.E: { form: "*-ent" }
+  # third conjugation
+  INF.C:    { form: "*-ere" }
+  PRS.2SG.C: { form: "*-is" }
+  PRS.3SG.C: { form: "*-it" }
+  PRS.1PL.C: { form: "*-imus" }
+  PRS.2PL.C: { form: "*-itis" }
+  PRS.3PL.C: { form: "*-unt" }
+  # fourth conjugation
+  INF.I:    { form: "*-īre" }
+  PRS.1SG.I: { form: "*-iō" }
+  PRS.2SG.I: { form: "*-īs" }
+  PRS.1PL.I: { form: "*-īmus" }
+  PRS.2PL.I: { form: "*-ītis" }
+  # Vulgar Latin -ent for -iunt (vienen, viennent)
+  PRS.3PL.I: { form: "*-ent" }
+  PRET.3SG.I: { form: "*-īwit" }
+  PTCP.I:   { form: "*-ītum" }
+  # strong and -uī perfects, on a stem of their own (fēc-it, habu-it)
+  PRET.3SG.S: { form: "*-it" }
+  # u-perfects, stressed on the stem (hábuit > OF ot, OSp ovo); morī has the
+  # stress on the ending (*morūit > OF morut), which kept its u
+  PRET.3SG.U: { form: "*-uit" }
+  PRET.3SG.UU: { form: "*-ūit" }
+  # -ut, the ending of the weak perfect *-aut carried to strong ones, whence
+  # OSp -o in the third person (*stetut > estido; Penny)
+  PRET.3SG.UT: { form: "*-ut" }
+  # Vulgar Latin participles in -ūtum (OF venu, eu)
+  PTCP.U:   { form: "*-ūtum" }
+  # strong participles, on a stem of their own (fact-um)
+  PTCP.S:   { form: "*-um" }
+  # Romance: the Gallo-Roman preterites -at (OF chanta), -it
+  PRET.3SG.GR: { form: "-át", stage: western-romance }
+  PRET.3SG.GR.I: { form: "-ít", stage: western-romance }
+  # OF -iét (vendié), from Vulgar Latin *-ēdit
+  PRET.3SG.GR.E: { form: "-ɛ́t", stage: western-romance }
+
+  # The Romance future: the infinitive plus the reduced present of habēre,
+  # Vulgar Latin *ájo, *át. They keep the stress they have as words.
+  FUT.1SG:
+    source: { base: habere, cell: PRS.1SG }
+    stage: vulgar-latin
+    category: [{ at: vulgar-latin, is: AUX }, { at: western-romance, is: FUT }]
+  FUT.3SG:
+    source: { base: habere, cell: PRS.3SG }
+    stage: vulgar-latin
+    category: [{ at: vulgar-latin, is: AUX }, { at: western-romance, is: FUT }]
+
+paradigms:
+  # Latin nouns and adjectives are cited in the nominative, Romance ones in
+  # the accusative, which is what survives. The -wr paradigms inherit this.
+  noun-o:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
+    cells:
+      - NOM.SG: O.NOM.SG
+      - ACC.SG: O.ACC.SG
+      - GEN.SG: O.GEN.SG
+      - NOM.PL: O.NOM.PL
+      - ACC.PL: O.ACC.PL
+      - GEN.PL: O.GEN.PL
+    lost:
+      western-romance: ["GEN.*"]
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  noun-a:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
+    cells:
+      - NOM.SG: A.NOM.SG
+      - ACC.SG: A.ACC.SG
+      - GEN.SG: A.GEN.SG
+      - NOM.PL: A.NOM.PL
+      - ACC.PL: A.ACC.PL
+      - GEN.PL: A.GEN.PL
+    becomes: { western-romance: noun-a-wr }
+  # The nominative plural takes the accusative -ās.
+  noun-a-wr:
+    extends: noun-a
+    cells:
+      - NOM.PL: A.ACC.PL
+    lost:
+      western-romance: ["GEN.*"]
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  # The base is the nominative singular; the other cells are built on the
+  # oblique stem, given per entry.
+  noun-c:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
+    cells:
+      - NOM.SG: ~
+      - ACC.SG: C.ACC.SG
+      - GEN.SG: C.GEN.SG
+      - NOM.PL: C.NOM.PL
+      - ACC.PL: C.ACC.PL
+      - GEN.PL: C.GEN.PL
+    becomes: { western-romance: noun-c-wr }
+  # Masculines take the second-declension nominative plural -ī (OF ome).
+  noun-c-wr:
+    extends: noun-c
+    cells:
+      - NOM.PL: O.NOM.PL
+    lost:
+      western-romance: ["GEN.*"]
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  # Second-declension neuters: masculine from Western Romance on (OF fers,
+  # chasteaus).
+  noun-o-n:
+    cite: { latin: NOM.SG }
+    cells:
+      - NOM.SG: O.ACC.SG
+      - ACC.SG: O.ACC.SG
+      - GEN.SG: O.GEN.SG
+      - NOM.PL: N.PL
+      - ACC.PL: N.PL
+      - GEN.PL: O.GEN.PL
+    becomes: { western-romance: noun-o }
+
+  # Third-declension neuter s-stems (corpus, tempus): the same in every
+  # cell from Western Romance on, as in Old French cors. Spanish remakes
+  # them as o-stems, by entry (cuerpo).
+  noun-s:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
+    cells:
+      - NOM.SG: ~
+      - ACC.SG: ~
+    becomes: { western-romance: noun-s-wr }
+  noun-s-wr:
+    extends: noun-s
+    cells:
+      - NOM.PL: ~
+      - ACC.PL: ~
+    lost:
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  adj-o-a:
+    cite: { latin: M.NOM.SG, western-romance: M.ACC.SG }
+    cells:
+      - M.NOM.SG: O.NOM.SG
+      - M.ACC.SG: O.ACC.SG
+      - M.NOM.PL: O.NOM.PL
+      - M.ACC.PL: O.ACC.PL
+      - F.NOM.SG: A.NOM.SG
+      - F.ACC.SG: A.ACC.SG
+      - F.NOM.PL: A.NOM.PL
+      - F.ACC.PL: A.ACC.PL
+    becomes: { western-romance: adj-o-a-wr }
+  adj-o-a-wr:
+    extends: adj-o-a
+    cells:
+      - F.NOM.PL: A.ACC.PL
+    lost:
+      old-spanish: ["*.NOM.*"]
+      french: ["*.NOM.*"]
+
+  # Verbs. Changes that reach a whole conjugation are re-formings on the
+  # paradigm: OF -ons and -ez, the Gallo-Roman preterite -at, French 1sg -e,
+  # the Spanish 2pl, Spanish -ido. The future is joined at Western Romance.
+  verb-a:
+    cite: INF
+    # The Spanish 2pl lost its d in the verb only (cantáis, but ciudades).
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl" }
+    cells:
+      - INF: INF.A
+      - PRS.1SG: [PRS.1SG, { at: french, morph: [~, PRS.3SG.A] }]
+      - PRS.2SG: PRS.2SG.A
+      - PRS.3SG: PRS.3SG.A
+      - PRS.1PL: [PRS.1PL.A, { at: gallo-romance, morph: [~, PRS.1PL.O] }]
+      - PRS.2PL: PRS.2PL.A
+      - PRS.3PL: PRS.3PL.A
+      - FUT.1SG: { at: western-romance, morph: [~, INF.A, FUT.1SG] }
+      - FUT.3SG: { at: western-romance, morph: [~, INF.A, FUT.3SG] }
+      - PRET.3SG: [PRET.3SG.A, { at: gallo-romance, morph: [~, PRET.3SG.GR] }]
+      - PTCP: PTCP.A
+
+  verb-e:
+    cite: INF
+    # The Spanish 2pl lost its d in the verb only (cantáis, but ciudades).
+    events:
+      # OSp strong perfects take -o, after the weak -ó (ovo, vino, fizo)
+      - analogy: { at: old-spanish, cell: PRET.3SG, rule: "e / o / _ (t) #", model: "cantó" }
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl" }
+    cells:
+      - INF: INF.E
+      - PRS.1SG: PRS.1SG.E
+      - PRS.2SG: PRS.2SG.E
+      - PRS.3SG: PRS.3SG.E
+      - PRS.1PL: [PRS.1PL.E, { at: gallo-romance, morph: [~, PRS.1PL.O] }]
+      - PRS.2PL: [PRS.2PL.E, { at: gallo-romance, morph: [~, PRS.2PL.A] }]
+      - PRS.3PL: PRS.3PL.E
+      - FUT.1SG: { at: western-romance, morph: [~, INF.E, FUT.1SG] }
+      - FUT.3SG: { at: western-romance, morph: [~, INF.E, FUT.3SG] }
+      - PRET.3SG: PRET.3SG.S
+      - PTCP: [PTCP.U, { at: ibero-romance, morph: [~, PTCP.I] }]
+
+  # The third conjugation joins the second in Spanish (vender), but keeps
+  # its stem stress in French (vendre).
+  verb-c:
+    cite: INF
+    # The Spanish 2pl lost its d in the verb only (cantáis, but ciudades).
+    events:
+      # OSp strong perfects take -o, after the weak -ó (ovo, vino, fizo)
+      - analogy: { at: old-spanish, cell: PRET.3SG, rule: "e / o / _ (t) #", model: "cantó" }
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl" }
+    cells:
+      - INF: [INF.C, { at: ibero-romance, morph: [~, INF.E] }]
+      - PRS.1SG: PRS.1SG
+      - PRS.2SG: PRS.2SG.C
+      - PRS.3SG: PRS.3SG.C
+      - PRS.1PL: [PRS.1PL.C, { at: gallo-romance, morph: [~, PRS.1PL.O] }, { at: ibero-romance, morph: [~, PRS.1PL.E] }]
+      - PRS.2PL: [PRS.2PL.C, { at: gallo-romance, morph: [~, PRS.2PL.A] }, { at: ibero-romance, morph: [~, PRS.2PL.E] }]
+      # Vulgar Latin -ent, before stress is assigned (dizen, dient)
+      - PRS.3PL: [PRS.3PL.C, { at: vulgar-latin, morph: [~, PRS.3PL.E] }]
+      - FUT.1SG: { at: western-romance, morph: [~, INF.C, FUT.1SG] }
+      - FUT.3SG: { at: western-romance, morph: [~, INF.C, FUT.3SG] }
+      # Spanish weak -ió (vendió), from the fourth conjugation
+      - PRET.3SG: [PRET.3SG.S, { at: ibero-romance, morph: [~, PRET.3SG.I] }]
+      - PTCP: [PTCP.U, { at: ibero-romance, morph: [~, PTCP.I] }]
+
+  verb-i:
+    cite: INF
+    events:
+      # OSp strong perfects take -o, after the weak -ó (ovo, vino, fizo)
+      - analogy: { at: old-spanish, cell: PRET.3SG, rule: "e / o / _ (t) #", model: "cantó" }
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "í d e s / í s / _ #", model: "the 2pl" }
+    cells:
+      - INF: INF.I
+      - PRS.1SG: PRS.1SG.I
+      - PRS.2SG: PRS.2SG.I
+      - PRS.3SG: PRS.3SG.C
+      - PRS.1PL: [PRS.1PL.I, { at: gallo-romance, morph: [~, PRS.1PL.O] }]
+      - PRS.2PL: [PRS.2PL.I, { at: gallo-romance, morph: [~, PRS.2PL.A] }]
+      - PRS.3PL: PRS.3PL.I
+      - FUT.1SG: { at: western-romance, morph: [~, INF.I, FUT.1SG] }
+      - FUT.3SG: { at: western-romance, morph: [~, INF.I, FUT.3SG] }
+      - PRET.3SG: [PRET.3SG.I, { at: gallo-romance, morph: [~, PRET.3SG.GR.I] }]
+      - PTCP: PTCP.I
+
+
+  # Romance o-stems, for nouns remade as such after Western Romance
+  # (Spanish cuerpo).
+  noun-o-rom:
+    cite: ACC.SG
+    cells:
+      - ACC.SG: O.ACC.SG
+      - ACC.PL: O.ACC.PL
+
+  # Third-declension feminines keep the nominative plural in -ēs (OF meres).
+  noun-c-f:
+    extends: noun-c
+    becomes: { western-romance: noun-c-f-wr }
+  noun-c-f-wr:
+    extends: noun-c
+    lost:
+      western-romance: ["GEN.*"]
+      old-spanish: ["NOM.*"]
+      french: ["NOM.*"]
+
+  # Parisyllabic third-declension nouns (pānis).
+  noun-i:
+    extends: noun-c
+    cells:
+      - NOM.SG: C.NOM.SG.IS
+    becomes: { western-romance: noun-i-wr }
+  noun-i-wr:
+    extends: noun-c-wr
+    cells:
+      - NOM.SG: C.NOM.SG.IS
+
+  # Romance third-declension nouns, for nouns remade as such after Western
+  # Romance (Spanish nombre).
+  noun-c-rom:
+    cite: ACC.SG
+    cells:
+      - ACC.SG: C.ACC.SG
+      - ACC.PL: C.ACC.PL
+
+  # Third-declension adjectives: one form for both genders, as in OF grant.
+  adj-c:
+    cite: { latin: M.NOM.SG, western-romance: M.ACC.SG }
+    cells:
+      - M.NOM.SG: C.NOM.SG.IS
+      - M.ACC.SG: C.ACC.SG
+      - M.NOM.PL: C.NOM.PL
+      - M.ACC.PL: C.ACC.PL
+      - F.NOM.SG: C.NOM.SG.IS
+      - F.ACC.SG: C.ACC.SG
+      - F.NOM.PL: C.NOM.PL
+      - F.ACC.PL: C.ACC.PL
+    becomes: { western-romance: adj-c-wr }
+  adj-c-wr:
+    extends: adj-c
+    cells:
+      - M.NOM.PL: O.NOM.PL
+    lost:
+      old-spanish: ["*.NOM.*"]
+      french: ["*.NOM.*"]
+
+  # Personal pronouns: each cell has a stem of its own, by entry. The
+  # entry's form is the stressed object form.
+  pron:
+    cite: NOM
+    cells:
+      - NOM: ~
+      - TONIC: ~
+      - CLITIC: ~
+
+  # ille: articles, the stressed pronoun, and the object clitics.
+  ille:
+    cite: ART.M.SG
+    cells:
+      - ART.M.SG: D.UM
+      - ART.M.NOM.SG: D.I
+      - ART.F.SG: D.A
+      - ART.M.PL: D.OS
+      - ART.M.NOM.PL: D.I
+      - ART.F.PL: D.AS
+      - PRON.M.SG: D.I.T
+      - CLITIC.M: D.UM
+      - CLITIC.F: D.AM
+    lost:
+      old-spanish: ["*.NOM.*"]
+      french: ["*.NOM.*"]
+
+  # Numerals and other words with a nominative and an accusative.
+  case2:
+    cite: { latin: M.NOM, western-romance: M.ACC }
+    cells:
+      - M.NOM: ~
+      - M.ACC: ~
+    lost:
+      old-spanish: ["M.NOM"]
+      french: ["M.NOM"]
+
+  # Relative and interrogative qui.
+  rel:
+    cite: NOM
+    cells:
+      - NOM: ~
+      - ACC: ~
+
+  # Fourth-conjugation verbs with the participle in -ūtum (OF venu) but
+  # Spanish -ido.
+  verb-iu:
+    extends: verb-i
+    cells:
+      # a strong perfect (vint), not the Gallo-Roman -ít
+      - PRET.3SG: PRET.3SG.S
+      - PTCP: [PTCP.U, { at: ibero-romance, morph: [~, PTCP.I] }]
+
+  # Third-conjugation verbs that join the fourth in Spanish (decir).
+  verb-c-ir:
+    extends: verb-c-s
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "í d e s / í s / _ #", model: "the 2pl" }
+    cells:
+      - INF: [INF.C, { at: ibero-romance, morph: [~, INF.I] }]
+      # OF dimes, dites keep the Latin endings, as in verb-c-s
+      - PRS.1PL: [PRS.1PL.C, { at: ibero-romance, morph: [~, PRS.1PL.I] }]
+      - PRS.2PL: [PRS.2PL.C, { at: ibero-romance, morph: [~, PRS.2PL.I] }]
+
+  # Third-conjugation verbs with a strong perfect and participle (fizo,
+  # hecho), kept in Spanish.
+  verb-c-s:
+    extends: verb-c
+    cells:
+      # OF faimes, faites, dimes, dites: the regular reflexes of facimus,
+      # dicimus, -itis, last survivors before -ons and -ez spread (Pope)
+      - PRS.1PL: [PRS.1PL.C, { at: ibero-romance, morph: [~, PRS.1PL.E] }]
+      - PRS.2PL: [PRS.2PL.C, { at: ibero-romance, morph: [~, PRS.2PL.E] }]
+      - PRET.3SG: PRET.3SG.S
+      - PTCP: PTCP.S
+
+  # Suppletive verbs: every cell is built on a stem or base of its own.
+  verb-x:
+    cite: INF
+    cells:
+      - INF: ~
+      - PRS.1SG: ~
+      - PRS.2SG: ~
+      - PRS.3SG: ~
+      - PRS.1PL: ~
+      - PRS.2PL: ~
+      - PRS.3PL: ~
+      - FUT.1SG: { at: western-romance, morph: ~ }
+      - FUT.3SG: { at: western-romance, morph: ~ }
+      - PRET.3SG: ~
+      - PTCP: ~

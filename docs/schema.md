@@ -3,8 +3,14 @@
 All files are YAML. IDs are short slugs, unique across the whole project.
 
 > **Quoting.** YAML reads a bare `N`, `Y`, `no`, `off` and so on as booleans.
-> Quote category tags like these: `is: "N"`. stemma reports an error if you
-> forget.
+> Quote category tags and ids like these: `is: "N"`, `id: "on"`. stemma
+> reports an error if you forget.
+
+The examples come from two families. Where it has a real case,
+[`examples/romance`](../examples/romance/) is used: Latin to Spanish and
+French. Features it doesn't need are shown with **Echo**, a constructed
+family: Proto-Echo, with daughters Azal (through Old Azal) and Wiyan, and
+demonstratives such as *ir-* "this".
 
 ---
 
@@ -20,6 +26,7 @@ name: Echo
 notation:
   graphemes: [r₁, r₂]      # multigraphs in proto forms (optional)
   boundary: "+"            # morpheme boundary passed to the rules (optional; §2)
+  internal-boundaries: false   # none between joined parts (optional; §2)
 
 stages:
   proto-echo:
@@ -44,6 +51,9 @@ stages:
     parent: proto-echo
     current: true          # no rules yet: forms are copied, with a warning
 ```
+
+`examples/romance/family.yaml` has nine stages on the same pattern: below
+Western Romance, each line has one rules file in three segments.
 
 ### Stages are breakpoints in a rules file
 
@@ -100,6 +110,10 @@ paradigms:
       - 1S.PST: [SBJ.1S, ~, PST]
 ```
 
+The Romance future stacks two suffixes, the infinitive and the reduced
+*habeō*: `FUT.1SG: [~, INF.A, FUT.1SG]` (*cantāre* + *\*ajo* >
+*chanterai*).
+
 Affixes take the same fields as entries (§3) and default to the root
 stage. They are items in their own right, so they can have category
 history and notes, which is how you record things like a definite article
@@ -155,6 +169,10 @@ inherited ones. Cells and exclusions are added to the inherited ones.
     exclude: [PL.COM]
 ```
 
+Romance lists its fused Latin endings as cells, but uses `extends` for the
+Western Romance paradigms: `noun-a-wr` extends `noun-a` and changes only
+its nominative plural to *-ās*.
+
 **Loss on one line.** `exclude` removes a cell everywhere. `lost` removes it
 from a stage on, so other lines of descent keep it. Cell names may use `*`,
 and a cell's variants are lost with it. Every entry with the paradigm gets
@@ -162,9 +180,11 @@ the cell fate `lost` at that stage (§5), so would-be forms are still
 computed. `lost` is inherited and merged like `exclude`.
 
 ```yaml
-  noun-v:
+  noun-o:
     lost:
-      wiyan: ["*.GEN"]                   # Wiyan drops the genitive
+      western-romance: ["GEN.*"]         # the genitive goes everywhere
+      old-spanish: ["NOM.*"]             # the nominative in Spanish, and
+      french: ["NOM.*"]                  # only later in French
 ```
 
 **Change on one line.** `becomes` names stages where every entry with the
@@ -177,11 +197,68 @@ keeps it instead. The new paradigm's own `becomes` follows in turn.
 replaces would otherwise become itself.
 
 ```yaml
-  verb-pe:
-    stage: proto-echo
-    dimensions: ...
-    becomes: { azal: verb }              # Azal generalises the prefixes
+  noun-a:
+    cells: ...
+    becomes: { western-romance: noun-a-wr }   # nominative plural in -ās
 ```
+
+**Re-forming on one line.** A cell can be re-formed at a later stage for
+every entry with the paradigm, as an entry's `at:` cell is (§3): it is
+joined again at that stage, from the forms entering it, and only the
+lines below that stage have the new form. Write the cell as a list of its
+template and the re-formings, or, for a cell the paradigm joins only at a
+later stage, as the re-forming alone:
+
+```yaml
+  verb-a:
+    cells:
+      - PRS.1PL: [PRS.1PL.A, { at: old-french, morph: [~, PRS.1PL.O] }]
+      - FUT.1SG: { at: western-romance, morph: [~, INF.A, FUT.1SG] }
+```
+
+A template longer than one affix is written as a list inside the list.
+A re-forming takes `at` and `morph`; `base` and `stem` belong to an
+entry. An entry's own `at:` for a cell replaces the paradigm's re-forming
+of that cell at the same stage (so a verb can keep an older form there,
+by re-forming to it), and the paradigm's other re-formings still apply. The
+re-formings of the entry's paradigm and of any it changes to apply.
+They are inherited through `extends` with their cell, and replaced with
+it.
+
+**Events on a paradigm.** A paradigm can list `events` (§4), usually with
+`cell:`, which every entry with the paradigm gets before its own. This
+suits an analogy that reaches a whole conjugation but only one cell, and
+that a re-forming from bare parts would get wrong because the stem has
+changed on the way (Spanish 2pl *podéis*, from *podedes*):
+
+```yaml
+  verb-e:
+    events:
+      - analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #" }
+```
+
+They are inherited through `extends`, after the parent's. The events of
+any paradigm the entry changes to apply as well.
+
+**Citation.** In a dictionary, an entry with a paradigm is cited by one of
+its cells: by default its first, or the cell its paradigm's `cite` names.
+`cite` is one cell, `~` for the bare form (the stem, which suits verbs
+with large paradigms), or a map from stages to either, each in force from
+its stage down:
+
+```yaml
+  noun-o:
+    cite: { latin: NOM.SG, western-romance: ACC.SG }
+```
+
+Where an entry changes paradigm (`becomes`, `repattern`), the citation
+follows the paradigm in force. An entry's own `cite` (§3) takes precedence
+over its paradigm's. `cite` is inherited through `extends`. Typst's `entry`
+and `ui/` show the cited cell as the headword, with its own etymology
+(*ómbre* < OSp. *ómne* < Lat. *\*hominem*). The build warns
+where an entry is cited by a cell that has no form, such as a lost
+nominative; the dictionary then falls back to the bare form. The bare
+form always evolves too, and is what `{homo @ spanish}` refers to.
 
 The dimensions are written to `lexicon.json`. In Typst,
 `paradigm(id, stage)` lays the cells out as a table, with one row per member
@@ -238,6 +315,12 @@ as a union: `B = &+`.
 Rules that should apply across a boundary have to allow for it, for
 example with an optional `(+)`.
 
+Where boundaries only matter at the edges, as when they keep a bare affix
+from being stressed as a word, set `internal-boundaries: false`. Parts are
+then joined with no boundary between them, and any inside the parts are
+dropped, so the rules and the morphophonology see a joined form as one
+word. The boundaries at the edges of a bound result are kept, and a written
+form keeps any `-` written inside it until it is joined into something.
 ### Morphophonology
 
 A stage's `morphophonology` (in `family.yaml`) is a rules file for forms
@@ -292,13 +375,13 @@ derive any more, declare them:
 
 ```yaml
 affixes:
-  DAT:
-    form: "*-ɣxə"
+  INF.A:
+    form: "*-āre"
+    # pretonic in the future (chanterai), where the stress is on the ending
     allomorphs:
-      old-azal:                                      # from this stage on
-        - { after: [ā, ē, ī, ō, ū, ai, au], form: "-hhə" }
-        - { after: [a, e, i, o, u, ə], form: "-ː" }
-        - { form: "-ā" }                             # elsewhere
+      old-french:                                    # from this stage on
+        - { before: [a], form: "-ər" }
+        - { form: "-er" }                            # elsewhere
 ```
 
 - **Scope.** The allomorphs given at stage S are used in forms joined from
@@ -327,11 +410,11 @@ affixes:
   has no form with one of a list's graphemes. It also warns about a list
   without an elsewhere case.
 - **The affix itself.** Wherever allomorphs are in force, the affix's own
-  reflex lists them (*-hhə ~ -ː ~ -ā*), since its form evolved on its own
-  never occurs. `trace` shows each choice as an event in the joined form,
-  e.g. `DAT: -ā (elsewhere, after r)`.
+  reflex lists them (*-ər ~ -er*), since its form evolved on its own never
+  occurs. `trace` shows each choice as an event in the joined form, e.g.
+  `INF.A: -ər (before a)`.
 
-Each allomorph is carried by an internal item, `DAT~old-azal~1` and so on,
+Each allomorph is carried by an internal item, `INF.A~old-french~1` and so on,
 which never appears in the build products. So ids may not contain `~`.
 
 ---
@@ -342,22 +425,22 @@ Each file is a list of entries, and files are read in name order. An entry
 has either a `form` (a root) or a `source` (a derivative).
 
 ```yaml
-- id: ir
-  form: "*ir₁-"               # * is ignored; - marks a boundary (§2)
-  stage: proto-echo           # default: the root stage
-  gloss: "this (proximal)"
-  category: [{ at: proto-echo, is: DEM }]
-  paradigm: demonstrative
+- id: homo
+  form: "*homō"               # * is ignored; - marks a boundary (§2)
+  stage: latin                # default: the root stage
+  gloss: "man, person"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-c
   events: [...]               # §4
   fate: {...}                 # §5
   expect:                     # §6
-    azal: { DIR: iš, GEN: iri }
+    old-french: { NOM.SG: ɔm, ACC.SG: ɔmə }
   notes: |
-    Free prose, with form references: {ir.GEN @ azal}.   (§7)
+    Free prose, with form references: {homo.NOM.SG @ old-french}.   (§7)
   derivatives:
-    - id: iryane
-      source: { compound: [ir, yane] }
-      gloss: "now"
+    - id: "on"
+      source: { base: homo, cell: NOM.SG }
+      gloss: "one (indefinite pronoun)"
 ```
 
 ### Sources
@@ -366,18 +449,27 @@ has either a `form` (a root) or a `source` (a derivative).
 |---|---|
 | `{ base: X }` | zero derivation, conversion |
 | `{ base: X, morph: A }` or `morph: [A, ~, B]` | X plus affixes, as a template (§2) |
-| `{ base: X, cell: C }` | an inflected form that took on a life of its own (*päällä*) |
+| `{ base: X, cell: C }` | an inflected form that took on a life of its own (French *on* < *homo*) |
 | `{ compound: [X, Y] }` | concatenation of the members' bare forms |
-| `{ loan: { from: STAGE, id: X } }` | a new word borrowed from another line |
+| `{ loan: { from: STAGE, id: X, adapt: FILE } }` | a new word borrowed from another line or an ancestor; `adapt` optional |
 
 A derivative's `stage` defaults to its parent entry's stage. Without a `category`,
 it takes the one its parent has at that stage. It is built
 from the forms **at the end of** that stage, after that stage's rules.
 Derivatives nest.
 
+**Loans.** A `loan` source makes a new word, beside anything inherited,
+such as a learned borrowing from Latin (French *fragile* beside inherited
+*frêle*). A `loan` event (§4) instead replaces the item's form. The donor's
+form is taken from the end of the `from` stage, which may be an ancestor,
+and run through `adapt` if given. The result is the word's form at its own
+stage: unlike a loan event, it does not go through that stage's rules, so
+the adaptation gives the stage's form. `trace` shows the donor's form and
+the adaptation's steps.
+
 **Changing cells.** `cells` changes the paradigm's cells for one entry,
-by name. A cell gets a different base (suppletion), different affixes, or
-both, and new names add cells or variants for this entry only:
+by name. A cell gets a different base (suppletion) or stem, different
+affixes, or both, and new names add cells or variants for this entry only:
 
 ```yaml
 - id: ego
@@ -388,22 +480,63 @@ both, and new names add cells or variants for this entry only:
     PST.3P~dialectal: [~, PST, 3P.Š]
 ```
 
+In Romance, *ire* takes its preterite from *esse* (Spanish *fue*) with
+`PRET.3SG: { base: esse.PRET.3SG }`.
+
 A suppletive base is a real dependency, so it appears in the cell's
 source and must exist where the cell is formed.
+
+**Stems.** `stem:` gives a cell a stem as written, in place of the entry's
+form, such as the oblique stem of a Latin third-declension noun:
+
+```yaml
+- id: homo
+  form: "*homō"
+  paradigm: noun-c                 # NOM.SG is the bare base
+  cells:
+    ACC.SG: { stem: "*homin-" }
+    NOM.PL: { stem: "*homin-" }
+```
+
+The stem is written as at the stage where the cells are formed, and
+evolves from there like a bound root, but it is not an item you can refer
+to: it never appears in the build products, and in `lexicon.json` the
+cell's `source` shows it as written. Cells with the same stem share it. A
+cell has `base` or `stem`, not both. With `at:` (below), the stem is
+written as entering that stage, like a `repattern` stem (§4).
 
 **Cells joined later.** With `at: S`, a cell is not part of the paradigm:
 it is joined at S, from the forms entering S, as a `repattern` joins
 (§4), and exists only from S on. This suits forms that belong to a later
-arrangement of the paradigm, such as object forms of a verb that only
-take their shape at Azal. On a cell the paradigm has, `at:` re-forms it
-there instead.
+arrangement of the paradigm, such as the Romance future, built from the
+infinitive and *habēre* only in Western Romance. On a cell the paradigm
+has, or one the entry changes to (`repattern`, `becomes`) has, `at:`
+re-forms it there instead; that stage must be below where the cell is
+joined.
 
 ```yaml
-- id: see
-  paradigm: verb-pe
+- id: ire
+  paradigm: verb-x
   cells:
-    NPST.1S>3S: { at: azal, morph: [SBJ.1S, OBJ.3S, ~, S.1S] }
+    FUT.1SG: { at: western-romance, stem: "*īr-", morph: [~, FUT.1SG] }
 ```
+
+**Several changes to one cell.** A cell can be given a list: at most one
+change without `at:` (its template, base or stem here) and any number of
+re-formings, as on a paradigm. This is for a cell that continues one form
+on one line and another elsewhere:
+
+```yaml
+- id: esse
+  cells:
+    PTCP: [{ base: stare.PTCP }, { at: ibero-romance, base: sedere.PTCP, morph: ~ }]
+```
+
+A template in the list stands for the change without `at:`; write a
+longer one as a list inside the list.
+
+**Citation.** `cite`, as on a paradigm (§2), sets the cell this entry is
+cited by, over its paradigm's: `cite: ~` cites a verb by its stem.
 
 **Bound items.** `bound: true` marks an item that is not a word on its own:
 a bound root or stem. Affixes are bound by default. With a boundary symbol
@@ -420,36 +553,73 @@ make it follow its base, add a `reform` event.
 
 `category` is a list of `{ at: STAGE, is: TAG }`. At any stage, the tag in
 force is the one set at the nearest stage on the path back to the root, so
-a tag set at `azal` affects only the Azal line. Tags are free text, but a
-fixed vocabulary makes queries useful:
+a tag set at `old-french` affects only the French line. Tags are free
+text, but a fixed vocabulary makes queries useful:
 
 ```
-stemma shifts 'N.*' POSTP     # case forms that became postpositions
-stemma shifts DEF '*'         # everything a definite marker turned into
+stemma shifts AUX FUT         # forms of habēre that became future endings
+stemma shifts DEM '*'         # everything a demonstrative turned into
 ```
+
+### Gloss history
+
+`gloss` is a string, or, where the meaning changes, a map from stages to
+glosses. At any stage, the gloss in force is the one given at the nearest
+stage on the path back to the root, as for categories:
+
+```yaml
+- id: magis
+  gloss: { latin: "more", old-french: "more; but", french: "but" }
+```
+
+The gloss says what the word means at a stage; how it came to mean that
+belongs in `notes`. A stage with no gloss on its path has none. In
+`lexicon.json`, an item's `gloss` is the one where it is formed, and a
+reflex has its own `gloss` where that differs. Typst's `entry` and
+`dictionary`, and `ui/`, show the gloss of the stage.
 
 ---
 
 ## 4. Events
 
 Each event is written under the entry it affects, with `cell:` if it
-affects only one paradigm cell. `at: S` means the event applies to the form
-**entering** stage S's rules. The only exception is `irregular`, which
-replaces S's output. So later sound laws still act on the result of an
-analogy or a loan.
+affects only one paradigm cell. An `analogy` without `cell:` affects the
+entry and every cell (after any re-forming of the cell at that stage);
+the other events without it affect the entry's own form. `at: S` means
+the event applies to the form **entering** stage S's rules. The only
+exception is `irregular`, which replaces S's output. So later sound laws
+still act on the result of an analogy or a loan.
 
 ### `analogy`
 
 ```yaml
 - analogy:
-    at: azal
-    cell: DIR
-    replace: { r₁: r₂ }       # grapheme substitutions
-    model: "the plural -r (< *r₂)"
+    at: spanish
+    cell: PRS.1SG
+    replace: { ó: ó j }       # grapheme substitutions: voy, after soy
+    model: "soy"
 ```
 
-This is preferred over writing the output form: if you change what word-final
-*r₂ becomes, the analogical form follows.
+Each key is one grapheme, and every occurrence of it is replaced. A
+replacement of several graphemes may be written with spaces between them
+(`{ a: a j }`), and an empty one deletes. A key that is not one grapheme at
+the stage is an error.
+
+Where the change is confined to a context, or must not touch every
+occurrence, give a `rule` instead of `replace`: one statement in the rules
+engine's syntax (Brassica's), applied to the form entering the stage.
+
+```yaml
+- analogy: { at: spanish, cell: PRS.2PL, rule: "d e s / j s / [á é] _ #", model: "the 2pl in -áis" }
+```
+
+The rule sees the form's graphemes as they are: it doesn't know the
+stage's categories, so name graphemes or write categories inline
+(`[a e i]`). A rule that changes nothing leaves the form as it was. `trace`
+shows the rule with the event.
+
+This is preferred over writing the output form: later sound changes still
+act on the analogical form, so if you change them, it follows.
 
 ### `reform`
 
@@ -465,7 +635,7 @@ chosen (§2).
 ### `repattern`
 
 ```yaml
-- repattern: { at: azal, paradigm: noun-o, stem: "valykkō" }
+- repattern: { at: ibero-romance, paradigm: noun-o-rom, stem: "kɔ́rp-" }   # corpus > cuerpo
 ```
 
 The entry changes paradigm at this stage: every cell is rebuilt from the
@@ -476,7 +646,7 @@ through the stage's rules and morphophonology. `stem` is written as at
 that stage and is optional; without it the entry's own form is used. With
 it, the bare entry takes the new stem too. The entry's own `cells` changes
 (§3) apply to the new paradigm as well, and a suppletive cell keeps its
-base.
+base, as a cell with its own `stem` keeps its stem.
 
 Cells that the new paradigm lacks are lost from this stage on. Cells that
 it has and the old one lacks are joined at this stage, the same way, and
@@ -502,7 +672,7 @@ error.
 ### `irregular` (last resort)
 
 ```yaml
-- irregular: { at: azal, form: "iš", reason: "not yet worked out" }
+- irregular: { at: old-french, cell: PRS.1SG, form: "syj", reason: "influenced by fui, not fully explained (Pope)" }
 ```
 
 This sets the output of the stage directly. The build warns when the rules
@@ -514,9 +684,10 @@ redundant.
 ## 5. Fate
 
 ```yaml
-fate:
-  old-azal: lost                        # no reflex here or below
-  wiyan: { replaced-by: other-item }
+- id: capitia                            # Spanish cabeza
+  fate: { old-french: lost }              # no reflex here or below
+- id: frater
+  fate: { spanish: { replaced-by: germanus } }   # hermano
 ```
 
 Lost words still get would-be reflexes (see `!` in §7).
@@ -530,12 +701,12 @@ output. They are assertions, not data: nothing is computed from them.
 
 ```yaml
 expect:
-  azal: iryane                 # the item's own form
-  # or, for paradigm cells:    azal: { DIR: iš, GEN: iri }
-  # or both:                   azal: { form: il, DIR: iš }
+  spanish: más                 # the item's own form
+  # or, for paradigm cells:    old-spanish: { ACC.SG: ómne, ACC.PL: ómnes }
+  # or both:                   old-french: { form: ɔm, NOM.SG: ɔm }
 ```
 
-Record the forms your grammar already uses here, so that changing a rule
+Record the forms your grammar or sources already attest here, so that changing a rule
 can't silently change a form the text depends on. `stemma build` exits
 non-zero when any expectation fails.
 
@@ -545,11 +716,11 @@ non-zero when any expectation fails.
 
 | syntax | renders as |
 |---|---|
-| `{ir}` | the form where the item was formed, starred if proto: *\*ir₁* |
-| `{ir @ azal}` | the Azal reflex, spelled |
-| `{ir.GEN @ azal}` | a paradigm cell |
-| `{ir @ azal /}` | phonemic rather than spelled |
-| `{ir @ azal !}` | the regularly expected form: the whole lexicon rebuilt with no events and no fates |
+| `{magis}` | the form where the item was formed, starred if reconstructed: *\*magis* |
+| `{magis @ spanish}` | the Spanish reflex, spelled |
+| `{homo.ACC.SG @ old-spanish}` | a paradigm cell |
+| `{magis @ spanish /}` | phonemic rather than spelled |
+| `{magis @ spanish !}` | the regularly expected form: the whole lexicon rebuilt with no events and no fates |
 | `{{` | a literal `{` |
 
 A reference that doesn't resolve is a build error.
@@ -582,7 +753,7 @@ through `..`, and Typst then needs `--root` set to a directory above both.
 `paradigm` prints cell IDs and forms in paradigm order, with variants under
 their main cells. Cells lost through `repattern` are omitted. `history` and
 `trace ID STAGE` follow the ancestry of `STAGE`, so a change on one branch
-does not appear on another. Use a cell ID such as `valyk.PL.GEN` to follow
+does not appear on another. Use a cell ID such as `homo.NOM.SG` to follow
 one form. `history` marks its loss or deletion; `trace` also shows each rule
 step. With no stage, `trace` covers the whole stage tree as before. The
 paradigm and history views show spelling and, where it differs, phonemic
@@ -596,10 +767,11 @@ applies. A parse error gives `ok: false` with the message, `line` and
 `build` writes to `DIR/build/`:
 
 - `lexicon.json` has every item, and for each stage: the forms, spelled
-  forms, regular forms and category. Notes are pre-resolved into runs.
+  forms, regular forms and category, and the gloss where it changes. Notes are pre-resolved into runs.
   Each stage carries its `rules`, `morphophonology` and `orthography` references as written
   in `family.yaml`. An affix with allomorphs has them as written, under
-  `allomorphs`, by stage. Read it in Typst with `typst/stemma.typ`, or browse it
+  `allomorphs`, by stage. An entry with cells has `cite`: the item it is
+  cited by, at the stages where that changes, as for reflexes. Read it in Typst with `typst/stemma.typ`, or browse it
   with `ui/` (see the README).
 - `trace.json` has, for each item and stage, the events (and allomorph
   choices), the input to the
@@ -613,7 +785,7 @@ applies. A parse error gives `ok: false` with the message, `line` and
 can be inferred. Item fields that are null or empty are omitted, and
 `bound` is written only when true. In a reflex, `spelled` and `regular`
 are omitted when they equal `forms`, and `regular_spelled` when it equals
-`spelled`. A lost reflex has `"lost": true` and no `forms`; its
+`spelled`, and `gloss` when it equals the item's. A lost reflex has `"lost": true` and no `forms`; its
 `regular_spelled` defaults to `regular`. A stage whose reflex is the same
 as at its parent stage is omitted, so the reflex at a stage is the one at
 the nearest stage above it that has one, back to the stage where the item
@@ -633,4 +805,3 @@ forms that have an `expect` or are quoted in notes.
   dictionary only if they are roots or derivatives.
 - When the rules give several outputs, the first one is used to build
   derivatives, and a warning is issued.
-- Loans by `source` cannot yet be adapted. Only loan events take `adapt`.

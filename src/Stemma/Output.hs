@@ -27,6 +27,7 @@ import Data.Aeson.Key qualified as Key
 import Data.Aeson.Types (Pair)
 import Data.ByteString.Lazy qualified as BL
 import Data.Either (partitionEithers)
+import Data.List (nub)
 import Data.Map.Strict qualified as Map
 import Data.Maybe (catMaybes, fromMaybe)
 import Data.Set (Set)
@@ -123,12 +124,13 @@ itemJson b it = do
     [ "kind" .=? Just (kindName (itKind it))
     , "bound" .=? (if itBound it then Just True else Nothing)
     , "owner" .=? itOwner it
-    , "gloss" .=? itGloss it
+    , "gloss" .=? glossAt proj it (itStage it)
     , "formed" .=? Just (itStage it)
-    , "source" .=? sourceText it
+    , "source" .=? sourceText proj it
     , "cells" .=? nonEmpty (itCells it)
     , "paradigm" .=? itParadigm it
     , "repatterns" .=? nonEmpty [object ["at" .= s, "paradigm" .= p] | (s, p) <- itRepatterns it]
+    , "cite" .=? cite
     , "allomorphs" .=? allomorphs
     , "variant_of" .=? fmap fst variant
     , "variant" .=? fmap snd variant
@@ -146,6 +148,14 @@ itemJson b it = do
     reflexes = Map.fromList
       [ (s, reflexJson s) | s <- bStageOrder b, Map.member (itId it) (regularAt s) ]
     parentOf s = Map.lookup s (famStages (prFamily proj)) >>= stParent
+    -- The item an entry with cells is cited by, at the stages where that
+    -- changes, as for reflexes.
+    cite
+      | null (itCells it) = Nothing
+      | otherwise =
+          let cited = Map.fromList [(s, citedAt proj it s) | s <- Map.keys reflexes]
+          in Just (object [ Key.fromText s .= c | (s, c) <- Map.toList cited
+                          , s == itStage it || (parentOf s >>= (`Map.lookup` cited)) /= Just c ])
     -- A cell named CELL~label: its main cell and label.
     variant = case (itKind it, itOwner it) of
       (KCell, Just o) -> case splitVariant (T.drop (T.length o + 1) (itId it)) of
@@ -182,6 +192,7 @@ itemJson b it = do
         , "regular" .=? (if forms == Nothing then regular else differing forms regular)
         , "regular_spelled" .=? differing (maybe regular Just spelled) regularSpelled
         , "category" .=? categoryAt proj it s
+        , "gloss" .=? differing (glossAt proj it (itStage it)) (glossAt proj it s)
         ]
     fateJson = \case
       Lost -> toJSON ("lost" :: Text)
@@ -211,9 +222,12 @@ paradigmJson :: ParadigmDef -> Value
 paradigmJson pf = object
   [ "dimensions" .= [ object ["name" .= dmName d, "members" .= [m | (m, _) <- dmMembers d, (_, Nothing) <- [splitVariant m]]]
                     | d <- pfDimensions pf ]
-  , "cells" .= map fst (pfCells pf)
+  -- with the cells joined later, after those formed with the paradigm
+  , "cells" .= (formed ++ nub [c | (c, _, _) <- pfAt pf, c `notElem` formed])
   , "lost" .= pfLost pf
   ]
+  where
+    formed = map fst (pfCells pf)
 
 runJson :: Run -> Value
 runJson = \case
@@ -227,15 +241,20 @@ kindName = \case
   KDerivative -> "derivative"
   KCell -> "cell"
 
-sourceText :: Item -> Maybe Text
-sourceText it = case itBuild it of
+-- | How an item is built. A stem given to cells is shown as written.
+sourceText :: Project -> Item -> Maybe Text
+sourceText proj it = case itBuild it of
   BForm _ -> Nothing
   BSource s -> Just $ case s of
     SBase x -> x
-    SMorph x ps -> T.intercalate " + " [case p of PBase -> x; PAffix a -> a | p <- ps]
+    SMorph x ps -> T.intercalate " + " [case p of PBase -> base x; PAffix a -> a | p <- ps]
     SCell x c -> x <> "." <> c
     SCompound xs -> T.intercalate " + " xs
-    SLoan st x -> x <> " (loan from " <> st <> ")"
+    SLoan st x _ -> x <> " (loan from " <> st <> ")"
+  where
+    base x = case Map.lookup x (prItems proj) of
+      Just b | itInternal b, BForm t <- itBuild b -> t
+      _ -> x
 
 -- | One line per item and stage: @id, stage, spelled, phonemic@.
 formsTsv :: Built -> Text

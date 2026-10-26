@@ -1,0 +1,195 @@
+# First-declension nouns. Expected forms are generated from attested.tsv
+# by research/expect.sh, which gives sources.
+
+- id: terra
+  form: "*terr-"
+  gloss: "earth, land"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: tjéra, ACC.PL: tjéras }
+    spanish: { ACC.SG: tjéra, ACC.PL: tjéras }
+    old-french: { NOM.SG: tɛrrə, ACC.SG: tɛrrə, NOM.PL: tɛrrəs, ACC.PL: tɛrrəs }
+    french: { ACC.SG: tɛʁ, ACC.PL: tɛʁ }
+
+- id: capra
+  form: "*kapr-"
+  gloss: "goat"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: kábɾa, ACC.PL: kábɾas }
+    spanish: { ACC.SG: kábɾa, ACC.PL: kábɾas }
+    old-french: { NOM.SG: tʃjevrə, ACC.SG: tʃjevrə, NOM.PL: tʃjevrəs, ACC.PL: tʃjevrəs }
+    french: { ACC.SG: ʃɛvʁ, ACC.PL: ʃɛvʁ }
+
+- id: rota
+  form: "*rot-"
+  gloss: "wheel"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  events:
+    # roue /ʁu/, not *reue: after rouer, rouelle
+    - analogy: { at: french, replace: { w: "", ɛ: u }, model: "rouer" }
+  expect:
+    old-spanish: { ACC.SG: rwéda, ACC.PL: rwédas }
+    spanish: { ACC.SG: rwéda, ACC.PL: rwédas }
+    old-french: { NOM.SG: rwɛə, ACC.SG: rwɛə, NOM.PL: rwɛəs, ACC.PL: rwɛəs }
+    french: { ACC.SG: ʁu, ACC.PL: ʁu }
+
+- id: vita
+  form: "*wīt-"
+  gloss: "life"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: βída, ACC.PL: βídas }
+    spanish: { ACC.SG: bída, ACC.PL: bídas }
+    old-french: { NOM.SG: viə, ACC.SG: viə, NOM.PL: viəs, ACC.PL: viəs }
+    french: { ACC.SG: vi, ACC.PL: vi }
+
+- id: aqua
+  form: "*akʷ-"
+  gloss: "water"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: ágwa, ACC.PL: ágwas }
+    spanish: { ACC.SG: ágwa, ACC.PL: ágwas }
+    old-french: { NOM.SG: ewə, ACC.SG: ewə, NOM.PL: ewəs, ACC.PL: ewəs }
+    french: { ACC.SG: o, ACC.PL: o }
+
+- id: herba
+  form: "*herb-"
+  gloss: "grass"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: jéɾβa, ACC.PL: jéɾβas }
+    spanish: { ACC.SG: ʝéɾba, ACC.PL: ʝéɾbas }
+    old-french: { NOM.SG: ɛrbə, ACC.SG: ɛrbə, NOM.PL: ɛrbəs, ACC.PL: ɛrbəs }
+    french: { ACC.SG: ɛʁb, ACC.PL: ɛʁb }
+
+- id: luna
+  form: "*lūn-"
+  gloss: "moon"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: lúna, ACC.PL: lúnas }
+    spanish: { ACC.SG: lúna, ACC.PL: lúnas }
+    old-french: { NOM.SG: lynə, ACC.SG: lynə, NOM.PL: lynəs, ACC.PL: lynəs }
+    french: { ACC.SG: lyn, ACC.PL: lyn }
+
+- id: causa
+  form: "*kaus-"
+  gloss: { latin: "cause, matter", western-romance: "thing" }
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: kóza, ACC.PL: kózas }
+    spanish: { ACC.SG: kósa, ACC.PL: kósas }
+    old-french: { NOM.SG: tʃɔzə, ACC.SG: tʃɔzə, NOM.PL: tʃɔzəs, ACC.PL: tʃɔzəs }
+    french: { ACC.SG: ʃoz, ACC.PL: ʃoz }
+
+- id: filia
+  form: "*fīli-"
+  gloss: "daughter"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: fíʒa, ACC.PL: fíʒas }
+    spanish: { ACC.SG: íxa, ACC.PL: íxas }
+    old-french: { NOM.SG: fiʎə, ACC.SG: fiʎə, NOM.PL: fiʎəs, ACC.PL: fiʎəs }
+    french: { ACC.SG: fij, ACC.PL: fij }
+
+- id: lingua
+  form: "*lingʷ-"
+  gloss: "tongue"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: léngwa, ACC.PL: léngwas }
+    spanish: { ACC.SG: léngwa, ACC.PL: léngwas }
+    old-french: { NOM.SG: langə, ACC.SG: langə, NOM.PL: langəs, ACC.PL: langəs }
+    french: { ACC.SG: lɑ̃g, ACC.PL: lɑ̃g }
+
+- id: porta
+  form: "*port-"
+  gloss: "door, gate"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: pwéɾta, ACC.PL: pwéɾtas }
+    spanish: { ACC.SG: pwéɾta, ACC.PL: pwéɾtas }
+    old-french: { NOM.SG: pɔrtə, ACC.SG: pɔrtə, NOM.PL: pɔrtəs, ACC.PL: pɔrtəs }
+    french: { ACC.SG: pɔʁt, ACC.PL: pɔʁt }
+
+- id: stella
+  form: "*stēll-"
+  gloss: "star"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  events:
+    # estrella: r from astrum
+    - analogy: { at: old-spanish, replace: { t: t r }, model: "astrum" }
+    # estoile: from a Gallo-Roman *stēla with a single l
+    - analogy: { at: gallo-romance, rule: "l l / l / _", model: "Gallo-Roman *stēla" }
+  expect:
+    old-spanish: { ACC.SG: estɾéʎa, ACC.PL: estɾéʎas }
+    spanish: { ACC.SG: estɾéʎa, ACC.PL: estɾéʎas }
+    old-french: { NOM.SG: estojlə, ACC.SG: estojlə, NOM.PL: estojləs, ACC.PL: estojləs }
+    french: { ACC.SG: etwal, ACC.PL: etwal }
+
+- id: schola
+  form: "*skol-"
+  gloss: "school"
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  events:
+    # escole, not *escuele: the vowel of the Latin school word
+    - analogy: { at: old-french, replace: { ɔ́: ɔ }, model: "Latin schola" }
+  expect:
+    old-spanish: { ACC.SG: eskwéla, ACC.PL: eskwélas }
+    spanish: { ACC.SG: eskwéla, ACC.PL: eskwélas }
+    old-french: { NOM.SG: eskɔlə, ACC.SG: eskɔlə, NOM.PL: eskɔləs, ACC.PL: eskɔləs }
+    french: { ACC.SG: ekɔl, ACC.PL: ekɔl }
+
+# The Latin neuter plural of folium, a feminine singular in Vulgar Latin.
+- id: folia
+  form: "*foli-"
+  stage: vulgar-latin
+  gloss: { vulgar-latin: "leaves", western-romance: "leaf" }
+  category: [{ at: vulgar-latin, is: "N" }]
+  paradigm: noun-a
+  expect:
+    old-spanish: { ACC.SG: fóʒa, ACC.PL: fóʒas }
+    spanish: { ACC.SG: óxa, ACC.PL: óxas }
+    old-french: { NOM.SG: fwɛʎə, ACC.SG: fwɛʎə, NOM.PL: fwɛʎəs, ACC.PL: fwɛʎəs }
+    french: { ACC.SG: fœj, ACC.PL: fœj }
+
+# Replacements for caput 'head'.
+- id: capitia
+  form: "*kapiti-"
+  stage: vulgar-latin
+  gloss: "head"
+  category: [{ at: vulgar-latin, is: "N" }]
+  paradigm: noun-a
+  fate: { old-french: lost }
+  expect:
+    old-spanish: { ACC.SG: kabétsa, ACC.PL: kabétsas }
+    spanish: { ACC.SG: kabéθa, ACC.PL: kabéθas }
+  notes: |
+    Spanish {capitia @ spanish} 'head' leaves {caput @ spanish} to mean
+    'end, cape'.
+
+- id: testa
+  form: "*test-"
+  gloss: { latin: "pot, shell", gallo-romance: "head" }
+  category: [{ at: latin, is: "N" }]
+  paradigm: noun-a
+  fate: { old-spanish: lost }
+  expect:
+    french: { ACC.SG: tɛt, ACC.PL: tɛt }
+  notes: |
+    French {testa @ french} 'head' leaves {caput @ french} to mean 'chief'.

@@ -13,3 +13,13 @@
   expect:
     azal: { SG.GEN: tori, PL.DIR: torra }
     wiyan: { PL.COM: torram }
+
+# A cell re-formed on another at the stage that loses that one: the lost
+# cell still enters wiyan with its proto form.
+- id: kor
+  form: "*kor"
+  paradigm: noun
+  cells:
+    SG.COM: { at: wiyan, base: kor.SG.GEN, morph: [~, COM] }
+  expect:
+    wiyan: { SG.COM: korim }
