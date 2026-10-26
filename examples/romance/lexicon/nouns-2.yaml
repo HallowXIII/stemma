@@ -67,8 +67,6 @@
   gloss: "eye"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
-  events:
-    - irregular: { at: french, cell: ACC.PL, form: "jø", reason: "yeux, from OF ieus beside ueuz" }
   expect:
     old-spanish: { ACC.SG: óʒo, ACC.PL: óʒos }
     spanish: { ACC.SG: óxo, ACC.PL: óxos }
@@ -99,7 +97,7 @@
       stage: old-french
       gloss: "son"
       events:
-        - irregular: { at: french, form: "fis", reason: "spelling pronunciation" }
+        - irregular: { at: french, form: "fis", reason: "spelling pronunciation; fiz gives fi" }
       expect: { french: fis }
   expect:
     old-spanish: { ACC.SG: fíʒo, ACC.PL: fíʒos }

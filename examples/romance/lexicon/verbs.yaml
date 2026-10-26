@@ -141,7 +141,9 @@
     PRS.1PL: { at: french, stem: "puv-", morph: [~, PRS.1PL.O] }
     PRS.3PL: { at: french, stem: "pœv-", morph: [~, PRS.3PL.E] }
   events:
-    - irregular: { at: old-french, cell: PRS.1SG, form: "pyjs", reason: "from *possio" }
+    # OF puis, from *possjo for possum, perhaps after the subjunctives
+    # *monja, *audja (Pope)
+    - analogy: { at: gallo-romance, cell: PRS.1SG, rule: "t o / s s j o / # p ɔ́ _ #", model: "subjunctive *monja, *audja" }
     # OSp pudo: the u of 1sg pude, where ō was raised by the glide and -ī (Penny)
     - analogy: { at: old-spanish, cell: PRET.3SG, rule: "ó / ú / # p _", model: "1sg pude" }
     - analogy: { at: french, cell: PRET.3SG, rule: "ɔ t / y t / _ #", model: "mourut, crut" }
@@ -209,15 +211,13 @@
     # the u-perfect *morūit, stressed on the ending, which kept its u (OF
     # morut); Spanish murió is weak
     PRET.3SG: [[~, PRET.3SG.UU], { at: ibero-romance, morph: [~, PRET.3SG.I] }, { at: gallo-romance, morph: [~, PRET.3SG.UU] }]
-    # Spanish muero, without the yod of *moriō (OF muir keeps it)
-    PRS.1SG: { at: ibero-romance, stem: "mɔ́r-", morph: [~, PRS.1SG] }
+    # Spanish muero, without the yod of *moriō (OF muir keeps it); French
+    # meurs, on meurs (2sg), replacing muir
+    PRS.1SG: [{ at: ibero-romance, stem: "mɔ́r-", morph: [~, PRS.1SG] }, { at: french, base: mori.PRS.2SG, morph: ~ }]
     # Spanish moriré, remade on the infinitive
     FUT.1SG: { at: spanish, stem: "moɾiɾ-", morph: [~, FUT.1SG] }
     FUT.3SG: { at: spanish, stem: "moɾiɾ-", morph: [~, FUT.3SG] }
     PTCP: { stem: "*mort-", morph: [~, PTCP.S] }
-  events:
-    # French meurs, after meurt
-    - irregular: { at: french, cell: PRS.1SG, form: "mœʁ", reason: "after meurt" }
   expect:
     old-spanish: { INF: moɾíɾ, PRS.1SG: mwéɾo, PRS.2SG: mwéɾes, PRS.3SG: mwéɾe, PRS.1PL: moɾímos, PRS.2PL: moɾídes, PRS.3PL: mwéɾen, FUT.1SG: moré, FUT.3SG: morá, PRET.3SG: muɾjó, PTCP: mwéɾto }
     spanish: { INF: moɾíɾ, PRS.1SG: mwéɾo, PRS.2SG: mwéɾes, PRS.3SG: mwéɾe, PRS.1PL: moɾímos, PRS.2PL: moɾís, PRS.3PL: mwéɾen, FUT.1SG: moɾiɾé, FUT.3SG: moɾiɾá, PRET.3SG: muɾjó, PTCP: mwéɾto }
@@ -235,22 +235,27 @@
     # Spanish hacemos, hacéis, remade on the infinitive
     PRS.1PL: [{ at: spanish, stem: "fadz-", morph: [~, PRS.1PL.E] }, { at: french, stem: "fəz-", morph: [~, PRS.1PL.O] }]
     PRS.2PL: { at: spanish, stem: "fadz-", morph: [~, PRS.2PL.E] }
-    # French fais, on fais (2sg)
-    PRS.1SG: { at: french, base: facere.PRS.2SG, morph: ~ }
+    # faciō: OF faz; French fais, on fais (2sg), from the 13th century (Pope)
+    PRS.1SG: [{ stem: "*faki-" }, { at: french, base: facere.PRS.2SG, morph: ~ }]
   events:
     # the reduced future of Vulgar Latin *fare
     - analogy: { at: gallo-romance, cell: FUT.1SG, replace: { dz: "", e: "", a: ə }, model: "VL *fare" }
     - analogy: { at: gallo-romance, cell: FUT.3SG, replace: { dz: "", e: "", a: ə }, model: "VL *fare" }
     - analogy: { at: ibero-romance, cell: FUT.1SG, replace: { dz: "", e: "" }, model: "VL *fare" }
     - analogy: { at: ibero-romance, cell: FUT.3SG, replace: { dz: "", e: "" }, model: "VL *fare" }
-    - irregular: { at: old-spanish, cell: PRS.1PL, form: "fémos", reason: "reduced, VL *femus" }
-    - irregular: { at: old-spanish, cell: PRS.2PL, form: "fétʃes", reason: "reduced, after fecho" }
+    # OSp femos, feches keep the stress of facimus, facitis, but their
+    # syncope came before the palatalisation (kt > ch, as fecho): the rules
+    # syncopate later, as in diezmo, plazdo
+    - irregular: { at: old-spanish, cell: PRS.1PL, form: "fémos", reason: "early syncope, *fac'mus, with the Latin stress" }
+    - irregular: { at: old-spanish, cell: PRS.2PL, form: "fétʃes", reason: "early syncope, *fac'tis, with the Latin stress" }
     # fizo, fist: the i of 1sg fēcī
     - analogy: { at: old-spanish, cell: PRET.3SG, replace: { é: í }, model: "1sg fize" }
     # OF fist: the i of 1sg fis (fēcī, with umlaut), s after dist, mist (Pope)
     - analogy: { at: gallo-romance, cell: PRET.3SG, rule: "é dz / í s / _", model: "1sg fis" }
-    - irregular: { at: old-french, cell: PRS.1SG, form: "fats", reason: "faciō, with ts as kj gives" }
-    - irregular: { at: old-french, cell: PRS.3PL, form: "font", reason: "after sont, vont" }
+    # OSp fago, without the yod of faciō, as digo
+    - analogy: { at: ibero-romance, cell: PRS.1SG, rule: "dz j o / g o / _ #", model: "digo" }
+    # OF font, from *faunt for *facunt, after *aunt, *vaunt (Pope)
+    - analogy: { at: gallo-romance, cell: PRS.3PL, rule: "á dz e n t / áu n t / _ #", model: "*aunt, *vaunt" }
   expect:
     old-spanish: { INF: fadzéɾ, PRS.1SG: fágo, PRS.2SG: fádzes, PRS.3SG: fádze, PRS.1PL: fémos, PRS.2PL: fétʃes, PRS.3PL: fádzen, FUT.1SG: faɾé, FUT.3SG: faɾá, PRET.3SG: fídzo, PTCP: fétʃo }
     spanish: { INF: aθéɾ, PRS.1SG: ágo, PRS.2SG: áθes, PRS.3SG: áθe, PRS.1PL: aθémos, PRS.2PL: aθéjs, PRS.3PL: áθen, FUT.1SG: aɾé, FUT.3SG: aɾá, PRET.3SG: íθo, PTCP: étʃo }
@@ -373,8 +378,8 @@
   events:
     - analogy: { at: spanish, cell: PRS.1SG, replace: { ó: ó j }, model: "soy" }
     - analogy: { at: old-french, cell: PRS.3PL, replace: { á: ó }, model: "sont" }
-    - irregular: { at: old-french, cell: PRS.1SG, form: "vojs", reason: "after estois" }
-    - irregular: { at: french, cell: PRS.1SG, form: "vɛ", reason: "vais, after fais" }
+    - irregular: { at: old-french, cell: PRS.1SG, form: "vojs", reason: "voi (< *vei), with the later -s (Pope)" }
+    - irregular: { at: french, cell: PRS.1SG, form: "vɛ", reason: "vais continues OF vai, beside vois" }
   expect:
     old-spanish: { INF: íɾ, PRS.1SG: βó, PRS.2SG: βás, PRS.3SG: βá, PRS.1PL: ímos, PRS.2PL: ídes, PRS.3PL: βán, FUT.1SG: iɾé, FUT.3SG: iɾá, PRET.3SG: fwé, PTCP: ído }
     spanish: { INF: íɾ, PRS.1SG: bój, PRS.2SG: bás, PRS.3SG: bá, PRS.1PL: bámos, PRS.2PL: bájs, PRS.3PL: bán, FUT.1SG: iɾé, FUT.3SG: iɾá, PRET.3SG: fwé, PTCP: ído }
@@ -682,7 +687,6 @@
     - analogy: { at: old-french, cell: PRS.3SG, rule: "dz e t / j s t / _ #", model: "the s of plaisir" }
     # French plais-, plair- with ɛ (but aimer has e)
     - analogy: { at: french, rule: "a j / ɛ / # p l _", model: "plaire" }
-    - irregular: { at: old-french, cell: PRS.1SG, form: "plats", reason: "placeō, with ts as kj gives" }
     - analogy: { at: french, cell: PRET.3SG, rule: "ɔ t / y t / _ #", model: "mourut, crut" }
     - irregular: { at: french, cell: INF, form: "plɛʁ", reason: "plaire, after faire" }
   expect:

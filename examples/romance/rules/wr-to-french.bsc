@@ -27,6 +27,8 @@ k / dz / V _ [e i é í ɛ́]
 s / z / V _ V
 β / b / [r l] _
 β / v / _
+; ŏ raised by a final ī in hiatus (*duī > dui)
+ó i / ú j / _ #
 [u ú] / [y ý] / _
 ; syncope of the post-tonic vowel of a proparoxytone
 [e i o u] / / V C _ C V C* # / V s b _ C V C* # / Vs C C _ r V C* #
@@ -43,6 +45,10 @@ ts / dz / V _ V
 [p b t d k g] w / w w / _
 v / / _ t
 f / v / l _
+
+; final kj, after the loss of -o: ts, without a glide (faciō > faz, placeō
+; > plaz; Pope)
+dz j o / ts / _ #
 
 report
 
@@ -61,9 +67,11 @@ b / v / V _ [V r l]
 e / o / r _ v
 
 ; --- stressed vowels ---
+; the yod moves before r and s (muir; püis, from *possjo)
 r j / j r / _
+s s j / j s / _
 ɔ́ j / ý j / _
-ɔ́ / ó / _ [m n] C
+[ɔ́ áu] / ó / _ [m n] C
 ; close e before ww (krẹwwịt > krịwwịt)
 é / í / _ w w
 é / é j / _ C V / _ [Stop v ð] [r l] V / _ #  / _ C # // _ [ʎ j]
@@ -73,7 +81,7 @@ r j / j r / _
 ; Bartsch's law
 á / j é / [tʃ dʒ j dz] _ C V / [tʃ dʒ j dz] _ [Stop v ð] [r l] V
 á / á j / _ [m n] V
-á / á j / _ [ts dz]
+á / á j / _ [ts dz] // _ ts #
 a / a j / _ dz
 á / é / _ C V / _ [Stop v ð] [r l] V // _ j
 [áu au] / [ɔ́ o] / _
@@ -211,7 +219,10 @@ e j / ɛ / _ n
 v / / j _ r
 o j / w a j / _ V
 o j / w a / _
+; yeux: ueuz > ieus, a dissimilation of the two w
+w ɛ w / j ɛ w / _
 ɛ a w / o / _
+ɛ w / ø / _
 a w / o / _
 o / ɔ / _ r V
 e w / o / _ #

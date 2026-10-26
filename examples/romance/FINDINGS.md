@@ -399,6 +399,38 @@ Found while building the full word list, batch by batch.
     sequence. The contraction to *mas* is an analogy, like *seer* > *ser*.
     `irregular` count: 24.
 
+    **Old French presents, *dui*, *yeux*** (Pope and others):
+    - *faz*, *plaz*: final *kj*, once *-o* is lost, gives *ts* without
+      a glide; this is now a rule. The Latin cell of *facere* is now
+      *faciō*, and OSp *fago* an analogy on *digo*, as `attested.tsv`
+      already had it. French *fais* follows the 2sg from the 13th century.
+    - *font*: from *\*faunt* for *\*facunt*, after *\*aunt*, *\*vaunt*.
+      This is an analogy, with *áu* now raised before a nasal like *ɔ́*.
+      *ont* and *vont* still follow *sont*. If they came from *\*aunt*,
+      *\*vaunt* instead, *sont* would be the only model left.
+    - *puis*: *\*possjo* for *possum*, perhaps after the subjunctives
+      *\*monja*, *\*audja*. This is an analogy, with a new rule moving
+      the yod before *s* (*ssj* > *js*) as it already moves before *r*.
+    - *meurs*: the French 1sg takes the 2sg, like *fais* and *sais*.
+    - *dui*: *\*duī*, after the second-declension plural, is an analogy.
+      *ó* is then raised before a final *ī* in hiatus, a new rule that
+      only this word meets. That gives *dyj*, read like *sui* and *muir*;
+      `attested.tsv` had *dui*, which was a guess.
+    - *yeux*: *ueuz* > *ieus*, as a regular dissimilation of the two *w*,
+      then *ɛw* > *ø*. Only this word has *ɛw*.
+
+    Still `irregular`:
+    - *femos*, *feches* keep the Latin stress, but their syncope came
+      before the palatalisation (*fac'tis* > *feches*, as *fecho*). The
+      rules syncopate later, as in *diezmo* and *plazdo*, so the Latin
+      stress alone does not give them.
+    - *fils*: its *l* is only written, and *fiz* gives *fi* regularly.
+      The /s/ is a spelling pronunciation.
+    - *vois*, *vais*: *-s* is a later addition, but the rules give *va*
+      from *\*vao*, not the *\*vei* > *voi* that Pope starts from.
+
+    `irregular` count: 17.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.

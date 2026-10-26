@@ -92,11 +92,12 @@
   paradigm: case2
   notes: Vulgar Latin *dōs for duōs.
   events:
-    - irregular: { at: old-french, cell: M.NOM, form: "dui", reason: "Gallo-Roman *duī" }
+    # OF dui, from *duī, after the second-declension plural
+    - analogy: { at: vulgar-latin, cell: M.NOM, rule: "ō s / u ī / _ #", model: "the plural -ī" }
   expect:
     old-spanish: { M.ACC: dós }
     spanish: { M.ACC: dós }
-    old-french: { M.NOM: dui, M.ACC: dows }
+    old-french: { M.NOM: dyj, M.ACC: dows }
     french: { M.ACC: dø }
 
 - id: tres
