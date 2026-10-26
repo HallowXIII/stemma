@@ -28,7 +28,7 @@
 
 - id: focus
   form: "*fok-"
-  gloss: "hearth, fire"
+  gloss: { latin: "hearth", western-romance: "fire" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   events:
@@ -53,7 +53,7 @@
 
 - id: caballus
   form: "*kaball-"
-  gloss: "horse (nag)"
+  gloss: { latin: "nag, workhorse", western-romance: "horse" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   expect:
@@ -117,7 +117,7 @@
 
 - id: castellum
   form: "*kastell-"
-  gloss: "fort"
+  gloss: { latin: "fort", western-romance: "castle" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o-n
   events:
@@ -158,7 +158,7 @@
 - id: caput
   form: "*kap-"
   stage: vulgar-latin
-  gloss: "head"
+  gloss: { vulgar-latin: "head", ibero-romance: "end", old-french: "head; chief", french: "chief" }
   category: [{ at: vulgar-latin, is: "N" }]
   paradigm: noun-o
   events:

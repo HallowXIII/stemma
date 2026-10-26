@@ -279,6 +279,16 @@ README.
     rather than a rule, which is the honest model: the build can't tell
     them from regular change otherwise.
 
+24. **A gloss was the same at every stage.** French *mais* showed as
+    "more" in the French dictionary, and the example had worked around
+    the single gloss with labels such as "stand; be (Spanish)" and "pot,
+    shell; head (French)".
+
+    **Done** (`8a3582a`): `gloss` can be a map from stages, in force down
+    each line as a category is. *causa* is "thing", *caballus* "horse",
+    *mittere* "put" from Western Romance on, and *caput* "end" in Spanish
+    but "chief" in French.
+
 ## Brassica
 
 - In Brassica 1.0, `a / b / env1 / env2` gives two environments; an

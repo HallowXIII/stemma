@@ -202,7 +202,7 @@
 
 - id: largus
   form: "*larg-"
-  gloss: "abundant; long (Spanish)"
+  gloss: { latin: "abundant, generous", ibero-romance: "long" }
   category: [{ at: latin, is: ADJ }]
   paradigm: adj-o-a
   fate: { old-french: lost }
@@ -211,7 +211,7 @@
 
 - id: malifatius
   form: "*malifāti-"
-  gloss: "ill-fated; bad (French)"
+  gloss: { vulgar-latin: "ill-fated", gallo-romance: "bad" }
   category: [{ at: vulgar-latin, is: ADJ }]
   paradigm: adj-o-a
   stage: vulgar-latin

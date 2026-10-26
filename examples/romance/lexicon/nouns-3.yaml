@@ -354,7 +354,7 @@
 
 - id: comes
   form: "*komes"
-  gloss: "companion; count"
+  gloss: { latin: "companion", western-romance: "count" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
   cells:
@@ -394,7 +394,7 @@
 
 - id: senior
   form: "*senior"
-  gloss: "elder; lord"
+  gloss: { latin: "elder", western-romance: "lord" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
   cells:
@@ -454,7 +454,7 @@
     - id: coratio
       source: { base: cor, morph: [~, AUG] }
       stage: vulgar-latin
-      gloss: "heart (Spanish)"
+      gloss: "heart"
       paradigm: noun-c
       cite: ACC.SG
       fate: { old-french: lost }
@@ -465,7 +465,7 @@
 - id: soliculus
   source: { base: sol, morph: [~, DIM] }
   stage: vulgar-latin
-  gloss: "sun (French)"
+  gloss: { vulgar-latin: "little sun", gallo-romance: "sun" }
   category: [{ at: vulgar-latin, is: "N" }]
   paradigm: noun-o
   fate: { old-spanish: lost }
@@ -475,7 +475,7 @@
 
 - id: germanus
   form: "*germān-"
-  gloss: "full (brother); brother (Spanish)"
+  gloss: { latin: "of the same parents", ibero-romance: "brother" }
   category: [{ at: latin, is: ADJ }, { at: old-spanish, is: "N" }]
   paradigm: noun-o
   fate: { old-french: lost }
@@ -498,7 +498,7 @@
 # provoire the Greek one of the oblique (presbýterum).
 - id: presbyter
   form: "*presbiter"
-  gloss: "elder; priest"
+  gloss: { latin: "elder, presbyter", western-romance: "priest" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   cells:
@@ -519,5 +519,5 @@
     - id: presbitero
       source: { loan: { from: latin, id: presbyter.ACC.SG, adapt: rules/learned-spanish.bsc } }
       stage: spanish
-      gloss: "presbyter (learned)"
+      gloss: "presbyter"
       expect: { spanish: pɾesbíteɾo }

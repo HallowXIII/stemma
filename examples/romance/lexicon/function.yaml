@@ -39,7 +39,7 @@
 
 - id: ille
   form: "*ill-"
-  gloss: "that; the; he"
+  gloss: { latin: "that", western-romance: "the; he" }
   category: [{ at: latin, is: DEM }, { at: western-romance, is: DEF }]
   paradigm: ille
   cells:
@@ -76,7 +76,7 @@
 
 - id: unus
   form: "*ūn-"
-  gloss: "one; a"
+  gloss: { latin: "one", western-romance: "one; a" }
   category: [{ at: latin, is: NUM }]
   paradigm: adj-o-a
   expect:
@@ -138,8 +138,8 @@
 
 - id: magis
   form: "*magis"
-  gloss: "more"
-  category: [{ at: latin, is: ADV }]
+  gloss: { latin: "more", old-french: "more; but", french: "but" }
+  category: [{ at: latin, is: ADV }, { at: french, is: CONJ }]
   events:
     # OSp mas, contracted from maes (Leonese maes, mais into the 13th
     # century; mas from the Glosas Emilianenses, c. 950; DCECH s.v. mas)

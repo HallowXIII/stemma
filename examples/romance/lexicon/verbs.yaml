@@ -45,7 +45,7 @@
 
 - id: habere
   form: "*hab-"
-  gloss: "have"
+  gloss: { latin: "have", spanish: "have (auxiliary)" }
   category: [{ at: latin, is: V }]
   paradigm: verb-e
   cells:
@@ -79,7 +79,7 @@
 
 - id: stare
   form: "*st-"
-  gloss: "stand; be (Spanish)"
+  gloss: { latin: "stand", ibero-romance: "stand; be" }
   category: [{ at: latin, is: V }]
   paradigm: verb-a
   fate: { french: lost }
@@ -166,7 +166,7 @@
 
 - id: tenere
   form: "*ten-"
-  gloss: "hold"
+  gloss: { latin: "hold", spanish: "have, hold" }
   category: [{ at: latin, is: V }]
   paradigm: verb-e
   cells:
@@ -303,7 +303,7 @@
 
 - id: sedere
   form: "*sed-"
-  gloss: "sit; be (Spanish)"
+  gloss: { latin: "sit", old-spanish: "sit; be", spanish: "be" }
   category: [{ at: latin, is: V }]
   paradigm: verb-e
   cells:
@@ -314,7 +314,7 @@
 - id: allare
   form: "*all-"
   stage: vulgar-latin
-  gloss: "go (French)"
+  gloss: "go"
   category: [{ at: vulgar-latin, is: V }]
   paradigm: verb-a
   fate: { ibero-romance: lost }
@@ -448,7 +448,7 @@
 
 - id: pensare-l
   form: "*pens-"
-  gloss: "think (learned)"
+  gloss: "think"
   category: [{ at: latin, is: V }]
   paradigm: verb-a
   events:
@@ -600,7 +600,7 @@
 
 - id: mittere
   form: "*mitt-"
-  gloss: "put"
+  gloss: { latin: "send", western-romance: "put" }
   category: [{ at: latin, is: V }]
   paradigm: verb-c
   cells:
@@ -616,7 +616,7 @@
 - id: sapere
   form: "*sap-"
   stage: vulgar-latin
-  gloss: "know"
+  gloss: { vulgar-latin: "taste; be wise", western-romance: "know" }
   category: [{ at: vulgar-latin, is: V }]
   paradigm: verb-e
   cells:

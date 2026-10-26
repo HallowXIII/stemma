@@ -83,7 +83,7 @@
 
 - id: causa
   form: "*kaus-"
-  gloss: "cause; thing"
+  gloss: { latin: "cause, matter", western-romance: "thing" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-a
   expect:
@@ -159,7 +159,7 @@
 - id: folia
   form: "*foli-"
   stage: vulgar-latin
-  gloss: "leaf"
+  gloss: { vulgar-latin: "leaves", western-romance: "leaf" }
   category: [{ at: vulgar-latin, is: "N" }]
   paradigm: noun-a
   expect:
@@ -172,7 +172,7 @@
 - id: capitia
   form: "*kapiti-"
   stage: vulgar-latin
-  gloss: "head (Spanish)"
+  gloss: "head"
   category: [{ at: vulgar-latin, is: "N" }]
   paradigm: noun-a
   fate: { old-french: lost }
@@ -185,7 +185,7 @@
 
 - id: testa
   form: "*test-"
-  gloss: "pot, shell; head (French)"
+  gloss: { latin: "pot, shell", gallo-romance: "head" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-a
   fate: { old-spanish: lost }
