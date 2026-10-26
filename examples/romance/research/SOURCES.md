@@ -44,8 +44,8 @@ handbook pass.
   Spanish rule order.
 - **DCECH:** Corominas, Joan, and José A. Pascual. *Diccionario crítico
   etimológico castellano e hispánico.* 6 vols. Madrid: Gredos,
-  1980–1991. The handbook pass: *no* (s.v. *no*). Still to check: Spanish
-  etyma and first attestations (*perro*, *preste*, *frágil*).
+  1980–1991. The handbook pass: *no*, *mas* (s.vv.). Still to check:
+  Spanish etyma and first attestations (*perro*, *preste*, *frágil*).
 
 ## Still to consult
 

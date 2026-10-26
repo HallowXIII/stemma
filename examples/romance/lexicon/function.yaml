@@ -140,7 +140,9 @@
   gloss: "more"
   category: [{ at: latin, is: ADV }]
   events:
-    - irregular: { at: old-spanish, form: "más", reason: "proclitic, beside mais" }
+    # OSp mas, contracted from maes (Leonese maes, mais into the 13th
+    # century; mas from the Glosas Emilianenses, c. 950; DCECH s.v. mas)
+    - analogy: { at: old-spanish, rule: "á e s / á s / _", model: "contraction in a short word" }
   expect:
     old-spanish: más
     spanish: más

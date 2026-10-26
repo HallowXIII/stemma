@@ -391,6 +391,14 @@ Found while building the full word list, batch by batch.
     much of America, Catalan and Galician; the build stresses it, as
     Peninsular Spanish does. `irregular` count: 25.
 
+    *mas* (DCECH): contracted from *maes* < *magis*. *maes*, *mais* are
+    mostly Leonese and last into the 13th century; *mas* is Castilian
+    from the *Glosas Emilianenses* (c. 950). *maes* is now regular: a new
+    Ibero-Romance rule drops *j* between *a* and a front vowel
+    (*magistrum* > *maestro*), and no other word in the lexicon has that
+    sequence. The contraction to *mas* is an analogy, like *seer* > *ser*.
+    `irregular` count: 24.
+
 ## Data
 
 `attested.tsv` has the forms the build must reproduce, and their sources.
