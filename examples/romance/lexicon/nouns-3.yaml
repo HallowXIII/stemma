@@ -44,6 +44,13 @@
       expect: { old-french: ɔm, french: ɔ̃ }
       notes: |
         Already pronominal in the Oaths of Strasbourg (842, "si cum om").
+    # A compound of the Old French accusatives
+    - id: bonhomme
+      source: { compound: [bonus.M.ACC.SG, homo.ACC.SG] }
+      stage: old-french
+      gloss: "fellow, good man"
+      category: [{ at: old-french, is: "N" }]
+      expect: { french: bɔnɔm }
 
 - id: corpus
   form: "*korpus"

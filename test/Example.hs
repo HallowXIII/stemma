@@ -33,7 +33,27 @@ main = do
   stageRules <- checkStageRules
   typst <- checkTypst
   inputs <- checkInputs
-  unless (and ok && overlaid && stageRules && typst && inputs) exitFailure
+  noRules <- checkNoRules
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules) exitFailure
+
+-- | A stage without rules copies its parent's forms, with a warning.
+checkNoRules :: IO Bool
+checkNoRules = do
+  family <- B.readFile "examples/romance/family.yaml"
+  let extended = family <> "\n  catalan:\n    name: Catalan\n    parent: western-romance\n"
+  built <- either (pure . Left) (build brassicaEngine)
+    =<< loadProjectWith (overlay (Map.singleton "family.yaml" extended) []) "examples/romance"
+  let failures = case built of
+        Left errs -> ["the project should build: " <> T.intercalate "; " errs]
+        Right b ->
+          [ "the stage should be warned about: " <> T.pack (show (bWarnings b))
+          | not (any ("catalan: no rules" `T.isPrefixOf`) (bWarnings b)) ]
+            ++ [ "its forms should be its parent's"
+               | spelledAt b False "catalan" "magis" /= spelledAt b False "western-romance" "magis"
+                   || spelledAt b False "catalan" "magis" == Nothing ]
+  forM_ failures $ \f -> TIO.putStrLn ("no rules: " <> f)
+  TIO.putStrLn (if null failures then "no rules: forms are copied, with a warning" else "no rules: FAILED")
+  pure (null failures)
 
 -- | @stemma typst@ writes the repository's stemma.typ, and a dictionary
 -- that finds the lexicon from wherever it is written.
