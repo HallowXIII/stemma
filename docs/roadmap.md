@@ -117,8 +117,8 @@ stemma can detect them. One pass after each stage:
 
 | finding | change | effort |
 |---|---|---|
-| 7 | `-- include: file.bsc`, spliced in before the file goes to Brassica, so generated tables live in their own file. Stemma-level tables from data are not planned. | S |
-| §2 | `shifts` across derivation: compare a derivative's first category with its base's where it was formed | S |
+| §2 | `shifts` across derivation: a derivative with no affix (`source: { base }` or `{ base, cell }`) starts from its base's category where it was formed, so conversion (*might-be* ADJ > PROPN) and new roles of a form (*habēre* AUX > FUT) are found. Affixal derivation is not a shift. | S |
+| — | Category-assigning affixes: an affix's `category` is the default for derivatives formed with it, since most derivation changes category. A template's last such affix decides. | S |
 | §2 | Collation: `alphabet:` per stage, with a sort key written to `lexicon.json` | S |
 | §2 | `stemma.typ` as a Typst package (`typst.toml`), installed by the flake under `share/typst/packages/local/stemma/0.1.0` | S |
 
@@ -133,6 +133,9 @@ stemma can detect them. One pass after each stage:
   graphemes already has its own step in the trace. A trace showing a whole
   generated row instead of the element that matched is a sign that the
   rule should be split into one line per change, as it would be by hand.
+- Rule includes (7). Their use was to keep generated tables in a file of
+  their own; such tables are better written as rules, one change per line,
+  and `report` segments already divide a long file.
 
 ---
 
