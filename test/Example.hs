@@ -259,6 +259,9 @@ checkInputs = do
   discontinued <- either (pure . Left) (build brassicaEngine) =<< loadProjectWith
     (overlay (Map.singleton "lexicon/zz.yaml" "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cells:\n    SG: { continues: VOC }\n") [])
     "test/fixtures/continues"
+  misplaced <- either (pure . Left) (build brassicaEngine) =<< loadProjectWith
+    (overlay (Map.singleton "lexicon/zz.yaml" "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cells:\n    SG: { at: wiyan, continues: SG.DIR }\n") [])
+    "test/fixtures/continues"
   glossJson <- withSystemTempDirectory "stemma-gloss" $ \tmp -> case glossed of
     Left _ -> pure ""
     Right b -> writeBuild tmp b >> T.filter (/= ' ') <$> TIO.readFile (tmp </> "lexicon.json")
@@ -275,6 +278,8 @@ checkInputs = do
              | not (failsWith "is not one grapheme" wide) ]
           ++ [ "continuing a cell the entry lacks should be an error: " <> describe discontinued
              | not (failsWith "cell SG continues VOC, which ka does not have" discontinued) ]
+          ++ [ "continuing at a stage without a change of paradigm should be an error: " <> describe misplaced
+             | not (failsWith "cell SG continues SG.DIR at wiyan, but the entry doesn't change there" misplaced) ]
           ++ [ "a citation naming an unknown cell should be an error: " <> describe uncited
              | not (failsWith "cite names unknown cell NOPE" uncited) ]
           ++ [ "a gloss should hold from its stage down its own line: " <> T.pack (show glosses)

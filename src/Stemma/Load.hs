@@ -354,8 +354,9 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- `at:` cells: the entry's own, then those of its paradigm and of any it
     -- changes to, except where the entry re-forms the same cell at the
     -- same stage itself.
-    entryAts = [(c, s) | (c, ov) <- enCells e, Just s <- [coAt ov]]
-    atCells = [(c, ov) | (c, ov) <- enCells e, Just _ <- [coAt ov]] ++
+    -- (A continuation for one stage's change is not a re-forming.)
+    entryAts = [(c, s) | (c, ov) <- enCells e, Just s <- [coAt ov], coContinues ov == Nothing]
+    atCells = [(c, ov) | (c, ov) <- enCells e, Just _ <- [coAt ov], coContinues ov == Nothing] ++
       [ (c, CellOverride Nothing Nothing (Just ps) (Just s) Nothing)
       | (c, s, ps) <- nub [a | p <- toList paradigm ++ repatternParadigms, a@(c', s', _) <- pfAt p
                              , not (lostAtOrAbove s' p c')]
@@ -433,7 +434,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itCategory = category
         , itNotes = Nothing
         , itEvents = birth ++ filter (alive . evAt) (
-            [ case continuesIn pname c of
+            [ case continuesIn s pname c of
                 Just src -> Event s Nothing (Continue (eid <> "." <> src))
                 Nothing -> Event s Nothing (Rebuild (if b == eid then stem else Nothing) b ps ("repatterned as " <> pname))
             | (s, pname, stem, new) <- repatterns, applies s, Just (b, ps) <- [lookup c new] ]
@@ -475,14 +476,20 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     repatternParadigms =
       [p | Event {evKind = Repattern pname _} <- events, Just p <- [Map.lookup pname paradigms]]
     -- The cell of the previous paradigm that a cell continues where the
-    -- entry changes to this one: the entry's own choice, or the paradigm's.
-    continuesIn pname c =
-      listToMaybe [src | (c', ov) <- enCells e, c' == c, coAt ov == Nothing, Just src <- [coContinues ov]]
+    -- entry changes to this one at a stage: the entry's own choice for
+    -- that stage, or for every stage, or else the paradigm's.
+    continuesIn s pname c =
+      listToMaybe [src | (c', ov) <- enCells e, c' == c, coAt ov == Just s, Just src <- [coContinues ov]]
+        <|> listToMaybe [src | (c', ov) <- enCells e, c' == c, coAt ov == Nothing, Just src <- [coContinues ov]]
         <|> (lookup c . pfContinues =<< Map.lookup pname paradigms)
     continuesErrs =
       [ err ("cell " <> c <> " continues " <> src <> ", which " <> eid <> " does not have")
-      | (_, pname, _, new) <- repatterns, (c, _) <- new
-      , Just src <- [continuesIn pname c], src `notElem` cellNames ]
+      | (s, pname, _, new) <- repatterns, (c, _) <- new
+      , Just src <- [continuesIn s pname c], src `notElem` cellNames ]
+        ++ [ err ("cell " <> c <> " continues " <> src <> " at " <> s
+                  <> ", but the entry doesn't change there to a paradigm with " <> c)
+           | (c, ov) <- enCells e, Just s <- [coAt ov], Just src <- [coContinues ov]
+           , null [() | (s', _, _, new) <- repatterns, s' == s, Just _ <- [lookup c new]] ]
     namedParadigms =
       [ (pname, p) | pname <- toList (enParadigm e) ++ [q | Event {evKind = Repattern q _} <- events]
       , Just p <- [Map.lookup pname paradigms] ]

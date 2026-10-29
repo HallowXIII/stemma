@@ -589,8 +589,16 @@ continues the Latin nominative where most nouns continue the accusative:
 
 A cell the entry's own paradigm lacks is added only to the paradigm it
 changes to, as a variant is here. `continues` can go with a template,
-`base` or `stem`, which apply where the entry is formed with the paradigm,
-but not with `at:`.
+`base` or `stem`, which apply where the entry is formed with the paradigm.
+
+With `at: S`, `continues` applies only where the entry changes paradigm at
+S, so that one line can continue another cell. It takes nothing else, and
+it is an error if the entry doesn't change at S to a paradigm with the
+cell:
+
+```yaml
+    SG: { at: french, continues: NOM.SG }   # Old Spanish keeps the paradigm's
+```
 
 **Citation.** `cite`, as on a paradigm (§2), sets the cell this entry is
 cited by, over its paradigm's: `cite: ~` cites a verb by its stem.

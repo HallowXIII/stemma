@@ -42,7 +42,7 @@ import Data.Aeson.KeyMap qualified as KM
 import Data.Aeson.Types (Parser)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, isJust)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Text.Read (readMaybe)
@@ -354,7 +354,7 @@ data CellOverride = CellOverride
   -- than with the paradigm.
   , coContinues :: Maybe Text
   -- ^ The cell of the previous paradigm it continues, where the entry
-  -- changes to one with this cell.
+  -- changes to one with this cell (with 'coAt', at that stage only).
   }
   deriving (Show)
 
@@ -386,8 +386,10 @@ instance FromJSON CellOverride where
       coMorph <- traverse template (KM.lookup "morph" o)   -- `morph: ~` is the bare base
       coAt <- o .:? "at"
       coContinues <- traverse (name "cell name") =<< o .:? "continues"
-      when (coAt /= Nothing && coContinues /= Nothing) $
-        fail "a cell may have `at` or `continues`, not both"
+      -- With `at`, `continues` is for the change of paradigm at that
+      -- stage only, and takes nothing else.
+      when (coAt /= Nothing && coContinues /= Nothing && (coBase, coStem, isJust coMorph) /= (Nothing, Nothing, False)) $
+        fail "`continues` with `at` takes no `base`, `stem` or `morph`"
       pure CellOverride {..}
     _ -> (\t -> CellOverride Nothing Nothing (Just t) Nothing Nothing) <$> template v
 

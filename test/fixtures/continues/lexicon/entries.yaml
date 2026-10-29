@@ -31,3 +31,13 @@
   paradigm: noun-az
   expect:
     azal: { SG: nimo, PL: nimoi }
+
+# Continues the direct case on one line only (azal); wiyan keeps case.
+- id: loma
+  form: "*loma"
+  paradigm: noun
+  cells:
+    PL: { at: azal, continues: PL.DIR }
+  expect:
+    azal: { SG: lumam, PL: lumais }
+    wiyan: { PL.DIR: lomais, PL.OBL: lomaim }
