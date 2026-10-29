@@ -124,6 +124,8 @@ affixes:
 paradigms:
   # Latin nouns and adjectives are cited in the nominative, Romance ones in
   # the accusative, which is what survives. The -wr paradigms inherit this.
+  # Spanish and French lose case: their nouns and adjectives become noun-rom
+  # and adj-rom, which continue the accusative (Old French keeps two cases).
   noun-o:
     cite: { latin: NOM.SG, western-romance: ACC.SG }
     cells:
@@ -135,8 +137,7 @@ paradigms:
       - GEN.PL: O.GEN.PL
     lost:
       western-romance: ["GEN.*"]
-      old-spanish: ["NOM.*"]
-      french: ["NOM.*"]
+    becomes: { old-spanish: noun-rom, french: noun-rom }
 
   noun-a:
     cite: { latin: NOM.SG, western-romance: ACC.SG }
@@ -155,8 +156,7 @@ paradigms:
       - NOM.PL: A.ACC.PL
     lost:
       western-romance: ["GEN.*"]
-      old-spanish: ["NOM.*"]
-      french: ["NOM.*"]
+    becomes: { old-spanish: noun-rom, french: noun-rom }
 
   # The base is the nominative singular; the other cells are built on the
   # oblique stem, given per entry.
@@ -177,8 +177,7 @@ paradigms:
       - NOM.PL: O.NOM.PL
     lost:
       western-romance: ["GEN.*"]
-      old-spanish: ["NOM.*"]
-      french: ["NOM.*"]
+    becomes: { old-spanish: noun-rom, french: noun-rom }
 
   # Second-declension neuters: masculine from Western Romance on (OF fers,
   # chasteaus).
@@ -207,9 +206,7 @@ paradigms:
     cells:
       - NOM.PL: ~
       - ACC.PL: ~
-    lost:
-      old-spanish: ["NOM.*"]
-      french: ["NOM.*"]
+    becomes: { old-spanish: noun-rom, french: noun-rom }
 
   adj-o-a:
     cite: { latin: M.NOM.SG, western-romance: M.ACC.SG }
@@ -227,9 +224,7 @@ paradigms:
     extends: adj-o-a
     cells:
       - F.NOM.PL: A.ACC.PL
-    lost:
-      old-spanish: ["*.NOM.*"]
-      french: ["*.NOM.*"]
+    becomes: { old-spanish: adj-rom, french: adj-rom }
 
   # Verbs. Changes that reach a whole conjugation are re-formings on the
   # paradigm: OF -ons and -ez, the Gallo-Roman preterite -at, French 1sg -e,
@@ -316,13 +311,23 @@ paradigms:
       - PTCP: PTCP.I
 
 
-  # Romance o-stems, for nouns remade as such after Western Romance
-  # (Spanish cuerpo).
-  noun-o-rom:
-    cite: ACC.SG
+  # Spanish and French nouns, after the loss of case: number only. Each
+  # cell continues the accusative, unless an entry continues another case
+  # (French prêtre). A noun formed with it is an o-stem (Spanish perro).
+  noun-rom:
+    cite: SG
     cells:
-      - ACC.SG: O.ACC.SG
-      - ACC.PL: O.ACC.PL
+      - SG: [O.ACC.SG, { continues: ACC.SG }]
+      - PL: [O.ACC.PL, { continues: ACC.PL }]
+
+  # Spanish and French adjectives, after the loss of case.
+  adj-rom:
+    cite: M.SG
+    cells:
+      - M.SG: [O.ACC.SG, { continues: M.ACC.SG }]
+      - M.PL: [O.ACC.PL, { continues: M.ACC.PL }]
+      - F.SG: [A.ACC.SG, { continues: F.ACC.SG }]
+      - F.PL: [A.ACC.PL, { continues: F.ACC.PL }]
 
   # Third-declension feminines keep the nominative plural in -ēs (OF meres).
   noun-c-f:
@@ -332,8 +337,7 @@ paradigms:
     extends: noun-c
     lost:
       western-romance: ["GEN.*"]
-      old-spanish: ["NOM.*"]
-      french: ["NOM.*"]
+    becomes: { old-spanish: noun-rom, french: noun-rom }
 
   # Parisyllabic third-declension nouns (pānis).
   noun-i:
@@ -345,14 +349,7 @@ paradigms:
     extends: noun-c-wr
     cells:
       - NOM.SG: C.NOM.SG.IS
-
-  # Romance third-declension nouns, for nouns remade as such after Western
-  # Romance (Spanish nombre).
-  noun-c-rom:
-    cite: ACC.SG
-    cells:
-      - ACC.SG: C.ACC.SG
-      - ACC.PL: C.ACC.PL
+    becomes: { old-spanish: noun-rom, french: noun-rom }
 
   # Third-declension adjectives: one form for both genders, as in OF grant.
   adj-c:
@@ -371,9 +368,7 @@ paradigms:
     extends: adj-c
     cells:
       - M.NOM.PL: O.NOM.PL
-    lost:
-      old-spanish: ["*.NOM.*"]
-      french: ["*.NOM.*"]
+    becomes: { old-spanish: adj-rom, french: adj-rom }
 
   # Personal pronouns: each cell has a stem of its own, by entry. The
   # entry's form is the stressed object form.

@@ -64,10 +64,10 @@ The `cell` column uses stemma's cell names, so that `expect:` blocks can
 be generated from the table.
 
 - **Nouns:** Old French NOM.SG, ACC.SG, NOM.PL, ACC.PL (the cas régime is
-  ACC). Spanish and French ACC.SG, ACC.PL.
+  ACC). Spanish and French have no case: SG, PL.
 - **Adjectives:** Old French M.NOM.SG, M.ACC.SG, M.NOM.PL, M.ACC.PL,
   F.ACC.SG, F.ACC.PL (and F.NOM.SG, F.NOM.PL where they differ from the
-  ACC). Spanish and French M.ACC.SG, M.ACC.PL, F.ACC.SG, F.ACC.PL.
+  ACC). Spanish and French M.SG, M.PL, F.SG, F.PL.
 - **Verbs:** INF; PRS.1SG, PRS.2SG, PRS.3SG, PRS.1PL, PRS.2PL, PRS.3PL;
   FUT.1SG, FUT.3SG; PRET.3SG (Spanish preterite, French passé simple);
   PTCP (the past participle, masculine singular; Old French oblique).

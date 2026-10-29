@@ -177,8 +177,8 @@ README.
 12. **A `repattern` brings back cells lost earlier.** Remaking *corpus* as
     `noun-o` at Old Spanish joined its genitive and nominative cells
     there, although `noun-o` loses them at Western Romance and Old
-    Spanish. The example uses a Romance paradigm with only the accusative
-    cells (`noun-o-rom`).
+    Spanish. The example used a Romance paradigm with only the accusative
+    cells (`noun-o-rom`), now gone (finding 25).
 
     **Fixed:** a loss changes the paradigm, not just the entries that
     have it at the time. A repattern is an analogy to a more frequent
@@ -306,7 +306,19 @@ README.
 
     **Done:** a cell of a paradigm an entry changes to `continues` a
     cell of the old one, taking its form as it is; an entry can name
-    another cell to continue, or add a variant continuing one.
+    another cell to continue (on one line, with `at:`), or add a variant
+    continuing one. The example's nouns and adjectives become `noun-rom`
+    and `adj-rom` in Spanish and French, *prêtre* continues the
+    nominative, and the `noun-o-rom` and `noun-c-rom` workarounds are
+    gone. Every form is the same as before; *corpus*, *tempus* and
+    *nomen*, remade at Ibero-Romance, now have that stage's nominative
+    too.
+
+    Making this work needed a cell to be joined on each line where a
+    paradigm gives it (the singular is new at Old Spanish and at French),
+    `becomes` to follow the paradigm in force (an entry repatterned as
+    `noun-o` gets its `becomes`), and an entry's changes to its old cells
+    not to add them to the new paradigm.
 
 ## Brassica
 

@@ -80,10 +80,10 @@
   category: [{ at: latin, is: NUM }]
   paradigm: adj-o-a
   expect:
-    old-spanish: { M.ACC.SG: úno, F.ACC.SG: úna }
-    spanish: { M.ACC.SG: úno, F.ACC.SG: úna }
+    old-spanish: { M.SG: úno, F.SG: úna }
+    spanish: { M.SG: úno, F.SG: úna }
     old-french: { M.NOM.SG: yns, M.ACC.SG: yn, F.ACC.SG: ynə }
-    french: { M.ACC.SG: œ̃, F.ACC.SG: yn }
+    french: { M.SG: œ̃, F.SG: yn }
 
 - id: duo
   form: "*dōs"
