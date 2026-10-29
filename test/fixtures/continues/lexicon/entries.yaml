@@ -1,0 +1,33 @@
+- id: tako
+  form: "*tako"
+  paradigm: noun
+  expect:
+    azal: { SG: takum, PL: takuim }
+    wiyan: { SG.DIR: takos, SG.OBL: takom, PL.OBL: takoim }
+
+# Continues the direct case in the singular, as French prêtre does.
+- id: pero
+  form: "*pero"
+  paradigm: noun
+  cells:
+    SG: { continues: SG.DIR }
+  expect:
+    azal: { SG: perus, PL: peruim }
+    wiyan: { SG.DIR: peros, SG.OBL: perom }
+
+# Keeps both, the direct one as a variant.
+- id: sire
+  form: "*sire"
+  paradigm: noun
+  cells:
+    SG~dir: { continues: SG.DIR }
+  expect:
+    azal: { SG: sirem, SG~dir: sires, PL: sireim }
+
+# Formed with the new paradigm: from its templates.
+- id: nimo
+  form: "nimo"
+  stage: azal
+  paradigm: noun-az
+  expect:
+    azal: { SG: nimo, PL: nimoi }

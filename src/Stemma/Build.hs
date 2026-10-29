@@ -219,10 +219,11 @@ runMode engine proj rules inline order mode = foldM stepStage (Right (Map.empty,
     -- coined from s's final forms. Only in the actual run: without events,
     -- it is coined.
     joinedEntering s it =
-      itStage it == s && any isRebuild (eventsAt s it)
+      itStage it == s && any (\ev -> isRebuild ev || isContinue ev) (eventsAt s it)
         && maybe False (const True) (Map.lookup s stages >>= stParent)
     isIrregular ev = case evKind ev of Irregular {} -> True; _ -> False
     isRebuild ev = case evKind ev of Rebuild {} -> True; Reform -> True; _ -> False
+    isContinue ev = case evKind ev of Continue {} -> True; _ -> False
 
     -- Items rebuilt from parts at s are joined from the forms entering s,
     -- so they go through the morphophonology of its parent p. A written
@@ -329,6 +330,11 @@ runMode engine proj rules inline order mode = foldM stepStage (Right (Map.empty,
             PAffix a -> (Just a,) <$> entering "repattern" a)
           (fs, chosen) <- chooseAllomorphs proj parent (entering "repattern") slots
           pure (joinParts proj (itBound it) fs, descs ++ [desc] ++ chosen, origin)
+        -- The form carries over as it is: it was joined, and went through
+        -- morphophonology, as the cell it continues.
+        Continue from -> do
+          g <- entering "continues" from
+          pure (g, descs ++ ["continues " <> from], origin)
         Repattern {} -> pure (f, descs, origin)
         Loan from _ _ -> do
           f' <- fromMaybe (Left "loan: missing donor") (Map.lookup (itId it, k) loanForms)

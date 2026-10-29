@@ -209,6 +209,34 @@ replaces would otherwise become itself.
     becomes: { western-romance: noun-a-wr }   # nominative plural in -ās
 ```
 
+**Continuing cells.** Where an entry changes to a paradigm, a cell of the
+new one can continue a cell of the old one instead of being rebuilt:
+`continues` names the old cell, whose form entering the stage the new
+cell takes as it is, and then goes through the stage's rules. This is how
+a paradigm loses a category, such as case, by merging its cells: the
+Romance nouns become number-only nouns, whose singular continues the
+accusative singular.
+
+```yaml
+  noun-o:
+    cells: ...
+    becomes: { old-spanish: noun-rom, french: noun-rom }
+  noun-rom:
+    cite: SG
+    cells:
+      - SG: { continues: ACC.SG }
+      - PL: [O.ACC.PL, { continues: ACC.PL }]
+```
+
+The old cells are lost there, if the new paradigm lacks them, so their
+would-be forms are still computed, and `trace` says what each cell
+continues. An entry can continue another cell instead (§3). Where an
+entry is formed with the paradigm, a continuing cell is formed from its
+template, or as the bare base if it has none. A cell continues at most
+one cell, and its re-formings (`at:`) may go in the same list. It is an
+error for an entry that changes to the paradigm not to have the cell
+continued.
+
 **Re-forming on one line.** A cell can be re-formed at a later stage for
 every entry with the paradigm, as an entry's `at:` cell is (§3): it is
 joined again at that stage, from the forms entering it, and only the
@@ -541,6 +569,23 @@ on one line and another elsewhere:
 
 A template in the list stands for the change without `at:`; write a
 longer one as a list inside the list.
+
+**Continuing another cell.** `continues` on a cell picks which cell of
+the previous paradigm it continues where the entry changes to a paradigm
+with continuing cells (§2), over the paradigm's choice. French *prêtre*
+continues the Latin nominative where most nouns continue the accusative:
+
+```yaml
+- id: presbyter
+  cells:
+    SG: { continues: NOM.SG }
+    SG~obl: { continues: ACC.SG }    # a second form, as a variant
+```
+
+A cell the entry's own paradigm lacks is added only to the paradigm it
+changes to, as a variant is here. `continues` can go with a template,
+`base` or `stem`, which apply where the entry is formed with the paradigm,
+but not with `at:`.
 
 **Citation.** `cite`, as on a paradigm (§2), sets the cell this entry is
 cited by, over its paradigm's: `cite: ~` cites a verb by its stem.

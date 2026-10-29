@@ -163,10 +163,12 @@ data Paradigm = Paradigm
 
 -- | A paradigm cell: its template, if it is formed with the paradigm, and
 -- where it is re-formed (or, without a template, joined) on the way down,
--- each a stage and the template used there.
+-- each a stage and the template used there; and the cell of the previous
+-- paradigm it continues, where an entry changes to this one.
 data CellDef = CellDef
   { cdParts :: Maybe [Part]
   , cdAt :: [(StageId, [Part])]
+  , cdContinues :: Maybe Text
   }
   deriving (Show)
 
@@ -239,19 +241,33 @@ instance FromJSON Paradigm where
       cell = single "paradigm cell" "`NAME: affix`" $ \k v -> (k,) <$> cellDef v
 
 -- | A paradigm cell is a template; or `{ at: S, morph: [...] }`, a cell joined
--- at S; or a list of one template and such re-formings.
+-- at S; or `{ continues: CELL }`; or a list of one template and such
+-- objects, with at most one `continues`.
 cellDef :: Value -> Parser CellDef
 cellDef v = case v of
-  Object _ -> CellDef Nothing . pure <$> reform v
+  Object _ -> build Nothing [v]
   Array xs | any isObject xs -> do
     let (objs, rest) = partitionObjects (toList xs)
     parts <- case rest of
       [] -> pure Nothing
       [t] -> Just <$> template t
       _ -> fail "a cell with re-formings may have only one template; write a longer one as a list"
-    CellDef parts <$> traverse reform objs
-  _ -> (\t -> CellDef (Just t) []) <$> template v
+    build parts objs
+  _ -> (\t -> CellDef (Just t) [] Nothing) <$> template v
   where
+    build parts objs = do
+      let (conts, reforms) = partitionBy isContinues objs
+      cont <- case conts of
+        [] -> pure Nothing
+        [c] -> withObject "cell continuation" (\o -> do
+                 forM_ (KM.keys o) $ \k -> when (k /= "continues") $
+                   fail ("`continues` takes no other keys, but has `" <> Key.toString k <> "`")
+                 Just <$> (name "cell name" =<< o .: "continues")) c
+        _ -> fail "a cell may continue only one cell"
+      ats <- traverse reform reforms
+      pure (CellDef parts ats cont)
+    isContinues = \case Object o -> KM.member "continues" o; _ -> False
+    partitionBy f xs = (filter f xs, filter (not . f) xs)
     reform = withObject "cell re-forming" $ \o -> do
       forM_ ["base", "stem"] $ \k -> when (KM.member k o) $
         fail ("`" <> show k <> "` belongs to an entry's cells, not a paradigm's")
@@ -336,6 +352,9 @@ data CellOverride = CellOverride
   , coAt :: Maybe StageId
   -- ^ The cell is joined at this stage, from the forms entering it, rather
   -- than with the paradigm.
+  , coContinues :: Maybe Text
+  -- ^ The cell of the previous paradigm it continues, where the entry
+  -- changes to one with this cell.
   }
   deriving (Show)
 
@@ -347,7 +366,7 @@ cellOverrides v = case v of
     let (objs, rest) = partitionObjects (toList xs)
     plain <- case rest of
       [] -> pure []
-      [t] -> (\p -> [CellOverride Nothing Nothing (Just p) Nothing]) <$> template t
+      [t] -> (\p -> [CellOverride Nothing Nothing (Just p) Nothing Nothing]) <$> template t
       _ -> fail "a cell with re-formings may have only one template; write a longer one as a list"
     ovs <- (plain ++) <$> traverse parseJSON objs
     when (length [() | ov <- ovs, coAt ov == Nothing] > 1) $
@@ -355,7 +374,8 @@ cellOverrides v = case v of
     pure ovs
   _ -> pure <$> parseJSON v
 
--- | Either @{ base: X, stem: T, morph: [...], at: S }@ or just a template.
+-- | Either @{ base: X, stem: T, morph: [...], at: S, continues: C }@ or just
+-- a template.
 instance FromJSON CellOverride where
   parseJSON v = case v of
     Object o -> do
@@ -365,8 +385,11 @@ instance FromJSON CellOverride where
         fail "a cell may have `base` or `stem`, not both"
       coMorph <- traverse template (KM.lookup "morph" o)   -- `morph: ~` is the bare base
       coAt <- o .:? "at"
+      coContinues <- traverse (name "cell name") =<< o .:? "continues"
+      when (coAt /= Nothing && coContinues /= Nothing) $
+        fail "a cell may have `at` or `continues`, not both"
       pure CellOverride {..}
-    _ -> (\t -> CellOverride Nothing Nothing (Just t) Nothing) <$> template v
+    _ -> (\t -> CellOverride Nothing Nothing (Just t) Nothing Nothing) <$> template v
 
 data Source
   = SBase ItemId
@@ -406,6 +429,9 @@ data EventKind
   -- ^ Rebuild from a template: a stem as written (or else the base's form
   -- entering the stage), the base, the template, and a description. Not
   -- written by hand.
+  | Continue ItemId
+  -- ^ Take another item's form entering the stage, as it is: a cell
+  -- continuing one of the previous paradigm. Not written by hand.
   deriving (Show)
 
 eventKindName :: EventKind -> Text
@@ -416,6 +442,7 @@ eventKindName = \case
   Irregular {} -> "irregular"
   Repattern {} -> "repattern"
   Rebuild {} -> "repattern"
+  Continue {} -> "repattern"
 
 -- | The cell an entry with a paradigm is cited by, as a headword: one for
 -- every stage, or one from each of some stages on. 'Nothing' is the bare

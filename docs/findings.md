@@ -297,6 +297,17 @@ README.
     *mittere* "put" from Western Romance on, and *caput* "end" in Spanish
     but "chief" in French.
 
+25. **Case is lost by merging cells, not by losing some.** With `lost`,
+    Spanish and French nouns kept the cells ACC.SG and ACC.PL after the
+    loss of case, which is the etymology of most of their forms but not
+    the shape of the paradigm, and French nouns that continue the
+    nominative (*prêtre*, *sœur*, *on*) had to re-form their accusative
+    cells on it.
+
+    **Done:** a cell of a paradigm an entry changes to `continues` a
+    cell of the old one, taking its form as it is; an entry can name
+    another cell to continue, or add a variant continuing one.
+
 ## Brassica
 
 - In Brassica 1.0, `a / b / env1 / env2` gives two environments; an

@@ -29,7 +29,7 @@ import Data.Foldable (toList)
 import Data.List (elemIndex, nub, sortOn)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (fromMaybe, listToMaybe, mapMaybe, maybeToList)
+import Data.Maybe (fromMaybe, isJust, listToMaybe, mapMaybe, maybeToList)
 import Data.Ord (Down (..))
 import Data.Set (Set)
 import Data.Set qualified as Set
@@ -330,11 +330,14 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
 
     -- A paradigm's cells with this entry's changes: name, base, template.
     -- Cells with a stage of their own (`at:`) are not part of any paradigm.
-    cellsOf p = foldl' change [(c, (eid, ps)) | (c, ps) <- maybe [] pfCells p]
-                              [(c, ov) | (c, ov) <- enCells e, coAt ov == Nothing]
+    -- A cell the entry adds by `continues` (a variant, say) is only added
+    -- to a paradigm it changes to.
+    cellsOf target p = foldl' change [(c, (eid, ps)) | (c, ps) <- maybe [] pfCells p]
+      [ (c, ov) | (c, ov) <- enCells e, coAt ov == Nothing
+      , target || coContinues ov == Nothing || c `elem` map fst (maybe [] pfCells p) ]
     -- The entry takes its paradigm as it is where the cells are formed:
     -- without the cells it lost there or above.
-    entryCells = [ cell | cell@(c, _) <- cellsOf paradigm
+    entryCells = [ cell | cell@(c, _) <- cellsOf False paradigm
                  , not (or [lostAtOrAbove s p c | Right s <- [paradigmStage], Just p <- [paradigm]]) ]
     change acc (c, ov) = case lookup c acc of
       Just (b, ps) ->
@@ -346,7 +349,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- same stage itself.
     entryAts = [(c, s) | (c, ov) <- enCells e, Just s <- [coAt ov]]
     atCells = [(c, ov) | (c, ov) <- enCells e, Just _ <- [coAt ov]] ++
-      [ (c, CellOverride Nothing Nothing (Just ps) (Just s))
+      [ (c, CellOverride Nothing Nothing (Just ps) (Just s) Nothing)
       | (c, s, ps) <- nub [a | p <- toList paradigm ++ repatternParadigms, a@(c', s', _) <- pfAt p
                              , not (lostAtOrAbove s' p c')]
       , (c, s) `notElem` entryAts ]
@@ -375,7 +378,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
 
     cells = case (enParadigm e, paradigm) of
       (Just pname, Nothing) -> [err ("unknown paradigm " <> pname)]
-      _ -> repatternErrs ++ [ err ("variant " <> c <> " has no main cell " <> m)
+      _ -> repatternErrs ++ continuesErrs ++ [ err ("variant " <> c <> " has no main cell " <> m)
            | c <- cellNames, (m, Just _) <- [splitVariant c], m `notElem` cellNames ]
            ++ [ err ("cell " <> c <> " is joined at unknown stage " <> s) | (c, _, s) <- later, not (Map.member s stages) ]
            ++ map (mkCell Nothing) entryCells
@@ -418,7 +421,9 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itCategory = category
         , itNotes = Nothing
         , itEvents = birth ++
-            [ Event s Nothing (Rebuild (if b == eid then stem else Nothing) b ps ("repatterned as " <> pname))
+            [ case continuesIn pname c of
+                Just src -> Event s Nothing (Continue (eid <> "." <> src))
+                Nothing -> Event s Nothing (Rebuild (if b == eid then stem else Nothing) b ps ("repatterned as " <> pname))
             | (s, pname, stem, new) <- repatterns, applies s, Just (b, ps) <- [lookup c new] ]
               ++ reformedAt c
               -- An analogy without `cell:` reaches every cell, after the
@@ -449,7 +454,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- new paradigm as it is at that stage, so the cells it has lost there
     -- or above are not given, and are lost there.
     repatterns = sortOn (\(s, _, _, _) -> length (ancestorsOrSelf stages s))
-      [ (r, pname, stem, [cell | cell@(c, _) <- cellsOf (Just p), not (lostAtOrAbove r p c)])
+      [ (r, pname, stem, [cell | cell@(c, _) <- cellsOf True (Just p), not (lostAtOrAbove r p c)])
       | Event {evAt = r, evKind = Repattern pname stem} <- events
       , Just p <- [Map.lookup pname paradigms] ]
     -- Has the paradigm lost the cell at this stage or above?
@@ -457,6 +462,15 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       [ any (`lostBy` c) pats | (s, pats) <- Map.toList (pfLost p), isAncestorOrSelf stages s r ]
     repatternParadigms =
       [p | Event {evKind = Repattern pname _} <- events, Just p <- [Map.lookup pname paradigms]]
+    -- The cell of the previous paradigm that a cell continues where the
+    -- entry changes to this one: the entry's own choice, or the paradigm's.
+    continuesIn pname c =
+      listToMaybe [src | (c', ov) <- enCells e, c' == c, coAt ov == Nothing, Just src <- [coContinues ov]]
+        <|> (lookup c . pfContinues =<< Map.lookup pname paradigms)
+    continuesErrs =
+      [ err ("cell " <> c <> " continues " <> src <> ", which " <> eid <> " does not have")
+      | (_, pname, _, new) <- repatterns, (c, _) <- new
+      , Just src <- [continuesIn pname c], src `notElem` cellNames ]
     namedParadigms =
       [ (pname, p) | pname <- toList (enParadigm e) ++ [q | Event {evKind = Repattern q _} <- events]
       , Just p <- [Map.lookup pname paradigms] ]
@@ -562,6 +576,9 @@ data ParadigmDef = ParadigmDef
   , pfAt :: [(Text, StageId, [Part])]
   -- ^ Cells re-formed at a later stage, or joined there if they are not
   -- in 'pfCells': the cell, the stage and the template.
+  , pfContinues :: [(Text, Text)]
+  -- ^ Cells that continue a cell of the previous paradigm, where an entry
+  -- changes to this one.
   , pfLost :: Map StageId [Text]
   , pfBecomes :: Map StageId Text
   , pfCite :: Maybe Cite
@@ -636,7 +653,7 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
             T.intercalate "." [fst (splitVariant m) | (m, _) <- combo]
               <> T.concat ["~" <> l | (m, _) <- combo, (_, Just l) <- [splitVariant m]]
           combined =
-            [ (cellName combo, CellDef (Just (concatMap (slot (zip names combo)) slots)) [])
+            [ (cellName combo, CellDef (Just (concatMap (slot (zip names combo)) slots)) [] Nothing)
             | not (null dims), combo <- mapM dmMembers dims ]
           slot chosen s
             | s == "~" = [PBase]
@@ -659,8 +676,12 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
       Right ParadigmDef
         { pfStage = pdStage p
         , pfDimensions = dims
-        , pfCells = [(c, ps) | (c, CellDef (Just ps) _) <- kept]
-        , pfAt = [(c, s, ps) | (c, CellDef _ ats) <- kept, (s, ps) <- ats]
+        -- A continuing cell without a template is the bare base, where
+        -- an entry is formed with the paradigm.
+        , pfCells = [ (c, fromMaybe [PBase] ps) | (c, CellDef ps _ cont) <- kept
+                    , isJust ps || isJust cont ]
+        , pfAt = [(c, s, ps) | (c, CellDef _ ats _) <- kept, (s, ps) <- ats]
+        , pfContinues = [(c, src) | (c, CellDef _ _ (Just src)) <- kept]
         , pfLost = pdLost p
         , pfBecomes = pdBecomes p
         , pfCite = pdCite p
