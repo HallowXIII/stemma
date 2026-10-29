@@ -186,6 +186,8 @@ viewFailures dir b
       [ "a repattern should not join cells its paradigm lost above it"
       | any (`Map.member` prItems (bProject b)) ["sem.SG.GEN", "sem.PL.GEN"]
           || not (Map.member "sem.SG.COM" (prItems (bProject b))) ]
+      ++ [ "an entry formed below a loss should not have the lost cells"
+         | any (`Map.member` prItems (bProject b)) ["ren.SG.GEN", "ren.PL.GEN"] ]
   | dir == "test/fixtures/cells" =
       [ "entry-specific cells and variants should be shown"
       | not (case (paradigmView b "ego" "proto", paradigmView b "bes" "proto") of

@@ -205,7 +205,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         (Nothing, Just s) -> Right (BSource s)
         (Nothing, Nothing) -> err "needs either `form` or `source`"
         (Just _, Just _) -> err "has both `form` and `source`"
-      forM_ cellEvents $ \ev -> unless (cellOf ev `elem` cellNames) $
+      forM_ [ev | ev <- events, evCell ev /= Nothing] $ \ev -> unless (cellOf ev `elem` cellNames) $
         err ("event targets unknown cell " <> cellOf ev)
       when (T.any (== '~') eid) $ err "ids may not contain ~ (it is reserved for variants and internal items)"
       unless (Map.null (enAllomorphs e) || (kind == KAffix && owner == Nothing)) $
@@ -307,8 +307,10 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       | t <- stemTexts ]
     cellBase ov = coBase ov <|> (stemId <$> coStem ov)
 
-    -- The events of its paradigm, and of any it changes to, come first.
-    paradigmEvents = concatMap pfEvents (toList paradigm ++ repatternParadigms)
+    -- The events of its paradigm, and of any it changes to, come first,
+    -- except on cells the entry doesn't have.
+    paradigmEvents = [ ev | ev <- concatMap pfEvents (toList paradigm ++ repatternParadigms)
+                          , maybe True (`elem` cellNames) (evCell ev) ]
     (cellEvents, ownEvents) = partitionBy (\ev -> evCell ev /= Nothing) (paradigmEvents ++ events)
     cellOf ev = fromMaybe "" (evCell ev)
 
@@ -330,7 +332,10 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- Cells with a stage of their own (`at:`) are not part of any paradigm.
     cellsOf p = foldl' change [(c, (eid, ps)) | (c, ps) <- maybe [] pfCells p]
                               [(c, ov) | (c, ov) <- enCells e, coAt ov == Nothing]
-    entryCells = cellsOf paradigm
+    -- The entry takes its paradigm as it is where the cells are formed:
+    -- without the cells it lost there or above.
+    entryCells = [ cell | cell@(c, _) <- cellsOf paradigm
+                 , not (or [lostAtOrAbove s p c | Right s <- [paradigmStage], Just p <- [paradigm]]) ]
     change acc (c, ov) = case lookup c acc of
       Just (b, ps) ->
         [(k, if k == c then (fromMaybe b (cellBase ov), fromMaybe ps (coMorph ov)) else v) | (k, v) <- acc]
@@ -342,7 +347,8 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     entryAts = [(c, s) | (c, ov) <- enCells e, Just s <- [coAt ov]]
     atCells = [(c, ov) | (c, ov) <- enCells e, Just _ <- [coAt ov]] ++
       [ (c, CellOverride Nothing Nothing (Just ps) (Just s))
-      | (c, s, ps) <- nub [a | p <- toList paradigm ++ repatternParadigms, a <- pfAt p]
+      | (c, s, ps) <- nub [a | p <- toList paradigm ++ repatternParadigms, a@(c', s', _) <- pfAt p
+                             , not (lostAtOrAbove s' p c')]
       , (c, s) `notElem` entryAts ]
 
     -- Cells joined later than the paradigm: those that a repattern's
@@ -440,14 +446,15 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- cells it gives. Nearest the root first, so that a cell two
     -- repatterns add is joined at the earlier one (a paradigm's `becomes`
     -- comes after the entry's own events in `events`). The entry takes the
-    -- new paradigm as it is at that stage, so the cells it lost above the
-    -- stage are not given, and are lost there.
+    -- new paradigm as it is at that stage, so the cells it has lost there
+    -- or above are not given, and are lost there.
     repatterns = sortOn (\(s, _, _, _) -> length (ancestorsOrSelf stages s))
-      [ (r, pname, stem, [cell | cell@(c, _) <- cellsOf (Just p), not (lostAbove r p c)])
+      [ (r, pname, stem, [cell | cell@(c, _) <- cellsOf (Just p), not (lostAtOrAbove r p c)])
       | Event {evAt = r, evKind = Repattern pname stem} <- events
       , Just p <- [Map.lookup pname paradigms] ]
-    lostAbove r p c = or
-      [ any (`lostBy` c) pats | (s, pats) <- Map.toList (pfLost p), s /= r, isAncestorOrSelf stages s r ]
+    -- Has the paradigm lost the cell at this stage or above?
+    lostAtOrAbove r p c = or
+      [ any (`lostBy` c) pats | (s, pats) <- Map.toList (pfLost p), isAncestorOrSelf stages s r ]
     repatternParadigms =
       [p | Event {evKind = Repattern pname _} <- events, Just p <- [Map.lookup pname paradigms]]
     namedParadigms =

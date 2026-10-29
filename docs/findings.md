@@ -180,13 +180,16 @@ README.
     Spanish. The example uses a Romance paradigm with only the accusative
     cells (`noun-o-rom`).
 
-    **Fixed:** a repattern is an analogy to a more frequent paradigm, so
-    the entry takes that paradigm as entries that always had it have it
-    at that stage: the cells it lost above the stage are not joined, and
-    are lost there. A paradigm's `lost` now also applies only where the
-    paradigm is in force, so `noun-o`'s loss of the nominative at French
-    no longer reaches an entry repatterned as `noun-o` on the Spanish
-    line.
+    **Fixed:** a loss changes the paradigm, not just the entries that
+    have it at the time. A repattern is an analogy to a more frequent
+    paradigm, so the entry takes that paradigm as it is at that stage:
+    the cells it has lost there or above are not joined, and are lost
+    there. An entry formed below a loss gets the paradigm the same way
+    (Spanish *perro*, formed at Old Spanish as an o-stem, has no
+    nominative or genitive). A paradigm's `lost` also applies only where
+    the paradigm is in force, so `noun-o`'s loss of the nominative at
+    French no longer reaches an entry repatterned as `noun-o` on the
+    Spanish line.
 
 13. **`replace` can't change one of two equal graphemes.** OF *estoile*
     needs *\*stēla* with a single *l*, from WR *estélla*.

@@ -44,3 +44,11 @@
   expect:
     azal: { SG.GEN: dali }
     wiyan: { SG.GEN: dali, PL.GEN: dalrai }
+
+# Formed at wiyan, where noun has lost the genitive: no genitive.
+- id: ren
+  form: "ren"
+  stage: wiyan
+  paradigm: noun
+  expect:
+    wiyan: { SG.DIR: ren, SG.COM: renm }
