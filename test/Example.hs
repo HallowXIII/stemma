@@ -157,11 +157,15 @@ checkTypst :: IO Bool
 checkTypst = do
   source <- B.readFile "typst/stemma.typ"
   proj <- loadProject "examples/romance"
-  let dict = either (const "") (\p -> dictionaryTyp p "old-french" "build/lexicon.json") proj
+  let dict from = either (const "") (\p -> dictionaryTyp p "old-french" from "build/lexicon.json") proj
       failures =
         [ "the embedded stemma.typ should be typst/stemma.typ" | not (source `B.isSuffixOf` stemmaTyp) ]
           ++ [ "the dictionary should read the given lexicon and list the stage"
-             | not (all (`T.isInfixOf` dict) ["json(\"build/lexicon.json\")", "#heading(\"Old French\")", "#dictionary(\"old-french\")"]) ]
+             | not (all (`T.isInfixOf` dict "stemma.typ") ["#import \"stemma.typ\": stemma", "json(\"build/lexicon.json\")", "#heading(\"Old French\")", "#dictionary(\"old-french\")"]) ]
+          ++ [ "a dictionary using the package should import it"
+             | not (("#import \"" <> packageImport <> "\": stemma") `T.isInfixOf` dict packageImport) ]
+          ++ [ "the package should be named stemma, with stemma.typ as its entry point"
+             | not (all (`B.isInfixOf` packageToml) ["name = \"stemma\"", "entrypoint = \"stemma.typ\""]) ]
           ++ [ "relative paths should go up where needed: " <> T.pack (show paths)
              | let paths = [relativePath "/p/docs" "/p/romance/build/lexicon.json", relativePath "/p/romance" "/p/romance/build/lexicon.json"]
              , paths /= ["../romance/build/lexicon.json", "build/lexicon.json"] ]

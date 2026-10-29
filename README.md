@@ -145,6 +145,11 @@ of `typst/stemma.typ`).
 Latin _hominem_ gives Old Spanish #reflex("homo.SG", "old-spanish").
 ```
 
+For documents kept elsewhere, such as a grammar, `stemma typst --package`
+installs `stemma.typ` as a Typst package instead, for
+`#import "@local/stemma:0.1.0": stemma` from anywhere. Run it again after
+updating stemma, so that the package matches the `lexicon.json` it reads.
+
 See [`docs/schema.md`](docs/schema.md) for the format, and
 [`examples/romance/`](examples/romance/) for a worked example: Latin to
 Spanish and French, about a hundred words checked against attested forms.

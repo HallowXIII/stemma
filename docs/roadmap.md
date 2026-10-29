@@ -120,7 +120,7 @@ stemma can detect them. One pass after each stage:
 | §2 | `shifts` across derivation: a derivative with no affix (`source: { base }` or `{ base, cell }`) starts from its base's category where it was formed, so conversion (*might-be* ADJ > PROPN) and new roles of a form (*habēre* AUX > FUT) are found. Affixal derivation is not a shift. | S |
 | — | Category-assigning affixes: an affix's `category` is the default for derivatives formed with it, since most derivation changes category. A template's last such affix decides. | S |
 | §2 | Collation: `alphabet:` per stage, with a sort key written to `lexicon.json`. **Done**; see `schema.md` §1. | S |
-| §2 | `stemma.typ` as a Typst package (`typst.toml`), installed by the flake under `share/typst/packages/local/stemma/0.1.0` | S |
+| §2 | `stemma.typ` as a Typst package. **Done** as `stemma typst --package`, which installs it where Typst looks for local packages; see `schema.md` §8. (A copy under the flake's `share/` would not be found: Typst reads only its own data directory, or `TYPST_PACKAGE_PATH` in its place.) | S |
 
 **Declined.**
 

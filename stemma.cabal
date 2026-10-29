@@ -36,6 +36,10 @@ library
     Stemma.Sources
     Stemma.Typst
     Stemma.View
+  other-modules:
+    Paths_stemma
+  autogen-modules:
+    Paths_stemma
   build-depends:
       aeson >=2.1
     , aeson-pretty

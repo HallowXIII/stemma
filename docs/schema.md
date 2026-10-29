@@ -919,9 +919,10 @@ stemma -d DIR trace ID [STAGE]     an item's rule-by-rule derivation
 stemma -d DIR shifts FROM TO     category shifts (* is a wildcard)
 stemma -d DIR rules FILE         parse a rules file (- for stdin); print its
                                  segments and statements as JSON
-stemma -d DIR typst [--stage STAGE] [--out OUT] [--force]
+stemma -d DIR typst [--stage STAGE] [--out OUT] [--force] [--package]
                                  write stemma.typ, and a dictionary document
-                                 for STAGE, to OUT (default DIR)
+                                 for STAGE, to OUT (default DIR); with
+                                 --package, install stemma.typ as a package
 ```
 
 `typst` writes the `stemma.typ` built into the binary, so it matches the
@@ -931,6 +932,14 @@ stemma -d DIR typst [--stage STAGE] [--out OUT] [--force]
 That one is yours to edit, so it is kept if it exists unless `--force` is
 given. When `OUT` is outside the project, the document reads the lexicon
 through `..`, and Typst then needs `--root` set to a directory above both.
+
+With `--package`, `stemma.typ` is installed as the Typst package
+`@local/stemma:VERSION`, for this version of stemma, instead of being
+written to `OUT`, and the dictionary document imports the package. The
+package goes where Typst looks for local packages: `TYPST_PACKAGE_PATH` if
+set, or else `~/.local/share/typst/packages` (`$XDG_DATA_HOME`), or
+`~/Library/Application Support/typst/packages` on macOS. It needs no
+project unless `--stage` is given.
 
 `paradigm` prints cell IDs and forms in paradigm order, with variants under
 their main cells. Cells lost through `repattern` are omitted. `history` and
