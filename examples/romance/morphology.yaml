@@ -124,9 +124,12 @@ affixes:
 paradigms:
   # Latin nouns and adjectives are cited in the nominative, Romance ones in
   # the accusative, which is what survives. The -wr paradigms inherit this.
+  # Declensions with one gender give it; third-declension nouns give their
+  # own. The Latin neuters are masculine from Western Romance on.
   # Spanish and French lose case: their nouns and adjectives become noun-rom
   # and adj-rom, which continue the accusative (Old French keeps two cases).
   noun-o:
+    properties: { gender: m }
     cite: { latin: NOM.SG, western-romance: ACC.SG }
     cells:
       - NOM.SG: O.NOM.SG
@@ -140,6 +143,7 @@ paradigms:
     becomes: { old-spanish: noun-rom, french: noun-rom }
 
   noun-a:
+    properties: { gender: f }
     cite: { latin: NOM.SG, western-romance: ACC.SG }
     cells:
       - NOM.SG: A.NOM.SG
@@ -182,6 +186,7 @@ paradigms:
   # Second-declension neuters: masculine from Western Romance on (OF fers,
   # chasteaus).
   noun-o-n:
+    properties: { gender: "n" }
     cite: { latin: NOM.SG }
     cells:
       - NOM.SG: O.ACC.SG
@@ -196,12 +201,14 @@ paradigms:
   # cell from Western Romance on, as in Old French cors. Spanish remakes
   # them as o-stems, by entry (cuerpo).
   noun-s:
+    properties: { gender: "n" }
     cite: { latin: NOM.SG, western-romance: ACC.SG }
     cells:
       - NOM.SG: ~
       - ACC.SG: ~
     becomes: { western-romance: noun-s-wr }
   noun-s-wr:
+    properties: { gender: m }
     extends: noun-s
     cells:
       - NOM.PL: ~
@@ -331,9 +338,11 @@ paradigms:
 
   # Third-declension feminines keep the nominative plural in -ēs (OF meres).
   noun-c-f:
+    properties: { gender: f }
     extends: noun-c
     becomes: { western-romance: noun-c-f-wr }
   noun-c-f-wr:
+    properties: { gender: f }
     extends: noun-c
     lost:
       western-romance: ["GEN.*"]

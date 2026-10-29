@@ -149,10 +149,11 @@
     spanish: más
     old-french: majs
     french: mɛ
-  notes: |
-    The regular Old Spanish form would be {magis @ old-spanish !}, which
-    Leonese texts write as maes; Castilian {magis @ old-spanish} is
-    contracted.
+  notes:
+    old-spanish: |
+      The regular Old Spanish form would be {magis @ old-spanish !}, which
+      Leonese texts write as maes; Castilian {magis @ old-spanish} is
+      contracted.
 
 - id: bene
   form: "*bene"

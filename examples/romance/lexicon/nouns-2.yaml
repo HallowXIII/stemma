@@ -93,6 +93,7 @@
     # The cas sujet, as a word of its own; its s is a spelling
     # pronunciation.
     - id: fils
+      properties: { gender: m }
       source: { base: filius, cell: NOM.SG }
       stage: old-french
       gloss: "son"

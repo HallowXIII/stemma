@@ -167,7 +167,9 @@ runMode engine proj rules inline order mode = foldM stepStage (Right (Map.empty,
       Nothing -> T.filter (`notElem` ("*-" :: String))
       Just b -> T.replace "-" b . T.filter (/= '*')
 
-    eventsAt s it = if mode == Actual then [ev | ev <- itEvents it, evAt ev == s] else []
+    -- The regular run ignores events, but not continuations: a cell that
+    -- continues another is the same word, under a new paradigm.
+    eventsAt s it = [ev | ev <- itEvents it, evAt ev == s, mode == Actual || isContinue ev]
 
     lostAt s it = mode == Actual && Map.member s (itFate it)
 

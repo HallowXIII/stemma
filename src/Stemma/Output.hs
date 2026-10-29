@@ -118,8 +118,12 @@ lexiconJson b = do
 
 itemJson :: Built -> Item -> Either [Text] (Item, Value)
 itemJson b it = do
-  notes <- forM (itNotes it) $ \n ->
-    either (\e -> Left [itId it <> ": " <> e]) (Right . map runJson) (renderNotes b n)
+  -- Notes for every stage are a list of runs; notes from stages on, an
+  -- object from each stage to its runs.
+  let render n = either (\e -> Left [itId it <> ": " <> e]) (Right . toJSON . map runJson) (renderNotes b n)
+  notes <- forM (itNotes it) $ \case
+    Always n -> render n
+    From m -> object <$> forM (Map.toList m) (\(s, n) -> (Key.fromText s .=) <$> render n)
   pure . (it,) $ sparse
     [ "kind" .=? Just (kindName (itKind it))
     , "bound" .=? (if itBound it then Just True else Nothing)
@@ -131,7 +135,9 @@ itemJson b it = do
     , "paradigm" .=? itParadigm it
     , "repatterns" .=? nonEmpty [object ["at" .= s, "paradigm" .= p] | (s, p) <- itRepatterns it]
     , "cite" .=? cite
+    , "properties" .=? properties
     , "allomorphs" .=? allomorphs
+    , "continues" .=? (if null continues then Nothing else Just (object continues))
     , "variant_of" .=? fmap fst variant
     , "variant" .=? fmap snd variant
     , "notes" .=? notes
@@ -143,10 +149,14 @@ itemJson b it = do
         , s == itStage it || (parentOf s >>= (`Map.lookup` reflexes)) /= Just r ])
     ]
   where
-    -- Every stage where the item exists: the stage it was formed at and the
-    -- stages below it.
+    -- Every stage where the item exists, as written or regularly: the
+    -- stage it was formed at and the stages below it, and where a cell is
+    -- joined on another line, the stages below that.
     reflexes = Map.fromList
-      [ (s, reflexJson s) | s <- bStageOrder b, Map.member (itId it) (regularAt s) ]
+      [ (s, reflexJson s) | s <- bStageOrder b
+      , Map.member (itId it) (regularAt s) || Map.member (itId it) (actualAt s) ]
+    -- The item a cell continues, at each stage where it does.
+    continues = [Key.fromText s .= x | Event {evAt = s, evKind = Continue x} <- itEvents it]
     parentOf s = Map.lookup s (famStages (prFamily proj)) >>= stParent
     -- The item an entry with cells is cited by, at the stages where that
     -- changes, as for reflexes.
@@ -156,6 +166,13 @@ itemJson b it = do
           let cited = Map.fromList [(s, citedAt proj it s) | s <- Map.keys reflexes]
           in Just (object [ Key.fromText s .= c | (s, c) <- Map.toList cited
                           , s == itStage it || (parentOf s >>= (`Map.lookup` cited)) /= Just c ])
+    -- The properties in force, at the stages where they change, as for
+    -- the citation.
+    properties =
+      let at = Map.fromList [(s, propertiesAt proj it s) | s <- Map.keys reflexes]
+      in if all Map.null at then Nothing
+         else Just (object [ Key.fromText s .= m | (s, m) <- Map.toList at
+                           , s == itStage it || (parentOf s >>= (`Map.lookup` at)) /= Just m ])
     -- A cell named CELL~label: its main cell and label.
     variant = case (itKind it, itOwner it) of
       (KCell, Just o) -> case splitVariant (T.drop (T.length o + 1) (itId it)) of
@@ -174,7 +191,8 @@ itemJson b it = do
             , "form" .=? (case itBuild (prItems proj Map.! x) of BForm t -> Just t; _ -> Nothing) ]
           | (c, x) <- als ]
         | (s, als) <- Map.toList (itAllomorphs it) ])
-    regularAt s =fromMaybe Map.empty (Map.lookup s (bRegular b))
+    regularAt s = fromMaybe Map.empty (Map.lookup s (bRegular b))
+    actualAt s = fromMaybe Map.empty (Map.lookup s (bActual b))
     -- A field is left out when it repeats its default: @spelled@ and
     -- @regular@ default to @forms@, and @regular_spelled@ to @spelled@ (to
     -- @regular@ when the reflex is lost).
@@ -349,7 +367,8 @@ pinnedForms b = Set.fromList $
   [ (s, itId it) | it <- items, s <- Map.keys (itExpect it) ]
   ++ [ (rfStage, rfItem)
      | it <- items
-     , Just n <- [itNotes it]
+     , Just ns <- [itNotes it]
+     , n <- case ns of Always t -> [t]; From m -> Map.elems m
      , Right runs <- [renderNotes b n]
      , RForm {..} <- runs ]
   where

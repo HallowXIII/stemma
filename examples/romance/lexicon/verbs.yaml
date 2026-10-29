@@ -38,6 +38,7 @@
     # The participle as a noun, which kept the regular pretonic a of amer
     # when the verb took aim- in every form.
     - id: amant
+      properties: { gender: m }
       source: { base: amare, morph: PTCP.PRS.A }
       gloss: "lover"
       category: [{ at: latin, is: ADJ }, { at: old-french, is: "N" }]
@@ -309,7 +310,8 @@
   cells:
     # seído, on the stem as it is in Ibero-Romance
     PTCP: { at: ibero-romance, stem: "seð-", morph: [~, PTCP.I] }
-  notes: The Spanish infinitive, future and participle of {esse}.
+  notes:
+    ibero-romance: The Spanish infinitive, future and participle of {esse}.
 
 - id: allare
   form: "*all-"
@@ -318,9 +320,9 @@
   category: [{ at: vulgar-latin, is: V }]
   paradigm: verb-a
   fate: { ibero-romance: lost }
-  notes: |
-    Of disputed origin (ambulāre?). The French infinitive, plurals,
-    preterite and participle of {ire}.
+  notes:
+    vulgar-latin: Of disputed origin (ambulāre?).
+    gallo-romance: The French infinitive, plurals, preterite and participle of {ire}.
 
 - id: esse
   form: "*esse"

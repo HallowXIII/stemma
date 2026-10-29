@@ -236,7 +236,8 @@ accusative singular.
 ```
 
 The old cells are lost there, if the new paradigm lacks them, so their
-would-be forms are still computed, and `trace` says what each cell
+would-be forms are still computed (a continuation is not an event: it
+applies to the regularly expected forms too), and `trace` says what each cell
 continues. An entry can continue another cell instead (§3). Where an
 entry is formed with the paradigm, a continuing cell is formed from its
 template, or as the bare base if it has none. A cell continues at most
@@ -297,7 +298,10 @@ Where an entry changes paradigm (`becomes`, `repattern`), the citation
 follows the paradigm in force. An entry's own `cite` (§3) takes precedence
 over its paradigm's. `cite` is inherited through `extends`. Typst's `entry`
 and `ui/` show the cited cell as the headword, with its own etymology
-(*ómbre* < OSp. *ómne* < Lat. *\*hominem*). The build warns
+(*ómbre* < OSp. *ómne* < Lat. *\*hominem*), which goes on through the
+cell a continuing cell continues (French *eau* < OF *eaue* < Lat.
+*\*aquam*, from SG through ACC.SG). On an entry's page, `ui/` shows the
+cited cell at each stage. The build warns
 where an entry is cited by a cell that has no form, such as a lost
 nominative; the dictionary then falls back to the bare form. The bare
 form always evolves too, and is what `{homo @ spanish}` refers to.
@@ -326,7 +330,9 @@ cell with the main member:
 ```
 
 Variants can also be added through `cells`, in a paradigm or for one entry
-(§3). In `lexicon.json` a variant has `variant_of` and `variant`; Typst's
+(§3). In `lexicon.json` a variant has `variant_of` and `variant`, and a
+continuing cell has `continues`, the cell it continues at each stage
+where it is joined; Typst's
 `paradigm()` shows variants under their main cell.
 
 ### Morpheme boundaries
@@ -645,6 +651,69 @@ belongs in `notes`. A stage with no gloss on its path has none. In
 reflex has its own `gloss` where that differs. Typst's `entry` and
 `dictionary`, and `ui/`, show the gloss of the stage.
 
+### Properties
+
+`properties` records features such as gender, each by name. On a paradigm,
+a property is one value. On an entry, it is a value for every stage or,
+where it changes, a map from stages to values:
+
+```yaml
+paradigms:
+  noun-a:
+    properties: { gender: f }
+  noun-o-n:
+    properties: { gender: "n" }     # quoted: YAML reads n as false
+    becomes: { western-romance: noun-o }   # m, as noun-o says
+
+- id: dens
+  paradigm: noun-c                  # gives no gender
+  properties:
+    gender: { latin: m, gallo-romance: f }   # French dent is feminine
+```
+
+At any stage, a property is the one declared nearest on the path back to
+the root: by the entry, or by a paradigm where it comes into force for the
+entry (where the entry is formed with it, or changes to it), the entry's
+first at the same stage. A paradigm that doesn't give a property keeps the
+one in force (Spanish and French `noun-rom` keep a noun's gender). An
+entry's property given without stages holds everywhere. Paradigms inherit
+properties through `extends`. In `lexicon.json`, an entry's `properties`
+are given at the stages where they change, as its `cite` is.
+
+### Notes
+
+`notes` is prose, with references to forms (§7). It is a text for every
+stage, or a map from stages to texts, each in force at that stage and
+below it on its own line. A note about Spanish need not appear in the
+French dictionary:
+
+```yaml
+- id: magis
+  notes:
+    old-spanish: |                  # Old Spanish and Spanish
+      The regular Old Spanish form would be {magis @ old-spanish !}, ...
+```
+
+Unlike glosses, notes add up: at a stage, every note on the path back to
+the root is in force. In `lexicon.json`, notes for every stage are a list
+of runs, and notes by stage an object from stages to such lists. Typst's
+`notes(id, stage: s)` and `dictionary(s)`, and `ui/`'s dictionary, show the
+notes in force at `s`; `notes(id)` and an entry's page in `ui/` show them
+all.
+
+### Dictionary entries
+
+Typst's `entry` and `dictionary` take `fields`: what an entry shows, in
+order. By default it is `("head", "category", "properties", "gloss",
+"etymology", "source", "notes")`. A field can also be the name of one
+property, or a function of the entry's id and the stage. `stemma(...,
+fields: ...)` sets it for every entry, and `property-style` how a
+property's value is shown (in italics by default):
+
+```typst
+#dictionary("french", fields: ("head", "gender", "gloss", "etymology"))
+```
+
 ---
 
 ## 4. Events
@@ -794,7 +863,7 @@ non-zero when any expectation fails.
 | `{magis @ spanish}` | the Spanish reflex, spelled |
 | `{homo.SG @ old-spanish}` | a paradigm cell |
 | `{magis @ spanish /}` | phonemic rather than spelled |
-| `{magis @ spanish !}` | the regularly expected form: the whole lexicon rebuilt with no events and no fates |
+| `{magis @ spanish !}` | the regularly expected form: the whole lexicon rebuilt with no events and no fates (but with continuations, §2) |
 | `{{` | a literal `{` |
 
 A reference that doesn't resolve is a build error.

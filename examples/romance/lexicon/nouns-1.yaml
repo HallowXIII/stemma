@@ -179,9 +179,10 @@
   expect:
     old-spanish: { SG: kabétsa, PL: kabétsas }
     spanish: { SG: kabéθa, PL: kabéθas }
-  notes: |
-    Spanish {capitia @ spanish} 'head' leaves {caput @ spanish} to mean
-    'end, cape'.
+  notes:
+    spanish: |
+      Spanish {capitia.SG @ spanish} 'head' leaves {caput.SG @ spanish} to mean
+      'end, cape'.
 
 - id: testa
   form: "*test-"
@@ -191,5 +192,6 @@
   fate: { old-spanish: lost }
   expect:
     french: { SG: tɛt, PL: tɛt }
-  notes: |
-    French {testa @ french} 'head' leaves {caput @ french} to mean 'chief'.
+  notes:
+    french: |
+      French {testa.SG @ french} 'head' leaves {caput.SG @ french} to mean 'chief'.
