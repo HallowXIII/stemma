@@ -158,6 +158,21 @@ stage. They are items in their own right, so they can have category
 history and notes, which is how you record things like a definite article
 becoming a case ending.
 
+Most derivational affixes make words of one category. `derives` says
+which, and a derivative formed with the affix (`morph:`, §3) has that
+category unless it gives its own:
+
+```yaml
+affixes:
+  like: { form: "*-hten", derives: ADJ }    # summer > summery
+  NMLZ: { form: "*-on", derives: "N" }      # quoted: YAML reads N as false
+```
+
+Where a template has several such affixes, the last one decides, since the
+outermost suffix usually does: `[~, like, NMLZ]` is a noun. A prefix that
+decides needs the derivative's own `category`. `derives` is distinct from
+an affix's own `category`, which says what the affix itself is.
+
 An entry with `paradigm: demonstrative` gets one item per cell, named
 `entry.CELL` (e.g. `ir.DIR`). Each cell is built at the paradigm's stage
 (or at the entry's, if that is later) and then evolves on its own.
@@ -541,7 +556,8 @@ has either a `form` (a root) or a `source` (a derivative).
 | `{ loan: { from: STAGE, id: X, adapt: FILE } }` | a new word borrowed from another line or an ancestor; `adapt` optional |
 
 A derivative's `stage` defaults to its parent entry's stage. Without a `category`,
-it takes the one its parent has at that stage. It is built
+it takes the one its affixes `derive` (§2), or else the one its parent has
+at that stage. It is built
 from the forms **at the end of** that stage, after that stage's rules.
 Derivatives nest.
 

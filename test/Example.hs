@@ -19,7 +19,7 @@ import Stemma.Collate (sortKey)
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (formsTsv, writeBuild)
-import Stemma.Query (Shift (..), findShifts)
+import Stemma.Query (Shift (..), categoryAt, findShifts)
 import Stemma.Sources
 import Stemma.Typst
 import Stemma.View
@@ -41,7 +41,8 @@ main = do
   outputs <- checkOutputs
   collated <- checkCollation
   shifted <- checkShifts
-  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs && collated && shifted) exitFailure
+  derived <- checkDerives
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs && collated && shifted && derived) exitFailure
 
 -- | A stage's alphabet orders spelled forms: letters first, then the ties
 -- within a letter (a before ā), and non-letters are skipped. lexicon.json
@@ -375,6 +376,36 @@ checkShifts = do
              | found /= [("kav", Just "ka", "N", "V")] ]
   forM_ failures $ \f -> TIO.putStrLn ("shifts: " <> f)
   TIO.putStrLn (if null failures then "shifts: conversion is a shift, affixal derivation is not" else "shifts: FAILED")
+  pure (null failures)
+
+-- | An affix's @derives@ is the category of a derivative formed with it,
+-- unless the derivative has its own; with several, the last decides, and
+-- without one the derivative takes its parent's.
+checkDerives :: IO Bool
+checkDerives = do
+  morphology <- B.readFile "test/fixtures/lost/morphology.yaml"
+  let derived = B.concat
+        [ before, "COM: { form: \"*-m\", derives: ADJ }\n  GEN: { form: \"*-i\", derives: \"N\" }"
+        , B.drop (B.length "GEN: { form: \"*-i\" }\n  COM: { form: \"*-m\" }") after ]
+        where (before, after) = B.breakSubstring "GEN: { form: \"*-i\" }" morphology
+      entries = "- id: ka\n  form: \"*ka\"\n  category: [{ at: proto, is: V }]\n"
+             <> "  derivatives:\n    - id: kara\n      source: { base: ka, morph: PL }\n"
+             <> "- id: kam\n  source: { base: ka, morph: COM }\n"
+             <> "- id: kami\n  source: { base: ka, morph: [~, COM, GEN] }\n"
+             <> "- id: kamo\n  source: { base: ka, morph: COM }\n  category: [{ at: proto, is: ADV }]\n"
+      load es = loadProjectWith (overlay (Map.fromList [("morphology.yaml", derived), ("lexicon/zz.yaml", es)]) []) "test/fixtures/lost"
+  proj <- load entries
+  misplaced <- load "- id: ka\n  form: \"*ka\"\n  derives: ADJ\n"
+  let cats = either (const []) (\p -> [ (i, Map.lookup i (prItems p) >>= \it -> categoryAt p it "proto")
+                                      | i <- ["kam", "kami", "kamo", "kara"] ]) proj
+      failures =
+        [ "the project should load: " <> T.intercalate "; " errs | Left errs <- [proj] ]
+          ++ [ "derivatives should take their affixes' category: " <> T.pack (show cats)
+             | cats /= [("kam", Just "ADJ"), ("kami", Just "N"), ("kamo", Just "ADV"), ("kara", Just "V")] ]
+          ++ [ "derives on a word should be an error"
+             | not (either (any ("only an affix derives a category" `T.isInfixOf`)) (const False) misplaced) ]
+  forM_ failures $ \f -> TIO.putStrLn ("derives: " <> f)
+  TIO.putStrLn (if null failures then "derives: affixes give their derivatives a category" else "derives: FAILED")
   pure (null failures)
 
 checkInputs :: IO Bool
