@@ -46,6 +46,9 @@ data Rules = Rules
   { rulesGraphemes :: [Text]
   -- ^ Multigraphs the rules declare, used to tokenise forms written at
   -- this stage.
+  , rulesInventory :: [Text]
+  -- ^ Every grapheme the rules declare, at their start or in any
+  -- categories block of their own. Empty if they declare none.
   , rulesApply :: [Form] -> IO [Evolution]
   -- ^ Must return exactly one 'Evolution' per input, in order.
   }

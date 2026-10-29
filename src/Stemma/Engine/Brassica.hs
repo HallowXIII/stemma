@@ -35,6 +35,7 @@ load ref bytes = do
   (before, statements) <- selectSegment (rrSegment ref) expanded
   pure Rules
     { rulesGraphemes = map T.pack (activeGraphemes before statements)
+    , rulesInventory = map T.pack (inventory before statements)
     , rulesApply = pure . map (evolve statements)
     }
   where
@@ -85,6 +86,17 @@ activeGraphemes :: Statements -> Statements -> [String]
 activeGraphemes before seg = case reverse [gs | DeclS (GraphemeList _ gs) <- before] of
   gs : _ -> gs
   [] -> findFirstCategoriesDecl seg
+
+-- | Every grapheme declared in a segment: by the categories block in force
+-- at its start and by its own. Only a block without @noreplace@ has to
+-- declare every grapheme, so without one the list says nothing.
+inventory :: Statements -> Statements -> [String]
+inventory before seg
+  | all fst lists = []
+  | otherwise = nub (concatMap snd lists)
+  where
+    lists = take 1 (reverse [(nr, gs) | DeclS (GraphemeList nr gs) <- before])
+      ++ [(nr, gs) | DeclS (GraphemeList nr gs) <- seg]
 
 evolve :: Statements -> Form -> Evolution
 evolve statements form = case applyChanges statements (map T.unpack form) of

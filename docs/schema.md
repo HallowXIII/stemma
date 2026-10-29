@@ -44,6 +44,8 @@ stages:
     parent: old-azal
     rules: "rules/pe-to-azal.bsc#2"
     orthography: rules/azal-ortho.bsc   # optional: phonemic > spelling
+    forbid: ["v y", "t g", "# ŋ"]       # optional: sequences no form may have
+    alphabet: "a ā, b, d, e ē, ..., ny, ..."   # optional: dictionary order
     current: true
 
   wiyan:
@@ -68,6 +70,43 @@ category block defined in segment 1 is still in force in segment 2.
 
 Adding a stage later is cheap. Insert a `report`, renumber the segments in
 `family.yaml`, and re-point any events that belong to the new stage.
+
+### Alphabetical order
+
+Without an `alphabet`, the dictionary sorts spelled forms by code point,
+which puts *dān* after *daum*. An `alphabet` lists the stage's letters in
+order, separated by commas. A letter may be a multigraph (`ny`), and
+graphemes separated by spaces within one letter (`a ā`) are equal except to
+break ties: *da*, *dā*, *dān*, *daum*. A list (`[a ā, b, ...]`) works too,
+but YAML reads a bare `n` or `y` as a boolean, so letters like these would
+need quotes.
+
+Characters that aren't letters, such as hyphens, are skipped. A letter the
+alphabet lacks sorts after all the others, with a warning. stemma writes
+the key to `lexicon.json` as `sort`, and Typst and `ui/` sort by it.
+
+### Checks on a stage's forms
+
+After each stage, `build` warns about:
+
+- **U+FFFD** in a form or its spelling. Brassica puts it in place of any
+  grapheme that a `categories` block doesn't declare.
+- **Graphemes the rules don't declare.** A rule written without spaces
+  makes a multigraph: `x r / xx` gives one grapheme *xx*, which looks right
+  but never matches a later `x x`. A grapheme a rule makes after the last
+  `categories` block is also caught here, since the next block would replace
+  it with U+FFFD. The inventory is every grapheme in the `categories`
+  blocks of the stage's rules (from the one in force at the start of its
+  segment), its morphophonology, `notation.graphemes` and the boundary.
+  Stages without rules, or whose rules have only `categories noreplace`
+  blocks, aren't checked. Declare a grapheme that only rules make in a
+  category the rules don't use (`Made = θ x`); Brassica 1.0's `extra`
+  hides the categories' graphemes from stemma.
+- **Forbidden sequences**, listed under `forbid`: graphemes separated by
+  spaces, with `#` first or last for a word edge (`"# ŋ"`, `"t #"`).
+  Boundaries are ignored, so `"t g"` is found in *bolt+gam*, but `#` doesn't
+  match at the edge where a bound form attaches. A stage's `forbid` applies
+  to that stage only.
 
 ---
 
@@ -118,6 +157,21 @@ Affixes take the same fields as entries (§3) and default to the root
 stage. They are items in their own right, so they can have category
 history and notes, which is how you record things like a definite article
 becoming a case ending.
+
+Most derivational affixes make words of one category. `derives` says
+which, and a derivative formed with the affix (`morph:`, §3) has that
+category unless it gives its own:
+
+```yaml
+affixes:
+  like: { form: "*-hten", derives: ADJ }    # summer > summery
+  NMLZ: { form: "*-on", derives: "N" }      # quoted: YAML reads N as false
+```
+
+Where a template has several such affixes, the last one decides, since the
+outermost suffix usually does: `[~, like, NMLZ]` is a noun. A prefix that
+decides needs the derivative's own `category`. `derives` is distinct from
+an affix's own `category`, which says what the affix itself is.
 
 An entry with `paradigm: demonstrative` gets one item per cell, named
 `entry.CELL` (e.g. `ir.DIR`). Each cell is built at the paradigm's stage
@@ -502,7 +556,8 @@ has either a `form` (a root) or a `source` (a derivative).
 | `{ loan: { from: STAGE, id: X, adapt: FILE } }` | a new word borrowed from another line or an ancestor; `adapt` optional |
 
 A derivative's `stage` defaults to its parent entry's stage. Without a `category`,
-it takes the one its parent has at that stage. It is built
+it takes the one its affixes `derive` (§2), or else the one its parent has
+at that stage. It is built
 from the forms **at the end of** that stage, after that stage's rules.
 Derivatives nest.
 
@@ -633,6 +688,11 @@ text, but a fixed vocabulary makes queries useful:
 stemma shifts AUX FUT         # forms of habēre that became future endings
 stemma shifts DEM '*'         # everything a demonstrative turned into
 ```
+
+A derivative with no affix, `source: { base }` or `{ base, cell }`, starts
+from its base's category where it was formed, so conversion is a shift too:
+*on* < *homo* NOM.SG shows as `N (homo.NOM.SG, western-romance) > PRON`.
+A derivative with an affix doesn't: the change of category is the affix's.
 
 ### Gloss history
 
@@ -880,9 +940,10 @@ stemma -d DIR trace ID [STAGE]     an item's rule-by-rule derivation
 stemma -d DIR shifts FROM TO     category shifts (* is a wildcard)
 stemma -d DIR rules FILE         parse a rules file (- for stdin); print its
                                  segments and statements as JSON
-stemma -d DIR typst [--stage STAGE] [--out OUT] [--force]
+stemma -d DIR typst [--stage STAGE] [--out OUT] [--force] [--package]
                                  write stemma.typ, and a dictionary document
-                                 for STAGE, to OUT (default DIR)
+                                 for STAGE, to OUT (default DIR); with
+                                 --package, install stemma.typ as a package
 ```
 
 `typst` writes the `stemma.typ` built into the binary, so it matches the
@@ -892,6 +953,14 @@ stemma -d DIR typst [--stage STAGE] [--out OUT] [--force]
 That one is yours to edit, so it is kept if it exists unless `--force` is
 given. When `OUT` is outside the project, the document reads the lexicon
 through `..`, and Typst then needs `--root` set to a directory above both.
+
+With `--package`, `stemma.typ` is installed as the Typst package
+`@local/stemma:VERSION`, for this version of stemma, instead of being
+written to `OUT`, and the dictionary document imports the package. The
+package goes where Typst looks for local packages: `TYPST_PACKAGE_PATH` if
+set, or else `~/.local/share/typst/packages` (`$XDG_DATA_HOME`), or
+`~/Library/Application Support/typst/packages` on macOS. It needs no
+project unless `--stage` is given.
 
 `paradigm` prints cell IDs and forms in paradigm order, with variants under
 their main cells. Cells lost through `repattern` are omitted. `history` and
@@ -910,7 +979,7 @@ applies. A parse error gives `ok: false` with the message, `line` and
 `build` writes to `DIR/build/`:
 
 - `lexicon.json` has every item, and for each stage: the forms, spelled
-  forms, regular forms and category, and the gloss where it changes. Notes are pre-resolved into runs.
+  forms, regular forms and category, and the gloss where it changes, and at a stage with an `alphabet` the key the dictionary sorts by (`sort`). Notes are pre-resolved into runs.
   Each stage carries its `rules`, `morphophonology` and `orthography` references as written
   in `family.yaml`. An affix with allomorphs has them as written, under
   `allomorphs`, by stage. An entry with cells has `cite`: the item it is

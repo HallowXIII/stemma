@@ -16,6 +16,8 @@ L = l r
 C = Stop f s h m n l r j w z β ʎ ɲ ts dz
 ; ° marks a clitic; it keeps stress off the word
 U = ° ŭ
+; only made by rules; listed so that no categories block drops them
+Made = ð
 end
 
 h / / _

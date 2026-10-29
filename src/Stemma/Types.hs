@@ -5,6 +5,7 @@ module Stemma.Types
   , RulesRef (..)
   , Family (..)
   , Stage (..)
+  , Forbid (..)
   , Morphology (..)
   , Paradigm (..)
   , Dimension (..)
@@ -38,6 +39,7 @@ module Stemma.Types
 
 import Control.Monad (forM_, when)
 import Data.Foldable (toList)
+import Data.List (nub)
 import Data.Aeson
 import Data.Aeson.Key qualified as Key
 import Data.Aeson.KeyMap qualified as KM
@@ -97,8 +99,34 @@ data Stage = Stage
   -- ^ Rules for forms joined from parts out of this stage's forms.
   , stOrthography :: Maybe RulesRef
   , stCurrent :: Bool
+  , stForbid :: [Forbid]
+  -- ^ Sequences no form at the stage should have.
+  , stAlphabet :: [[Text]]
+  -- ^ The letters spelled forms sort by, in order. The graphemes of one
+  -- letter are equal but for ties.
   }
   deriving (Show)
+
+-- | A forbidden sequence of graphemes, as written (@"v y"@, @"# ŋ"@),
+-- and whether it must be at the start or the end of the word.
+data Forbid = Forbid
+  { fbText :: Text
+  , fbStart :: Bool
+  , fbGraphemes :: [Text]
+  , fbEnd :: Bool
+  }
+  deriving (Show)
+
+instance FromJSON Forbid where
+  parseJSON v = do
+    t <- name "forbidden sequence" v
+    let ws = T.words t
+        start = take 1 ws == ["#"]
+        end = length ws > 1 && last ws == "#"
+        gs = (if end then init else id) (if start then drop 1 ws else ws)
+    when (null gs) $ fail ("forbidden sequence " <> show t <> " has no graphemes")
+    when ("#" `elem` gs) $ fail ("forbidden sequence " <> show t <> ": # marks a word edge, so it can only come first or last")
+    pure (Forbid t start gs end)
 
 instance FromJSON Family where
   parseJSON = withObject "family" $ \o -> do
@@ -126,6 +154,17 @@ instance FromJSON Stage where
     stMorphophonology <- o .:? "morphophonology"
     stOrthography <- o .:? "orthography"
     stCurrent <- o .:? "current" .!= False
+    stForbid <- o .:? "forbid" .!= []
+    -- One string, with commas between letters, spares quoting the letters
+    -- YAML reads as booleans (n, y).
+    stAlphabet <- map T.words <$> (o .:? "alphabet" >>= \case
+      Nothing -> pure []
+      Just (String t) -> pure (T.splitOn "," t)
+      Just v -> traverse (name "letter") =<< parseJSON v)
+    let graphemes = concat stAlphabet
+    when (any null stAlphabet) $ fail "a letter of the alphabet is empty"
+    forM_ (nub [g | g <- graphemes, length (filter (== g) graphemes) > 1]) $ \g ->
+      fail ("the alphabet has " <> T.unpack g <> " more than once")
     pure Stage {..}
 
 ------------------------------------------------------------------------
@@ -327,6 +366,8 @@ data Entry = Entry
   -- ^ For affixes: the allomorphs to choose from, in order, in forms joined
   -- from a stage's forms, from that stage on.
   , enCite :: Maybe Cite
+  , enDerives :: Maybe Text
+  -- ^ For affixes: the category of the words derived with them.
   }
   deriving (Show)
 
@@ -552,6 +593,7 @@ parseEntryBody enId = withObject "entry" $ \o -> do
   enExpect <- o .:? "expect" .!= Map.empty
   enAllomorphs <- o .:? "allomorphs" .!= Map.empty
   enCite <- o .:! "cite"
+  enDerives <- traverse (categoryTag "derives") =<< o .:? "derives"
   pure Entry {..}
 
 instance FromJSON Allomorph where
@@ -618,14 +660,15 @@ instance FromJSON Expect where
 
 instance FromJSON CatShift where
   parseJSON = withObject "category shift" $ \o ->
-    CatShift <$> o .: "at" <*> (o .:? "is" >>= tag)
-    where
-      -- YAML 1.1 reads a bare N, Y, no, off, etc. as a boolean.
-      tag = \case
-        Nothing -> pure ""
-        Just (String t) -> pure t
-        Just (Bool _) -> fail "category tag was read as a boolean; quote it, e.g. is: \"N\""
-        Just other -> fail ("category tag must be text, not " <> show other)
+    CatShift <$> o .: "at" <*> (maybe (pure "") (categoryTag "is") =<< o .:? "is")
+
+-- | A category tag, under the given key. YAML 1.1 reads a bare N, Y, no,
+-- off, etc. as a boolean.
+categoryTag :: String -> Value -> Parser Text
+categoryTag key = \case
+  String t -> pure t
+  Bool _ -> fail ("category tag was read as a boolean; quote it, e.g. " <> key <> ": \"N\"")
+  other -> fail ("category tag must be text, not " <> show other)
 
 -- | An id or a name. YAML 1.1 reads a bare @on@, @no@, @Y@ and so on as a
 -- boolean, which would otherwise give aeson's "expected String".

@@ -144,9 +144,10 @@ assemble src family morphology entries = do
   (root, order) <- stageTree (famStages family)
   paradigms <- resolveParadigms (moParadigms morphology)
   let stages = famStages family
-      flat = concatMap (flattenEntry stages root paradigms KAffix Nothing [] root)
+      derives = Map.mapMaybe enDerives (moAffixes morphology)
+      flat = concatMap (flattenEntry stages root paradigms derives KAffix Nothing [] root)
                        (Map.elems (moAffixes morphology))
-          ++ concatMap (flattenEntry stages root paradigms KRoot Nothing [] root) entries
+          ++ concatMap (flattenEntry stages root paradigms derives KRoot Nothing [] root) entries
       lostErrs = [ "paradigm " <> n <> ": lost at unknown stage " <> s
                  | (n, p) <- Map.toList paradigms, s <- Map.keys (pfLost p), not (Map.member s stages) ]
           ++ [ "paradigm " <> n <> ": becomes " <> q <> " at unknown stage " <> s
@@ -187,18 +188,23 @@ stageTree stages = do
     minus xs ys = filter (`notElem` ys) xs
 
 flattenEntry
-  :: Map StageId Stage -> StageId -> Map Text ParadigmDef
+  :: Map StageId Stage -> StageId -> Map Text ParadigmDef -> Map ItemId Text
   -> ItemKind -> Maybe ItemId -> [CatShift] -> StageId -> Entry -> [Either [Text] Item]
-flattenEntry stages root paradigms kind owner ownerCat defStage e =
+flattenEntry stages root paradigms derives kind owner ownerCat defStage e =
   self : allomorphs ++ stems ++ cells ++ derivs
   where
     eid = enId e
     stage = fromMaybe defStage (enStage e)
-    -- Without a category of its own, a derivative takes the one its parent
-    -- has where it is formed.
+    -- Without a category of its own, a derivative takes the one its
+    -- affixes derive (the last that says, as the outermost suffix decides
+    -- in most languages), or else the one its parent has where it is formed.
     category
-      | null (enCategory e) = [CatShift stage t | Just t <- [categoryIn stages ownerCat stage]]
-      | otherwise = enCategory e
+      | not (null (enCategory e)) = enCategory e
+      | Just t <- derived = [CatShift stage t]
+      | otherwise = [CatShift stage t | Just t <- [categoryIn stages ownerCat stage]]
+    derived = case enSource e of
+      Just (SMorph _ parts) -> listToMaybe (reverse [t | PAffix a <- parts, Just t <- [Map.lookup a derives]])
+      _ -> Nothing
     err msg = Left [eid <> ": " <> msg]
 
     self = do
@@ -228,6 +234,8 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         err ("cite names unknown cell " <> c)
       forM_ (citeStages (enCite e)) $ \s -> unless (Map.member s stages) $
         err ("cite at unknown stage " <> s)
+      when (kind /= KAffix && isJust (enDerives e)) $
+        err "only an affix derives a category; give the entry its own `category`"
       pure Item
         { itId = eid
         , itKind = kind
@@ -531,7 +539,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       Repattern {} -> []
       _ -> [ev]
 
-    derivs = concatMap (flattenEntry stages root paradigms KDerivative (Just eid) category stage) (enDerivatives e)
+    derivs = concatMap (flattenEntry stages root paradigms derives KDerivative (Just eid) category stage) (enDerivatives e)
 
 partitionBy :: (a -> Bool) -> [a] -> ([a], [a])
 partitionBy p xs = (filter p xs, filter (not . p) xs)

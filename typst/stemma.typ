@@ -89,6 +89,8 @@
       category: r.at("category", default: none),
       // A reflex gives a gloss only where it differs from the item's.
       gloss: r.at("gloss", default: it.gloss),
+      // The key the dictionary sorts by, where the stage has an alphabet.
+      sort: r.at("sort", default: none),
     )
   }
 
@@ -228,7 +230,7 @@
     let key(i) = {
       let it = item(i)
       let r = rx(head-item(it, stage), stage)
-      if r.spelled != none { r.spelled.at(0, default: "") } else { "" }
+      if r.sort != none { r.sort } else if r.spelled != none { r.spelled.at(0, default: "") } else { "" }
     }
     for i in ids.sorted(key: key) { entry(i, stage, fields: fields) }
   }

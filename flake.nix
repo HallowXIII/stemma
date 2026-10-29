@@ -57,6 +57,7 @@
           nativeBuildInputs = [
             haskellPackages.cabal-install
             haskellPackages.haskell-language-server
+            pkgs.gh
           ];
         };
       });

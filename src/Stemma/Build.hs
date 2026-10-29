@@ -35,12 +35,13 @@ import Data.Either (partitionEithers)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
 import Data.Map.Lazy qualified as LMap
-import Data.List (intercalate, nub, partition)
+import Data.List (intercalate, isPrefixOf, nub, partition, tails)
 import Data.Maybe (fromMaybe, listToMaybe, maybeToList)
 import Data.Set qualified as Set
 import Data.Text (Text)
 import Data.Text qualified as T
 
+import Stemma.Collate (sortKey)
 import Stemma.Engine
 import Stemma.Load
 import Stemma.Sources (sourceFile)
@@ -107,7 +108,7 @@ build engine proj = do
                 spG <- spell proj rules g
                 let built = Built proj order a g spA spG []
                 pure (Right built {bWarnings = boundaryWarnings proj rules ++ wa ++ redundantIrregulars built
-                                                 ++ allomorphWarnings built ++ citeWarnings built})
+                                                 ++ allomorphWarnings built ++ citeWarnings built ++ outputWarnings rules built})
 
 -- | The rules that analogies give inline, each compiled once by the engine.
 inlineRules :: Engine -> Project -> Either [Text] (Map Text (Form -> [Form]))
@@ -641,6 +642,58 @@ redundantIrregulars b =
   , (i, rx) <- Map.toList res
   , any ("irregular" `T.isPrefixOf`) (rxEvents rx)
   , rxRuleOutput rx == rxForms rx ]
+
+-- | Problems in the forms a stage gives: U+FFFD, which Brassica puts in
+-- place of a grapheme a categories block doesn't declare; graphemes the
+-- stage's rules never declare, such as a multigraph made by a rule written
+-- without spaces (@x r / xx@); and the sequences the stage forbids.
+outputWarnings :: Map RulesRef Rules -> Built -> [Text]
+outputWarnings rules b = concat
+  [ [ s <> ": U+FFFD, in place of a grapheme a categories block doesn't declare, in " <> few bad
+    | let bad = [(i, f) | (i, f) <- forms, "\xFFFD" `T.isInfixOf` f], not (null bad) ]
+      ++ [ s <> ": U+FFFD in the spelling of " <> few bad
+         | let bad = [ (i, t) | (i, ts) <- maybe [] Map.toList (Map.lookup s (bSpelled b))
+                              , t <- ts, "\xFFFD" `T.isInfixOf` t ]
+         , not (null bad) ]
+      ++ [ s <> ": " <> g <> " is not declared in the rules, but is in " <> few bad
+         | not (null (inventoryOf stRules))
+         , g <- nub (concat (concatMap rxForms (Map.elems res)))
+         , g /= "\xFFFD", not (Set.member g declared)
+         , let bad = [(i, renderForm f) | (i, rx) <- Map.toList res, f <- rxForms rx, g `elem` f] ]
+      ++ [ s <> ": the alphabet has no letter " <> c <> ", which is in " <> few bad
+         | Just st <- [Map.lookup s stages], not (null (stAlphabet st))
+         , let unknown = [ (i, t, u) | (i, ts) <- maybe [] Map.toList (Map.lookup s (bSpelled b))
+                                     , t <- take 1 ts, u <- snd (sortKey (stAlphabet st) t) ]
+         , c <- nub [u | (_, _, u) <- unknown]
+         , let bad = nub [(i, t) | (i, t, u) <- unknown, u == c] ]
+      ++ [ s <> ": " <> fbText fb <> " is forbidden, but is in " <> few bad
+         | fb <- maybe [] stForbid (Map.lookup s stages)
+         , let bad = [(i, renderForm f) | (i, rx) <- Map.toList res, f <- rxForms rx, forbidden fb f]
+         , not (null bad) ]
+  | (s, res) <- Map.toList (bActual b)
+  , let forms = [(i, renderForm f) | (i, rx) <- Map.toList res, f <- rxForms rx]
+        -- A stage is checked only if its rules declare their graphemes.
+        inventoryOf field = concat [ rulesInventory r
+                                   | Just ref <- [Map.lookup s stages >>= field]
+                                   , Just r <- [Map.lookup ref rules] ]
+        declared = Set.fromList $
+          famGraphemes fam ++ maybeToList (famBoundary fam)
+            ++ inventoryOf stRules ++ inventoryOf stMorphophonology ]
+  where
+    fam = prFamily (bProject b)
+    stages = famStages fam
+    few bad = T.intercalate ", " [f <> " (" <> i <> ")" | (i, f) <- take 5 bad]
+      <> (if length bad > 5 then ", and " <> T.pack (show (length bad - 5)) <> " more" else "")
+    -- Boundaries are ignored, so that a sequence is found across a
+    -- morpheme boundary, but # doesn't match where a bound form attaches.
+    forbidden Forbid {..} f =
+      any fits (if fbStart then [core | not (open (listToMaybe f))] else tails core)
+      where
+        isBoundary g = Just g == famBoundary fam
+        open = maybe False isBoundary
+        core = filter (not . isBoundary) f
+        fits xs = fbGraphemes `isPrefixOf` xs
+          && (not fbEnd || (length xs == length fbGraphemes && not (open (listToMaybe (reverse f)))))
 
 -- | Problems that make a boundary symbol misbehave: Brassica replaces
 -- undeclared graphemes with U+FFFD, and a bound item without a @-@ is

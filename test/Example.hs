@@ -5,6 +5,7 @@ module Main (main) where
 
 import Control.Monad (forM_, unless)
 import Data.ByteString qualified as B
+import Data.List (sortOn)
 import Data.Map.Strict qualified as Map
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
@@ -14,9 +15,11 @@ import System.FilePath (takeDirectory, (</>))
 import System.IO.Temp (withSystemTempDirectory)
 
 import Stemma.Build
+import Stemma.Collate (sortKey)
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (formsTsv, writeBuild)
+import Stemma.Query (Shift (..), categoryAt, findShifts)
 import Stemma.Sources
 import Stemma.Typst
 import Stemma.View
@@ -35,7 +38,83 @@ main = do
   inputs <- checkInputs
   noRules <- checkNoRules
   continued <- checkContinuesJson
-  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued) exitFailure
+  outputs <- checkOutputs
+  collated <- checkCollation
+  shifted <- checkShifts
+  derived <- checkDerives
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs && collated && shifted && derived) exitFailure
+
+-- | A stage's alphabet orders spelled forms: letters first, then the ties
+-- within a letter (a before ā), and non-letters are skipped. lexicon.json
+-- gives the key, and a letter the alphabet lacks is warned about.
+checkCollation :: IO Bool
+checkCollation = do
+  let alphabet = [["a", "ā"], ["d"], ["m"], ["n"], ["š"], ["u"]]
+      key = fst . sortKey alphabet
+      words' = ["daum", "dāš", "dā", "dān", "da"]
+      ordered = map snd (sortOn fst [(key w, w) | w <- words'])
+  proj <- loadProjectWith (overlay (Map.singleton "family.yaml" family) []) "test/fixtures/boundary"
+  built <- either (pure . Left) (build brassicaEngine) proj
+  json <- withSystemTempDirectory "stemma-sort" $ \tmp -> case built of
+    Left _ -> pure ""
+    Right b -> writeBuild tmp b >> T.filter (`notElem` (" \n" :: String)) <$> TIO.readFile (tmp </> "lexicon.json")
+  let warned = either (const []) bWarnings built
+      failures =
+        [ "the alphabet should order letters first, ties after: " <> T.pack (show ordered)
+        | ordered /= ["da", "dā", "dān", "dāš", "daum"] ]
+          ++ [ "a hyphen should be skipped" | key "-da" /= key "da" ]
+          ++ [ "a letter the alphabet lacks should come last" | not (key "dq" > key "du") ]
+          ++ [ "the project should build: " <> T.intercalate "; " errs | Left errs <- [built] ]
+          ++ [ "lexicon.json should give the sort key: " <> T.take 200 json
+             | not ("\"sort\":\"" `T.isInfixOf` json) ]
+          ++ [ "a letter the alphabet lacks should be warned about: " <> T.pack (show warned)
+             | not (any ("modern: the alphabet has no letter k, which is in " `T.isPrefixOf`) warned) ]
+  forM_ failures $ \f -> TIO.putStrLn ("collation: " <> f)
+  TIO.putStrLn (if null failures then "collation: forms sort by the stage's alphabet" else "collation: FAILED")
+  pure (null failures)
+  where
+    family = "name: Boundary\nnotation:\n  boundary: \"+\"\nstages:\n  proto:\n    name: Proto\n"
+          <> "  modern:\n    name: Modern\n    parent: proto\n    rules: rules/proto-to-modern.bsc\n"
+          <> "    alphabet: \"a, b, d, e, i, l, m, n, o, r, t, v\"\n"
+
+-- | The checks on a stage's forms: U+FFFD, graphemes the rules don't
+-- declare (here the multigraph xx, from a rule written without a space),
+-- and forbidden sequences, which are found across a morpheme boundary but
+-- not at the edge where a bound form attaches.
+checkOutputs :: IO Bool
+checkOutputs = do
+  built <- withFamily "    forbid: [\"i b\", \"# i\", \"a l #\"]\n"
+  misforbidden <- withFamily "    forbid: [\"a # b\"]\n"
+  let warned = either (const []) bWarnings built
+      has p = any p warned
+      failures =
+        [ "the project should build: " <> T.intercalate "; " errs | Left errs <- [built] ]
+          ++ [ "an undeclared multigraph should be warned about: " <> T.pack (show warned)
+             | not (has ("modern: xx is not declared in the rules, but is in oxx (ox)" ==)) ]
+          ++ [ "U+FFFD should be warned about: " <> T.pack (show warned)
+             | not (has (\w -> "modern: U+FFFD, in place of" `T.isPrefixOf` w && "(qa)" `T.isInfixOf` w)) ]
+          ++ [ "a forbidden sequence across a boundary should be found: " <> T.pack (show warned)
+             | not (has (\w -> "modern: i b is forbidden, but is in " `T.isPrefixOf` w && "(bed.1S)" `T.isInfixOf` w)) ]
+          ++ [ "# should match the end of a word: " <> T.pack (show warned)
+             | not (has ("modern: a l # is forbidden, but is in kal (kar.DIR)" ==)) ]
+          ++ [ "# should not match where a bound form attaches: " <> T.pack (show warned)
+             | has ("modern: # i is forbidden" `T.isPrefixOf`) ]
+          ++ [ "# inside a forbidden sequence should be an error"
+             | not (either (any ("# marks a word edge" `T.isInfixOf`)) (const False) misforbidden) ]
+  forM_ failures $ \f -> TIO.putStrLn ("outputs: " <> f)
+  TIO.putStrLn (if null failures then "outputs: U+FFFD, undeclared and forbidden graphemes are reported" else "outputs: FAILED")
+  pure (null failures)
+  where
+    withFamily forbid = do
+      let family = "name: Boundary\nnotation:\n  boundary: \"+\"\nstages:\n  proto:\n    name: Proto\n"
+                <> "  modern:\n    name: Modern\n    parent: proto\n    rules: rules/proto-to-modern.bsc\n" <> forbid
+          rules = "categories\nC = p t k b d g m n l r s v x\nV = a e i o u\nB = &+\nend\n"
+               <> "x r / xx\nr / n / _ + i\nd / t / _ #\nr / l / _ #\n"
+          entries = "- id: ox\n  form: \"*oxr\"\n- id: qa\n  form: \"*qa\"\n"
+      proj <- loadProjectWith (overlay (Map.fromList [ ("family.yaml", family), ("rules/proto-to-modern.bsc", rules)
+                                                     , ("lexicon/zz.yaml", entries) ]) [])
+                "test/fixtures/boundary"
+      either (pure . Left) (build brassicaEngine) proj
 
 -- | lexicon.json gives a continued cell's reflexes on every line it is
 -- joined on, and what it continues, so that the views can follow it back.
@@ -81,11 +160,15 @@ checkTypst :: IO Bool
 checkTypst = do
   source <- B.readFile "typst/stemma.typ"
   proj <- loadProject "examples/romance"
-  let dict = either (const "") (\p -> dictionaryTyp p "old-french" "build/lexicon.json") proj
+  let dict from = either (const "") (\p -> dictionaryTyp p "old-french" from "build/lexicon.json") proj
       failures =
         [ "the embedded stemma.typ should be typst/stemma.typ" | not (source `B.isSuffixOf` stemmaTyp) ]
           ++ [ "the dictionary should read the given lexicon and list the stage"
-             | not (all (`T.isInfixOf` dict) ["json(\"build/lexicon.json\")", "#heading(\"Old French\")", "#dictionary(\"old-french\")"]) ]
+             | not (all (`T.isInfixOf` dict "stemma.typ") ["#import \"stemma.typ\": stemma", "json(\"build/lexicon.json\")", "#heading(\"Old French\")", "#dictionary(\"old-french\")"]) ]
+          ++ [ "a dictionary using the package should import it"
+             | not (("#import \"" <> packageImport <> "\": stemma") `T.isInfixOf` dict packageImport) ]
+          ++ [ "the package should be named stemma, with stemma.typ as its entry point"
+             | not (all (`B.isInfixOf` packageToml) ["name = \"stemma\"", "entrypoint = \"stemma.typ\""]) ]
           ++ [ "relative paths should go up where needed: " <> T.pack (show paths)
              | let paths = [relativePath "/p/docs" "/p/romance/build/lexicon.json", relativePath "/p/romance" "/p/romance/build/lexicon.json"]
              , paths /= ["../romance/build/lexicon.json", "build/lexicon.json"] ]
@@ -278,6 +361,53 @@ viewFailures dir b
 -- | Input that would otherwise be silently misread: an id that YAML reads
 -- as a boolean, and an analogy key that is not one grapheme. A replacement
 -- may be written with spaces between its graphemes.
+-- | A derivative with no affix starts from its base's category, so
+-- conversion is a shift; one with an affix is not.
+checkShifts :: IO Bool
+checkShifts = do
+  let entries = "- id: ka\n  form: \"*ka\"\n  category: [{ at: proto, is: \"N\" }]\n"
+             <> "- id: kav\n  source: { base: ka }\n  stage: azal\n  category: [{ at: azal, is: V }]\n"
+             <> "- id: kam\n  source: { base: ka, morph: COM }\n  category: [{ at: proto, is: ADJ }]\n"
+  proj <- loadProjectWith (overlay (Map.singleton "lexicon/zz.yaml" entries) []) "test/fixtures/lost"
+  let found = either (const []) (\p -> [(shItem s, shBase s, fst (shFrom s), fst (shTo s)) | s <- findShifts p "*" "*"]) proj
+      failures =
+        [ "the project should load: " <> T.intercalate "; " errs | Left errs <- [proj] ]
+          ++ [ "conversion should be a shift from the base's category: " <> T.pack (show found)
+             | found /= [("kav", Just "ka", "N", "V")] ]
+  forM_ failures $ \f -> TIO.putStrLn ("shifts: " <> f)
+  TIO.putStrLn (if null failures then "shifts: conversion is a shift, affixal derivation is not" else "shifts: FAILED")
+  pure (null failures)
+
+-- | An affix's @derives@ is the category of a derivative formed with it,
+-- unless the derivative has its own; with several, the last decides, and
+-- without one the derivative takes its parent's.
+checkDerives :: IO Bool
+checkDerives = do
+  morphology <- B.readFile "test/fixtures/lost/morphology.yaml"
+  let derived = B.concat
+        [ before, "COM: { form: \"*-m\", derives: ADJ }\n  GEN: { form: \"*-i\", derives: \"N\" }"
+        , B.drop (B.length "GEN: { form: \"*-i\" }\n  COM: { form: \"*-m\" }") after ]
+        where (before, after) = B.breakSubstring "GEN: { form: \"*-i\" }" morphology
+      entries = "- id: ka\n  form: \"*ka\"\n  category: [{ at: proto, is: V }]\n"
+             <> "  derivatives:\n    - id: kara\n      source: { base: ka, morph: PL }\n"
+             <> "- id: kam\n  source: { base: ka, morph: COM }\n"
+             <> "- id: kami\n  source: { base: ka, morph: [~, COM, GEN] }\n"
+             <> "- id: kamo\n  source: { base: ka, morph: COM }\n  category: [{ at: proto, is: ADV }]\n"
+      load es = loadProjectWith (overlay (Map.fromList [("morphology.yaml", derived), ("lexicon/zz.yaml", es)]) []) "test/fixtures/lost"
+  proj <- load entries
+  misplaced <- load "- id: ka\n  form: \"*ka\"\n  derives: ADJ\n"
+  let cats = either (const []) (\p -> [ (i, Map.lookup i (prItems p) >>= \it -> categoryAt p it "proto")
+                                      | i <- ["kam", "kami", "kamo", "kara"] ]) proj
+      failures =
+        [ "the project should load: " <> T.intercalate "; " errs | Left errs <- [proj] ]
+          ++ [ "derivatives should take their affixes' category: " <> T.pack (show cats)
+             | cats /= [("kam", Just "ADJ"), ("kami", Just "N"), ("kamo", Just "ADV"), ("kara", Just "V")] ]
+          ++ [ "derives on a word should be an error"
+             | not (either (any ("only an affix derives a category" `T.isInfixOf`)) (const False) misplaced) ]
+  forM_ failures $ \f -> TIO.putStrLn ("derives: " <> f)
+  TIO.putStrLn (if null failures then "derives: affixes give their derivatives a category" else "derives: FAILED")
+  pure (null failures)
+
 checkInputs :: IO Bool
 checkInputs = do
   onId <- buildWith "- id: on\n  form: \"*on\"\n"

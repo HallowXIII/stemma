@@ -13,7 +13,8 @@ README.
 - Stress alternation in stems, and boundaries transparent to the rules
   (finding 2).
 - Analogies that only the spelling shows (8), and a spelling layer for
-  conservative written forms such as OSp *omne* (16).
+  conservative written forms such as OSp *omne* (16). Both are part of
+  the orthography epic (roadmap §G).
 - A reason category on `irregular` (16).
 - A `clitic` property instead of the `°` notation (17).
 - Events that apply after their stage's rules (22).
@@ -328,6 +329,13 @@ README.
 - A deletion needs an environment: `h / / _`, not `h / /`.
 - At a `categories` block, graphemes not declared become U+FFFD. Latin
   forms written with *c* or *v* instead of *k*, *w* lost letters this way.
+- Graphemes that only rules make (WR *ð*, Spanish *θ ʝ x*, French *ɥ*)
+  were in no `categories` block, which the inventory check (roadmap §E)
+  found. They are now declared in a category, `Made`, that no rule uses.
+  Brassica's `extra` would be the natural way, but in a file with
+  categories, 1.0 turns it into a grapheme list of its own: `noCategories`
+  in `expandSoundChanges` is true when there *are* categories. stemma then
+  tokenised with that list alone, which lost `+` and *ɛ́*.
 
 ## What worked without trouble
 

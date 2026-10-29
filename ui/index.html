@@ -592,6 +592,7 @@ function expandLexicon(lex, traces) {
         regular_spelled: r.regular_spelled ?? (lost ? regular : spelled),
         category: r.category ?? null,
         gloss: r.gloss ?? it.gloss ?? null,
+        sort: r.sort ?? null,
         origin: lost ? null : t.origin ?? "inherited",
         events: t.events ?? [], input: t.input ?? null, trace: t.trace ?? [],
       };
@@ -903,8 +904,10 @@ function viewDict() {
     const it = S.lex.items[i];
     return ["root", "derivative"].includes(it.kind) && it.reflexes[stage]?.forms != null;
   });
-  const key = (i) => norm((headAt(S.lex.items[i], stage) || [""])[0]);
-  ids.sort((a, b) => key(a).localeCompare(key(b)));
+  // stemma's sort key where the stage has an alphabet; otherwise the spelling.
+  const sortKey = (i) => S.lex.items[headId(S.lex.items[i], stage)]?.reflexes?.[stage]?.sort;
+  const key = (i) => sortKey(i) ?? norm((headAt(S.lex.items[i], stage) || [""])[0]);
+  ids.sort((a, b) => sortKey(a) != null ? (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0) : key(a).localeCompare(key(b)));
   const entries = ids.map((id) => {
     const it = S.lex.items[id];
     const r = it.reflexes[stage];
