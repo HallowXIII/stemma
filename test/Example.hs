@@ -19,6 +19,7 @@ import Stemma.Collate (sortKey)
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (formsTsv, writeBuild)
+import Stemma.Query (Shift (..), findShifts)
 import Stemma.Sources
 import Stemma.Typst
 import Stemma.View
@@ -39,7 +40,8 @@ main = do
   continued <- checkContinuesJson
   outputs <- checkOutputs
   collated <- checkCollation
-  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs && collated) exitFailure
+  shifted <- checkShifts
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs && collated && shifted) exitFailure
 
 -- | A stage's alphabet orders spelled forms: letters first, then the ties
 -- within a letter (a before ā), and non-letters are skipped. lexicon.json
@@ -358,6 +360,23 @@ viewFailures dir b
 -- | Input that would otherwise be silently misread: an id that YAML reads
 -- as a boolean, and an analogy key that is not one grapheme. A replacement
 -- may be written with spaces between its graphemes.
+-- | A derivative with no affix starts from its base's category, so
+-- conversion is a shift; one with an affix is not.
+checkShifts :: IO Bool
+checkShifts = do
+  let entries = "- id: ka\n  form: \"*ka\"\n  category: [{ at: proto, is: \"N\" }]\n"
+             <> "- id: kav\n  source: { base: ka }\n  stage: azal\n  category: [{ at: azal, is: V }]\n"
+             <> "- id: kam\n  source: { base: ka, morph: COM }\n  category: [{ at: proto, is: ADJ }]\n"
+  proj <- loadProjectWith (overlay (Map.singleton "lexicon/zz.yaml" entries) []) "test/fixtures/lost"
+  let found = either (const []) (\p -> [(shItem s, shBase s, fst (shFrom s), fst (shTo s)) | s <- findShifts p "*" "*"]) proj
+      failures =
+        [ "the project should load: " <> T.intercalate "; " errs | Left errs <- [proj] ]
+          ++ [ "conversion should be a shift from the base's category: " <> T.pack (show found)
+             | found /= [("kav", Just "ka", "N", "V")] ]
+  forM_ failures $ \f -> TIO.putStrLn ("shifts: " <> f)
+  TIO.putStrLn (if null failures then "shifts: conversion is a shift, affixal derivation is not" else "shifts: FAILED")
+  pure (null failures)
+
 checkInputs :: IO Bool
 checkInputs = do
   onId <- buildWith "- id: on\n  form: \"*on\"\n"

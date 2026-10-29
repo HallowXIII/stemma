@@ -673,6 +673,11 @@ stemma shifts AUX FUT         # forms of habēre that became future endings
 stemma shifts DEM '*'         # everything a demonstrative turned into
 ```
 
+A derivative with no affix, `source: { base }` or `{ base, cell }`, starts
+from its base's category where it was formed, so conversion is a shift too:
+*on* < *homo* NOM.SG shows as `N (homo.NOM.SG, western-romance) > PRON`.
+A derivative with an affix doesn't: the change of category is the affix's.
+
 ### Gloss history
 
 `gloss` is a string, or, where the meaning changes, a map from stages to

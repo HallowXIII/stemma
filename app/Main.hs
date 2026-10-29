@@ -97,7 +97,7 @@ buildAnd dir cmd = do
       when (null found) $ TIO.putStrLn "no matching shifts"
       forM_ found $ \Shift {..} ->
         TIO.putStrLn $ shItem <> "  [" <> shLine <> "]  "
-          <> fst shFrom <> " (" <> snd shFrom <> ") > " <> fst shTo <> " (" <> snd shTo <> ")"
+          <> fst shFrom <> " (" <> maybe "" (<> ", ") shBase <> snd shFrom <> ") > " <> fst shTo <> " (" <> snd shTo <> ")"
     Paradigm i s -> mapM_ TIO.putStrLn =<< orDie (paradigmView built i s)
     History i s -> mapM_ TIO.putStrLn =<< orDie (historyView built i s)
     Trace i s -> mapM_ TIO.putStrLn =<< orDie (traceView built i s)
