@@ -215,6 +215,10 @@ viewFailures dir b
   | dir == "test/fixtures/becomes" =
       [ "the citation should follow the paradigm in force, unless the entry gives one: " <> T.pack (show cites)
       | cites /= ["see.PST.1S", "see.NPST.1S", "see.PST.1S", "go.PST.1S", "go"] ]
+      ++ [ "becomes should follow the paradigm in force: " <> T.pack (show inForce)
+         | inForce /= ["wood @ late (noun-new)", "wood @ other (noun-late)", "ash @ late (noun-late)"] ]
+      ++ [ "a lost entry's cells should not come back, nor new ones be joined"
+         | spelledAt b False "late" "elm.PL" /= Nothing || Map.member "oak.PL" (prItems (bProject b)) ]
   | dir == "test/fixtures/allomorphs" =
       [ "the affix's own reflex should list the allomorphs in force"
       | [spelledAt b False s "DAT" | s <- ["mid", "late", "other"]]
@@ -230,6 +234,8 @@ viewFailures dir b
   | otherwise = []
   where
     cite i s = maybe "" (\it -> citedAt (bProject b) it s) (Map.lookup i (prItems (bProject b)))
+    inForce = [x | (i, st) <- [("wood", "late"), ("wood", "other"), ("ash", "late")]
+                 , Right (x : _) <- [paradigmView b i st]]
     cites = [cite "see" "mid", cite "see" "late", cite "see" "other", cite "go" "mid", cite "go" "late"]
     respelled =b {bSpelled = Map.adjust (Map.insert "valyk.SG.DIR" ["written"]) "azal" (bSpelled b)}
     ordered mainCell variant xs = case (findIndex mainCell xs, findIndex variant xs) of

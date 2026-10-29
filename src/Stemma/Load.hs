@@ -314,17 +314,24 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     (cellEvents, ownEvents) = partitionBy (\ev -> evCell ev /= Nothing) (paradigmEvents ++ events)
     cellOf ev = fromMaybe "" (evCell ev)
 
-    -- The entry's events, with a repattern for each stage where its
-    -- paradigm `becomes` another (following that one's in turn), unless
-    -- the entry repatterns there itself.
+    -- The entry's events, with a repattern for each stage where the
+    -- paradigm in force `becomes` another: its own, or one it repatterns
+    -- to, and then the one that becomes, in turn, below where each comes
+    -- into force. A repattern of the entry's own takes over from there.
     events = enEvents e ++
       [ Event s Nothing (Repattern q Nothing)
-      | (s, q) <- becomes [] (enParadigm e)
-      , s `notElem` [evAt ev | ev@Event {evKind = Repattern {}} <- enEvents e] ]
-    becomes seen = \case
-      Just pname | pname `notElem` seen, Just p <- Map.lookup pname paradigms ->
-        concat [(s, q) : becomes (pname : seen) (Just q) | (s, q) <- Map.toList (pfBecomes p)]
-      _ -> []
+      | (s, q) <- nub [ (s, q) | (s, q, from) <- maybe [] (becomes Nothing) (enParadigm e)
+                                   ++ concat [becomes (Just r) q | (r, q) <- ownRepatterns]
+                               , not (overridden s from) ] ]
+    ownRepatterns = [(evAt ev, q) | ev@Event {evKind = Repattern q _} <- enEvents e]
+    becomes from pname = case Map.lookup pname paradigms of
+      Just p -> concat
+        [ (s, q, from) : becomes (Just s) q
+        | (s, q) <- Map.toList (pfBecomes p), maybe True (`strictlyAbove` s) from ]
+      Nothing -> []
+    overridden s from =
+      or [isAncestorOrSelf stages r s && maybe True (`strictlyAbove` r) from | (r, _) <- ownRepatterns]
+    strictlyAbove a s = a /= s && isAncestorOrSelf stages a s
 
     paradigm = enParadigm e >>= (`Map.lookup` paradigms)
 
@@ -359,11 +366,16 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- has them, and those given `at:`, unless the paradigm has them, at the
     -- `at:` nearest the root (the others re-form it). Each is joined from
     -- the forms entering its stage.
+    -- None is joined where the entry itself is lost or replaced.
     later = foldl' (\acc x@(c, _, _) -> if c `elem` map fst3 acc then acc else acc ++ [x]) []
+      $ filter (\(_, _, s) -> alive s)
       ( [ (c, (b, ps), s) | (s, _, _, new) <- repatterns, (c, (b, ps)) <- new, c `notElem` map fst entryCells ]
           ++ sortOn (\(_, _, s) -> length (ancestorsOrSelf stages s))
              [ (c, (fromMaybe eid (coBase ov), fromMaybe [PBase] (coMorph ov)), s)
              | (c, ov) <- atCells, Just s <- [coAt ov], c `notElem` map fst entryCells ] )
+    -- Is the entry itself still there (not lost or replaced) at a stage?
+    -- No change there brings a cell back.
+    alive s = not (any (\f -> isAncestorOrSelf stages f s) (Map.keys (enFate e)))
     joinedAt c = listToMaybe [s | (c', _, s) <- later, c' == c]
     -- `at:` on a cell that the paradigm, or one the entry changes to, has
     -- re-forms it there, and so does any but the first on a cell joined
@@ -420,7 +432,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itGloss = Nothing
         , itCategory = category
         , itNotes = Nothing
-        , itEvents = birth ++
+        , itEvents = birth ++ filter (alive . evAt) (
             [ case continuesIn pname c of
                 Just src -> Event s Nothing (Continue (eid <> "." <> src))
                 Nothing -> Event s Nothing (Rebuild (if b == eid then stem else Nothing) b ps ("repatterned as " <> pname))
@@ -429,7 +441,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
               -- An analogy without `cell:` reaches every cell, after the
               -- cell's re-formings and before its own events.
               ++ [ev | ev@Event {evKind = Analogy {}} <- ownEvents, applies (evAt ev)]
-              ++ [ev | ev <- cellEvents, evCell ev == Just c]
+              ++ [ev | ev <- cellEvents, evCell ev == Just c] )
         , itFate = Map.filterWithKey (\s _ -> applies s && Just s /= born) $ Map.unions
             [ enFate e
             , Map.fromList [(s, Lost) | (s, _, _, new) <- repatterns, Nothing <- [lookup c new]]

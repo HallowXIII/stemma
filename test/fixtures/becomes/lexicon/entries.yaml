@@ -110,3 +110,42 @@
   expect:
     mid: tegel
     other: kekel
+
+# Repatterned to noun-mid at mid, so noun-mid becomes noun-new at late,
+# and the plural is joined there; the other line keeps noun-late.
+- id: wood
+  form: "*sur"
+  paradigm: noun-late
+  events:
+    - repattern: { at: mid, paradigm: noun-mid }
+  expect:
+    mid:   { SG: sur }
+    late:  { SG: sur, PL: surga }
+    other: { SG: sur, PL: surka }
+
+# Repatterned away from noun-mid at mid, so its `becomes` at late doesn't
+# apply.
+- id: ash
+  form: "*pel"
+  paradigm: noun-mid
+  events:
+    - repattern: { at: mid, paradigm: noun-late }
+  expect:
+    late: { SG: pel, PL: pelga }
+
+# Lost at mid: neither a `becomes` nor the cells it adds bring it back.
+- id: elm
+  form: "*mal"
+  paradigm: noun-late
+  fate: { mid: lost }
+  events:
+    - repattern: { at: mid, paradigm: noun-mid }
+  expect:
+    other: { SG: mal, PL: malka }
+
+- id: oak
+  form: "*dor"
+  paradigm: noun-old
+  fate: { mid: lost }
+  expect:
+    other: { SG: dor }

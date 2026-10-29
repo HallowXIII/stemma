@@ -186,7 +186,7 @@ runMode engine proj rules inline order mode = foldM stepStage (Right (Map.empty,
             survivors =
               [ (i, it, f, Inherited) | (i, rx) <- Map.toList prev, f : _ <- [rxForms rx]
                         , Just it <- [Map.lookup i items], not (lostAt s it) ]
-                ++ [ (itId it, it, [], Coined) | it <- Map.elems items, joinedEntering s it ]
+                ++ [ (itId it, it, [], Coined) | it <- Map.elems items, joinedEntering s it || returning prev s it ]
         loanForms <- donorForms results s [(i, it) | (i, it, _, _) <- survivors]
         let inputs :: LMap.Map ItemId (Either Text (Form, [Text], Origin))
             inputs = LMap.fromList
@@ -222,6 +222,11 @@ runMode engine proj rules inline order mode = foldM stepStage (Right (Map.empty,
       itStage it == s && any (\ev -> isRebuild ev || isContinue ev) (eventsAt s it)
         && maybe False (const True) (Map.lookup s stages >>= stParent)
     isIrregular ev = case evKind ev of Irregular {} -> True; _ -> False
+    -- A cell lost above, joined again here because the paradigm in force
+    -- has it.
+    returning prev s it =
+      itStage it /= s && isAncestorOrSelf stages (itStage it) s && not (Map.member (itId it) prev)
+        && any (\ev -> isRebuild ev || isContinue ev) (eventsAt s it) && not (lostAt s it)
     isRebuild ev = case evKind ev of Rebuild {} -> True; Reform -> True; _ -> False
     isContinue ev = case evKind ev of Continue {} -> True; _ -> False
 

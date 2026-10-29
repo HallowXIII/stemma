@@ -199,7 +199,12 @@ paradigm changes to another one, as if each had a `repattern` event
 there (§4): cells are rebuilt from the new paradigm's templates, cells it
 lacks are lost, and cells only it has are joined there. Other lines of
 descent keep the paradigm. An entry with its own `repattern` at that stage
-keeps it instead. The new paradigm's own `becomes` follows in turn.
+keeps it instead. The new paradigm's own `becomes` follows in turn, below
+that stage. So does that of a paradigm an entry repatterns to, below the
+repattern, and an entry's repattern ends the `becomes` of the paradigm it
+leaves. A cell that an earlier paradigm lost and a later one has again is
+joined again where that one comes into force. Nothing is changed or joined
+at or below a stage where the entry itself is lost or replaced (§5).
 `becomes` is not inherited, since a paradigm that extends the one it
 replaces would otherwise become itself.
 

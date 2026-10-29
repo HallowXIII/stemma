@@ -37,6 +37,12 @@ paradigms:
     cells:
       - SG: ~
       - PL: PL
+  # Singular only until late. An entry repatterned to it gets its
+  # `becomes`; one repatterned away from it before late doesn't.
+  noun-mid:
+    cells:
+      - SG: ~
+    becomes: { late: noun-new }
 
   # Re-formings on the paradigm: the nonpast takes the short suffix at
   # late, on that line only, and the optative is joined at mid.
