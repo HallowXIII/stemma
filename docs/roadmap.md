@@ -96,7 +96,7 @@ Covers finding 12.
 This is `reform` for cells: at that stage every cell is rebuilt from the
 stem and the new paradigm's affixes, taken from the forms entering the
 stage (as `reform` already does). Cells the new paradigm lacks become lost.
-To begin with, the new paradigm may not add cells.
+The new paradigm may also add cells, which are joined at that stage.
 
 ## E. Stage output checks: M
 
@@ -160,10 +160,6 @@ Option 1 is the cheaper first step and doesn't rule out option 2 later.
 **A separate compound boundary.** With `notation.boundary`, compound
 members are joined with the same symbol as affixes. Rules that need to
 tell the two apart would need a second symbol (`compound-boundary`).
-
-**`repattern` adding cells.** As planned (§D), a new paradigm may not have
-cells the old one lacks. Allowing it means creating items partway down a
-line of descent.
 
 **Stemma-level rule tables.** Generating rules such as the hiatus table
 and cluster grid from data, instead of including a generated file (§F).

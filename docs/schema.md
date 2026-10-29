@@ -177,7 +177,10 @@ its nominative plural to *-ās*.
 from a stage on, so other lines of descent keep it. Cell names may use `*`,
 and a cell's variants are lost with it. Every entry with the paradigm gets
 the cell fate `lost` at that stage (§5), so would-be forms are still
-computed. `lost` is inherited and merged like `exclude`.
+computed. `lost` is inherited and merged like `exclude`. It applies where
+the paradigm is in force: an entry that changes to another paradigm
+(`becomes`, `repattern`) follows the losses of the one it has at each
+stage.
 
 ```yaml
   noun-o:
@@ -648,9 +651,11 @@ it, the bare entry takes the new stem too. The entry's own `cells` changes
 (§3) apply to the new paradigm as well, and a suppletive cell keeps its
 base, as a cell with its own `stem` keeps its stem.
 
-Cells that the new paradigm lacks are lost from this stage on. Cells that
-it has and the old one lacks are joined at this stage, the same way, and
-exist only from here on. A repattern applies to the
+The entry takes the new paradigm as it is at this stage, as an entry that
+always had it would: cells the new paradigm has lost (§2) at a stage above
+this one count as lacking. Cells that the new paradigm lacks are lost from
+this stage on. Cells that it has and the old one lacks are joined at this
+stage, the same way, and exist only from here on. A repattern applies to the
 whole entry, so it takes no `cell:`. Other lines of descent keep the old
 paradigm, and Typst's `paradigm()` uses the one in force at the stage.
 

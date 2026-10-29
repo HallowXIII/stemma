@@ -15,3 +15,13 @@ paradigms:
     extends: noun
     lost:
       azal: [PL.COM]
+  # Only the direct case, and nothing lost.
+  noun-dir:
+    dimensions:
+      - number: [SG: ~, PL: PL]
+      - case: [DIR: ~]
+  # Like noun, but nothing lost.
+  noun-all:
+    extends: noun-dir
+    dimensions:
+      - case: [GEN: GEN, COM: COM]

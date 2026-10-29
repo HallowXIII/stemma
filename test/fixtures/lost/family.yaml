@@ -1,5 +1,5 @@
 # Test fixture for paradigm `lost`: wiyan loses the genitive in every
-# number, azal keeps it.
+# number, azal keeps it. New Wiyan is for repatterns below a loss.
 name: Lost
 
 stages:
@@ -14,4 +14,9 @@ stages:
     name: Wiyan
     parent: proto
     rules: rules/wiyan.bsc
+    current: true
+  new-wiyan:
+    name: New Wiyan
+    parent: wiyan
+    rules: rules/new-wiyan.bsc
     current: true

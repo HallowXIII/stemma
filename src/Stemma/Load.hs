@@ -422,8 +422,10 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itFate = Map.filterWithKey (\s _ -> applies s && Just s /= born) $ Map.unions
             [ enFate e
             , Map.fromList [(s, Lost) | (s, _, _, new) <- repatterns, Nothing <- [lookup c new]]
-            , Map.fromList [ (s, Lost) | p <- toList paradigm ++ repatternParadigms
-                           , (s, pats) <- Map.toList (pfLost p), any (`lostBy` c) pats ]
+            -- A paradigm loses cells only where it is in force.
+            , Map.fromList [ (s, Lost) | (pname, p) <- namedParadigms
+                           , (s, pats) <- Map.toList (pfLost p), inForce s == Just pname
+                           , any (`lostBy` c) pats ]
             ]
         , itExpect = Map.mapMaybe (Map.lookup c . exCells) (enExpect e)
         , itCells = []
@@ -437,13 +439,24 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- Each repattern: its stage, the new paradigm, the new stem, and the
     -- cells it gives. Nearest the root first, so that a cell two
     -- repatterns add is joined at the earlier one (a paradigm's `becomes`
-    -- comes after the entry's own events in `events`).
+    -- comes after the entry's own events in `events`). The entry takes the
+    -- new paradigm as it is at that stage, so the cells it lost above the
+    -- stage are not given, and are lost there.
     repatterns = sortOn (\(s, _, _, _) -> length (ancestorsOrSelf stages s))
-      [ (evAt ev, pname, stem, cellsOf (Just p))
-      | ev@Event {evKind = Repattern pname stem} <- events
+      [ (r, pname, stem, [cell | cell@(c, _) <- cellsOf (Just p), not (lostAbove r p c)])
+      | Event {evAt = r, evKind = Repattern pname stem} <- events
       , Just p <- [Map.lookup pname paradigms] ]
+    lostAbove r p c = or
+      [ any (`lostBy` c) pats | (s, pats) <- Map.toList (pfLost p), s /= r, isAncestorOrSelf stages s r ]
     repatternParadigms =
       [p | Event {evKind = Repattern pname _} <- events, Just p <- [Map.lookup pname paradigms]]
+    namedParadigms =
+      [ (pname, p) | pname <- toList (enParadigm e) ++ [q | Event {evKind = Repattern q _} <- events]
+      , Just p <- [Map.lookup pname paradigms] ]
+    -- The paradigm in force at a stage: the one given by the nearest
+    -- repattern on the path back to the root, or the entry's own.
+    inForce s = listToMaybe [q | d <- ancestorsOrSelf stages s, (r, q, _, _) <- repatterns, r == d]
+      <|> enParadigm e
     repatternErrs = concat
       [ [ err ("repattern at " <> evAt ev <> ": unknown paradigm " <> pname)
         | Nothing <- [Map.lookup pname paradigms] ]

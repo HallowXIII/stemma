@@ -14,7 +14,6 @@ README.
   (finding 2).
 - Analogies that only the spelling shows (8), and a spelling layer for
   conservative written forms such as OSp *omne* (16).
-- Whether a `repattern` should honour `lost` above its stage (12).
 - A reason category on `irregular` (16).
 - A `clitic` property instead of the `°` notation (17).
 - Events that apply after their stage's rules (22).
@@ -181,7 +180,13 @@ README.
     Spanish. The example uses a Romance paradigm with only the accusative
     cells (`noun-o-rom`).
 
-    **Open:** whether a repattern should honour `lost` above its stage.
+    **Fixed:** a repattern is an analogy to a more frequent paradigm, so
+    the entry takes that paradigm as entries that always had it have it
+    at that stage: the cells it lost above the stage are not joined, and
+    are lost there. A paradigm's `lost` now also applies only where the
+    paradigm is in force, so `noun-o`'s loss of the nominative at French
+    no longer reaches an entry repatterned as `noun-o` on the Spanish
+    line.
 
 13. **`replace` can't change one of two equal graphemes.** OF *estoile*
     needs *\*stēla* with a single *l*, from WR *estélla*.
