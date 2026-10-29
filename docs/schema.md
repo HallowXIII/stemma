@@ -651,6 +651,69 @@ belongs in `notes`. A stage with no gloss on its path has none. In
 reflex has its own `gloss` where that differs. Typst's `entry` and
 `dictionary`, and `ui/`, show the gloss of the stage.
 
+### Properties
+
+`properties` records features such as gender, each by name. On a paradigm,
+a property is one value. On an entry, it is a value for every stage or,
+where it changes, a map from stages to values:
+
+```yaml
+paradigms:
+  noun-a:
+    properties: { gender: f }
+  noun-o-n:
+    properties: { gender: "n" }     # quoted: YAML reads n as false
+    becomes: { western-romance: noun-o }   # m, as noun-o says
+
+- id: dens
+  paradigm: noun-c                  # gives no gender
+  properties:
+    gender: { latin: m, gallo-romance: f }   # French dent is feminine
+```
+
+At any stage, a property is the one declared nearest on the path back to
+the root: by the entry, or by a paradigm where it comes into force for the
+entry (where the entry is formed with it, or changes to it), the entry's
+first at the same stage. A paradigm that doesn't give a property keeps the
+one in force (Spanish and French `noun-rom` keep a noun's gender). An
+entry's property given without stages holds everywhere. Paradigms inherit
+properties through `extends`. In `lexicon.json`, an entry's `properties`
+are given at the stages where they change, as its `cite` is.
+
+### Notes
+
+`notes` is prose, with references to forms (§7). It is a text for every
+stage, or a map from stages to texts, each in force at that stage and
+below it on its own line. A note about Spanish need not appear in the
+French dictionary:
+
+```yaml
+- id: magis
+  notes:
+    old-spanish: |                  # Old Spanish and Spanish
+      The regular Old Spanish form would be {magis @ old-spanish !}, ...
+```
+
+Unlike glosses, notes add up: at a stage, every note on the path back to
+the root is in force. In `lexicon.json`, notes for every stage are a list
+of runs, and notes by stage an object from stages to such lists. Typst's
+`notes(id, stage: s)` and `dictionary(s)`, and `ui/`'s dictionary, show the
+notes in force at `s`; `notes(id)` and an entry's page in `ui/` show them
+all.
+
+### Dictionary entries
+
+Typst's `entry` and `dictionary` take `fields`: what an entry shows, in
+order. By default it is `("head", "category", "properties", "gloss",
+"etymology", "source", "notes")`. A field can also be the name of one
+property, or a function of the entry's id and the stage. `stemma(...,
+fields: ...)` sets it for every entry, and `property-style` how a
+property's value is shown (in italics by default):
+
+```typst
+#dictionary("french", fields: ("head", "gender", "gloss", "etymology"))
+```
+
 ---
 
 ## 4. Events

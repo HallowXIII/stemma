@@ -168,6 +168,11 @@ check dir = do
 
 viewFailures :: FilePath -> Built -> [T.Text]
 viewFailures dir b
+  | dir == "examples/romance" =
+      [ "properties should come from the paradigm in force, or the entry nearer: " <> T.pack (show genders)
+      | genders /= [ ("dens", "latin", "m"), ("dens", "spanish", "m"), ("dens", "french", "f")
+                   , ("mare", "latin", "n"), ("mare", "spanish", "m"), ("mare", "french", "f")
+                   , ("ferrum", "latin", "n"), ("ferrum", "french", "m"), ("aqua", "french", "f") ] ]
   | dir == "test/fixtures/repattern" =
       [ "Azal should use noun-o and omit PL.GEN"
       | not (case paradigmView b "valyk" "azal" of
@@ -255,6 +260,10 @@ viewFailures dir b
              || any (any ("~" `T.isInfixOf`) . Map.keys) (Map.elems (bActual b)) ]
   | otherwise = []
   where
+    genders =
+      [ (i, st, maybe "" (Map.findWithDefault "" "gender" . (\it -> propertiesAt (bProject b) it st)) (Map.lookup i (prItems (bProject b))))
+      | (i, st) <- [ ("dens", "latin"), ("dens", "spanish"), ("dens", "french"), ("mare", "latin"), ("mare", "spanish")
+                   , ("mare", "french"), ("ferrum", "latin"), ("ferrum", "french"), ("aqua", "french") ] ]
     cite i s = maybe "" (\it -> citedAt (bProject b) it s) (Map.lookup i (prItems (bProject b)))
     inForce = [x | (i, st) <- [("wood", "late"), ("wood", "other"), ("ash", "late")]
                  , Right (x : _) <- [paradigmView b i st]]
@@ -278,6 +287,8 @@ checkInputs = do
   uncited <- buildWith "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cite: NOPE\n"
   glossed <- buildWith "- id: ka\n  form: \"*ka\"\n  gloss: { proto: water, azal: river }\n"
   misglossed <- buildWith "- id: ka\n  form: \"*ka\"\n  gloss: { nowhere: water }\n"
+  misnoted <- buildWith "- id: ka\n  form: \"*ka\"\n  notes: { nowhere: A note. }\n"
+  boolProp <- buildWith "- id: ka\n  form: \"*ka\"\n  properties: { gender: n }\n"
   discontinued <- either (pure . Left) (build brassicaEngine) =<< loadProjectWith
     (overlay (Map.singleton "lexicon/zz.yaml" "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cells:\n    SG: { continues: VOC }\n") [])
     "test/fixtures/continues"
@@ -308,6 +319,10 @@ checkInputs = do
              | glosses /= [Just "water", Just "river", Just "water"] ]
           ++ [ "lexicon.json should give the gloss where it is formed, and a reflex's where it differs"
              | not (all (`T.isInfixOf` glossJson) ["\"gloss\":\"water\"", "\"gloss\":\"river\""]) ]
+          ++ [ "a note at an unknown stage should be an error: " <> describe misnoted
+             | not (failsWith "ka: unknown stage nowhere" misnoted) ]
+          ++ [ "a property read as a boolean should say so: " <> describe boolProp
+             | not (failsWith "read as a boolean; quote it" boolProp) ]
           ++ [ "a gloss at an unknown stage should be an error: " <> describe misglossed
              | not (failsWith "ka: unknown stage nowhere" misglossed) ]
   forM_ failures $ \f -> TIO.putStrLn ("inputs: " <> f)

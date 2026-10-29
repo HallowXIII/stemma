@@ -20,6 +20,7 @@ module Stemma.Load
   , paradigmAt
   , citedAt
   , glossAt
+  , propertiesAt
   ) where
 
 import Control.Applicative ((<|>))
@@ -73,7 +74,9 @@ data Item = Item
   -- ^ Not a word on its own: an affix, a bound root or stem.
   , itGloss :: Maybe Gloss
   , itCategory :: [CatShift]
-  , itNotes :: Maybe Text
+  , itNotes :: Maybe Staged
+  , itProperties :: Map Text Staged
+  -- ^ The entry's own; see 'propertiesAt'.
   , itEvents :: [Event]
   , itFate :: Map StageId Fate
   , itExpect :: Map StageId Text
@@ -235,6 +238,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itGloss = enGloss e
         , itCategory = category
         , itNotes = enNotes e
+        , itProperties = enProperties e
         , itEvents = concatMap restem ownEvents
         , itFate = enFate e
         , itExpect = Map.mapMaybe exForm (enExpect e)
@@ -265,6 +269,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
           , itGloss = Nothing
           , itCategory = []
           , itNotes = Nothing
+          , itProperties = Map.empty
           , itEvents = []
           , itFate = enFate e
           , itExpect = Map.empty
@@ -294,6 +299,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
           , itGloss = Nothing
           , itCategory = []
           , itNotes = Nothing
+          , itProperties = Map.empty
           , itEvents = []
           , itFate = enFate e
           , itExpect = Map.empty
@@ -448,6 +454,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
         , itGloss = Nothing
         , itCategory = category
         , itNotes = Nothing
+        , itProperties = Map.empty
         , itEvents = birth ++ filter (alive . evAt) (
             [ case continuesIn s pname c of
                 Just src -> Event s Nothing (Continue (eid <> "." <> src))
@@ -559,6 +566,8 @@ validate Project {..} = do
           ++ Map.keys (itFate it) ++ Map.keys (itExpect it)
           ++ map csAt (itCategory it)
           ++ glossStages (itGloss it)
+          ++ glossStages (itNotes it)
+          ++ concatMap (glossStages . Just) (Map.elems (itProperties it))
           ++ [s | BSource (SLoan s _ _) <- [itBuild it]]
       itemRefs it =
         itemDeps it
@@ -617,6 +626,7 @@ data ParadigmDef = ParadigmDef
   , pfBecomes :: Map StageId Text
   , pfCite :: Maybe Cite
   , pfEvents :: [Event]
+  , pfProperties :: Map Text Text
   }
 
 resolveParadigms :: Map Text Paradigm -> Either [Text] (Map Text ParadigmDef)
@@ -653,6 +663,7 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
                 , pdBecomes = pdBecomes p
                 , pdCite = pdCite p <|> pdCite b
                 , pdEvents = pdEvents b ++ pdEvents p
+                , pdProperties = Map.union (pdProperties p) (pdProperties b)
                 }
 
     checkUnique what xs = case nub [x | x <- xs, length (filter (== x) xs) > 1] of
@@ -720,6 +731,7 @@ resolveParadigms raw = case [e | Left e <- Map.elems resolved] of
         , pfBecomes = pdBecomes p
         , pfCite = pdCite p
         , pfEvents = pdEvents p
+        , pfProperties = pdProperties p
         }
 
 -- | Does a @lost@ pattern cover this cell? A cell's variants go with it.
@@ -756,6 +768,25 @@ paradigmAt proj it s =
 -- the path back to the root.
 glossAt :: Project -> Item -> StageId -> Maybe Text
 glossAt proj it s = itGloss it >>= (`glossIn` ancestorsOrSelf (famStages (prFamily proj)) s)
+
+-- | The properties in force at a stage, such as gender. Each is the one
+-- declared nearest on the path back to the root: by the entry itself, or
+-- by a paradigm where it comes into force for the entry (where the entry
+-- is formed, or changes to it), the entry's own first at the same stage.
+-- An entry's property without stages is in force everywhere.
+propertiesAt :: Project -> Item -> StageId -> Map Text Text
+propertiesAt proj it s = Map.fromList [(p, v) | p <- names, Just v <- [at p]]
+  where
+    paradigmsAt d = [q | (r, q) <- itRepatterns it, r == d] ++ [q | d == itStage it, Just q <- [itParadigm it]]
+    defs q = maybe Map.empty pfProperties (Map.lookup q (prParadigms proj))
+    names = nub (Map.keys (itProperties it)
+      ++ concatMap (Map.keys . defs) (toList (itParadigm it) ++ map snd (itRepatterns it)))
+    at p = case Map.lookup p (itProperties it) of
+      Just (Always v) -> Just v
+      own -> listToMaybe
+        [ v | d <- ancestorsOrSelf (famStages (prFamily proj)) s
+        , v <- [v | Just (From m) <- [own], Just v <- [Map.lookup d m]]
+                 ++ [v | q <- paradigmsAt d, Just v <- [Map.lookup p (defs q)]] ]
 
 -- | The item an entry is cited by at a stage, as a headword: the cell its
 -- own @cite@ names, or else the one the paradigm in force there names, or

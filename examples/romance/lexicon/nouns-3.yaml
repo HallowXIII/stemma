@@ -7,6 +7,7 @@
   gloss: "man, person"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*homin-" }
     GEN.SG: { stem: "*homin-" }
@@ -28,10 +29,11 @@
     spanish: { SG: ómbɾe, PL: ómbɾes }
     old-french: { NOM.SG: ɔm, ACC.SG: ɔmə, NOM.PL: ɔmə, ACC.PL: ɔməs }
     french: { SG: ɔm, PL: ɔm }
-  notes: |
-    Old French {homo.NOM.SG @ old-french} is the cas sujet, lost in French
-    but kept as the pronoun {on @ french}. The nominative plural
-    {homo.NOM.PL @ old-french} is from Vulgar Latin *homini.
+  notes:
+    old-french: |
+      Old French {homo.NOM.SG @ old-french} is the cas sujet, lost in French
+      but kept as the pronoun {on @ french}. The nominative plural
+      {homo.NOM.PL @ old-french} is from Vulgar Latin *homini.
   derivatives:
     - id: "on"
       source: { base: homo, cell: NOM.SG }
@@ -46,6 +48,7 @@
         Already pronominal in the Oaths of Strasbourg (842, "si cum om").
     # A compound of the Old French accusatives
     - id: bonhomme
+      properties: { gender: m }
       source: { compound: [bonus.M.ACC.SG, homo.ACC.SG] }
       stage: old-french
       gloss: "fellow, good man"
@@ -85,6 +88,7 @@
   gloss: "father"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*patr-" }
     GEN.SG: { stem: "*patr-" }
@@ -123,6 +127,7 @@
   gloss: "brother"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*frātr-" }
     GEN.SG: { stem: "*frātr-" }
@@ -161,6 +166,7 @@
   gloss: "bread"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-i
+  properties: { gender: m }
   expect:
     old-spanish: { SG: pán, PL: pánes }
     spanish: { SG: pán, PL: pánes }
@@ -172,6 +178,7 @@
   gloss: "sea"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c-f
+  properties: { gender: { latin: "n", ibero-romance: m } }
   cells:
     NOM.SG: [~, N.SG.E]
     ACC.SG: [~, N.SG.E]
@@ -186,6 +193,7 @@
   gloss: "sun"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   fate: { old-french: { replaced-by: soliculus } }
   expect:
     old-spanish: { SG: sól }
@@ -196,6 +204,7 @@
   gloss: "dog"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-i
+  properties: { gender: m }
   expect:
     old-spanish: { SG: kán, PL: kánes }
     spanish: { SG: kán, PL: kánes }
@@ -207,6 +216,7 @@
   gloss: "king"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*rēg-" }
     GEN.SG: { stem: "*rēg-" }
@@ -243,6 +253,7 @@
   gloss: "mountain"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*mōnt-" }
     GEN.SG: { stem: "*mōnt-" }
@@ -262,6 +273,7 @@
   gloss: "bridge"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*pont-" }
     GEN.SG: { stem: "*pont-" }
@@ -281,6 +293,7 @@
   gloss: "tooth"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: { latin: m, gallo-romance: f } }
   cells:
     ACC.SG: { stem: "*dent-" }
     GEN.SG: { stem: "*dent-" }
@@ -300,6 +313,7 @@
   gloss: "foot"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*ped-" }
     GEN.SG: { stem: "*ped-" }
@@ -319,6 +333,7 @@
   gloss: "flower"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c-f
+  properties: { gender: { latin: m } }
   cells:
     ACC.SG: { stem: "*flōr-" }
     GEN.SG: { stem: "*flōr-" }
@@ -357,6 +372,7 @@
   gloss: { latin: "companion", western-romance: "count" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*komit-" }
     GEN.SG: { stem: "*komit-" }
@@ -377,6 +393,7 @@
   gloss: "thief"
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*latrōn-" }
     GEN.SG: { stem: "*latrōn-" }
@@ -397,6 +414,7 @@
   gloss: { latin: "elder", western-romance: "lord" }
   category: [{ at: latin, is: "N" }]
   paradigm: noun-c
+  properties: { gender: m }
   cells:
     ACC.SG: { stem: "*seniōr-" }
     GEN.SG: { stem: "*seniōr-" }
@@ -408,6 +426,7 @@
     - irregular: { at: old-french, cell: NOM.SG, form: "sirə", reason: "reduced in address" }
   derivatives:
     - id: sire
+      properties: { gender: m }
       source: { base: senior, cell: NOM.SG }
       stage: old-french
       gloss: "sire, lord (in address)"
@@ -456,6 +475,7 @@
       stage: vulgar-latin
       gloss: "heart"
       paradigm: noun-c
+      properties: { gender: m }
       cite: { vulgar-latin: ACC.SG, old-spanish: SG }
       fate: { old-french: lost }
       expect:
@@ -489,6 +509,7 @@
   gloss: "dog"
   category: [{ at: old-spanish, is: "N" }]
   paradigm: noun-rom
+  properties: { gender: m }
   notes: Of unknown origin.
   expect:
     old-spanish: { SG: péro }
@@ -512,11 +533,13 @@
   derivatives:
     # Spanish preste, from Old French
     - id: preste
+      properties: { gender: m }
       source: { loan: { from: old-french, id: presbyter, adapt: rules/french-into-spanish.bsc } }
       stage: old-spanish
       gloss: "priest"
       expect: { old-spanish: pɾéste, spanish: pɾéste }
     - id: presbitero
+      properties: { gender: m }
       source: { loan: { from: latin, id: presbyter.ACC.SG, adapt: rules/learned-spanish.bsc } }
       stage: spanish
       gloss: "presbyter"

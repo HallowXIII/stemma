@@ -118,8 +118,12 @@ lexiconJson b = do
 
 itemJson :: Built -> Item -> Either [Text] (Item, Value)
 itemJson b it = do
-  notes <- forM (itNotes it) $ \n ->
-    either (\e -> Left [itId it <> ": " <> e]) (Right . map runJson) (renderNotes b n)
+  -- Notes for every stage are a list of runs; notes from stages on, an
+  -- object from each stage to its runs.
+  let render n = either (\e -> Left [itId it <> ": " <> e]) (Right . toJSON . map runJson) (renderNotes b n)
+  notes <- forM (itNotes it) $ \case
+    Always n -> render n
+    From m -> object <$> forM (Map.toList m) (\(s, n) -> (Key.fromText s .=) <$> render n)
   pure . (it,) $ sparse
     [ "kind" .=? Just (kindName (itKind it))
     , "bound" .=? (if itBound it then Just True else Nothing)
@@ -131,6 +135,7 @@ itemJson b it = do
     , "paradigm" .=? itParadigm it
     , "repatterns" .=? nonEmpty [object ["at" .= s, "paradigm" .= p] | (s, p) <- itRepatterns it]
     , "cite" .=? cite
+    , "properties" .=? properties
     , "allomorphs" .=? allomorphs
     , "continues" .=? (if null continues then Nothing else Just (object continues))
     , "variant_of" .=? fmap fst variant
@@ -161,6 +166,13 @@ itemJson b it = do
           let cited = Map.fromList [(s, citedAt proj it s) | s <- Map.keys reflexes]
           in Just (object [ Key.fromText s .= c | (s, c) <- Map.toList cited
                           , s == itStage it || (parentOf s >>= (`Map.lookup` cited)) /= Just c ])
+    -- The properties in force, at the stages where they change, as for
+    -- the citation.
+    properties =
+      let at = Map.fromList [(s, propertiesAt proj it s) | s <- Map.keys reflexes]
+      in if all Map.null at then Nothing
+         else Just (object [ Key.fromText s .= m | (s, m) <- Map.toList at
+                           , s == itStage it || (parentOf s >>= (`Map.lookup` at)) /= Just m ])
     -- A cell named CELL~label: its main cell and label.
     variant = case (itKind it, itOwner it) of
       (KCell, Just o) -> case splitVariant (T.drop (T.length o + 1) (itId it)) of
@@ -355,7 +367,8 @@ pinnedForms b = Set.fromList $
   [ (s, itId it) | it <- items, s <- Map.keys (itExpect it) ]
   ++ [ (rfStage, rfItem)
      | it <- items
-     , Just n <- [itNotes it]
+     , Just ns <- [itNotes it]
+     , n <- case ns of Always t -> [t]; From m -> Map.elems m
      , Right runs <- [renderNotes b n]
      , RForm {..} <- runs ]
   where

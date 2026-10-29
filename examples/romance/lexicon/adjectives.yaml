@@ -21,9 +21,9 @@
   events:
     # fraile, without -s, like other adjectives in -e
     - analogy: { at: old-french, cell: M.NOM.SG, replace: { s: "" }, model: "adjectives in -e" }
-  notes: |
-    Inherited in French as {fragilis @ french}, beside learned
-    {fragile-fr @ french}. Spanish has only the learned {fragil-es @ spanish}.
+  notes:
+    french: Inherited in French as {fragilis.M.SG @ french}, beside learned {fragile-fr @ french}.
+    spanish: Spanish has only the learned {fragil-es @ spanish}.
   derivatives:
     # Learned borrowings, taken from Latin as written.
     - id: fragile-fr

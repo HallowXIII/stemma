@@ -8,8 +8,11 @@
 //   #reflex("ir.DIR", "azal", regular: true)   the regularly expected form
 //   #reflex("ir.DIR", "azal", phonemic: true)  unspelled
 //   #notes("ir")                           the item's notes, forms resolved
+//   #notes("ir", stage: "azal")            ... those in force at a stage
 //   #entry("ir", "azal")                   a dictionary entry
 //   #dictionary("azal")                    every entry with a reflex there
+//   #dictionary("azal", fields: ("head", "gender", "gloss"))
+//                                          ... showing only these, in order
 //   #dictionary("azal", bound: false)      ... leaving out bound roots (ber-)
 //   #paradigm("ir", "azal")                a table of the cells, one row per
 //                                          member of the last dimension
@@ -23,8 +26,22 @@
 //
 //   #let (..) = stemma(json("build/lexicon.json"), form-font: "Charis",
 //     head-style: x => strong(emph(x)))
+//
+// An entry shows `fields`, in order: "head", "category", "properties" (all
+// of them, such as gender), "gloss", "etymology", "source" and "notes"
+// (those in force at the stage); the name of one property; or a function
+// of the entry's id and the stage that gives content. `property-style`
+// sets how a property's value is shown.
 
-#let stemma(lex, form-style: emph, head-style: strong, form-font: none) = {
+#let stemma(
+  lex,
+  form-style: emph,
+  head-style: strong,
+  form-font: none,
+  fields: ("head", "category", "properties", "gloss", "etymology", "source", "notes"),
+  property-style: (name, value) => emph(value),
+) = {
+  let entry-fields = fields
   let in-font(body) = if form-font == none { body } else { text(font: form-font, body) }
   let stage-info = (:)
   for s in lex.stages { stage-info.insert(s.id, s) }
@@ -122,19 +139,37 @@
     style(forms, star)
   }
 
-  let notes(id) = {
+  // Notes are runs of text and forms: one list for every stage, or one
+  // from each of some stages on, each in force down its own line.
+  let note(runs) = for run in runs {
+    if "text" in run {
+      // Single newlines from YAML block scalars are spaces; blank lines
+      // are paragraph breaks.
+      run.text.split("\n\n").map(p => p.replace("\n", " ")).join(parbreak())
+    } else { style((run.form,), run.star) }
+  }
+  // The notes in force at a stage, or with no stage all of them, in stage
+  // order, each rendered.
+  let note-list(id, stage) = {
     let it = item(id)
-    if it.notes == none { return none }
-    for run in it.notes {
-      if "text" in run {
-        // Single newlines from YAML block scalars are spaces; blank lines
-        // are paragraph breaks.
-        run.text.split("\n\n").map(p => p.replace("\n", " ")).join(parbreak())
-      } else { style((run.form,), run.star) }
-    }
+    if it.notes == none { return () }
+    if type(it.notes) == array { return (note(it.notes),) }
+    let stages = if stage == none { lex.stages.map(s => s.id) } else { path(stage) }
+    stages.filter(s => s in it.notes).map(s => note(it.notes.at(s)))
+  }
+  let notes(id, stage: none) = {
+    let all = note-list(id, stage)
+    if all.len() == 0 { none } else { all.join(parbreak()) }
   }
 
-  let entry(id, stage) = {
+  // The properties in force at a stage, such as gender: lexicon.json gives
+  // them where they change.
+  let properties-at(it, stage) = {
+    let ps = it.at("properties", default: (:))
+    path(stage).rev().map(s => ps.at(s, default: none)).find(p => p != none)
+  }
+
+  let entry(id, stage, fields: entry-fields) = {
     let it = item(id)
     let r = rx(it, stage)
     let hd = head-item(it, stage)
@@ -153,19 +188,38 @@
       let abbr = if info.abbr != none { info.abbr } else { info.name }
       [#abbr #reflex(x, s)]
     })
+    let props = properties-at(it, stage)
+    let prop(name) = {
+      let v = if props == none { none } else { props.at(name, default: none) }
+      if v != none { property-style(name, v) }
+    }
+    // Fields on the entry's line, and notes in a paragraph below it.
+    let line = ()
+    let below = ()
+    for f in fields {
+      if type(f) == function { line.push(f(id, stage)) }
+      else if f == "head" { line.push(in-font(head-style(head))) }
+      else if f == "category" { if r.category != none { line.push(smallcaps(lower(r.category))) } }
+      else if f == "properties" {
+        if props != none { for name in props.keys().sorted() { line.push(prop(name)) } }
+      }
+      else if f == "gloss" { if r.gloss != none { line.push(["#r.gloss"]) } }
+      else if f == "etymology" { if chain.len() > 0 { line.push([< #chain.join([ < ])]) } }
+      else if f == "source" { if it.source != none { line.push([(#it.source)]) } }
+      else if f == "notes" {
+        for n in note-list(id, stage) { below.push(par(text(size: 0.9em, n))) }
+      }
+      else { let v = prop(f); if v != none { line.push(v) } }
+    }
     block(breakable: false, {
-      in-font(head-style(head))
-      if r.category != none { [ #h(0.3em) #smallcaps(lower(r.category))] }
-      if r.gloss != none { [ #h(0.3em) "#r.gloss"] }
-      if chain.len() > 0 { [ #h(0.3em) < #chain.join([ < ])] }
-      if it.source != none { [ (#it.source)] }
-      if it.notes != none { par(text(size: 0.9em, notes(id))) }
+      line.join([ #h(0.3em)])
+      for b in below { b }
     })
   }
 
   // Bound entries are cited with a hyphen (ber-). An entry with a paradigm
   // is always listed, since it is cited by a cell (its `cite`).
-  let dictionary(stage, kinds: ("root", "derivative"), bound: true) = {
+  let dictionary(stage, kinds: ("root", "derivative"), bound: true, fields: entry-fields) = {
     let ids = lex.order.filter(i => {
       let it = item(i)
       let r = rx(it, stage)
@@ -176,7 +230,7 @@
       let r = rx(head-item(it, stage), stage)
       if r.spelled != none { r.spelled.at(0, default: "") } else { "" }
     }
-    for i in ids.sorted(key: key) { entry(i, stage) }
+    for i in ids.sorted(key: key) { entry(i, stage, fields: fields) }
   }
 
   // Cells as a table. Rows are the members of one dimension, columns every

@@ -435,6 +435,23 @@ function headId(it, stage) {
 }
 const headAt = (it, stage) => formsAt(headId(it, stage), stage);
 
+// An item's notes as [stage, runs]: those in force at a stage, or with no
+// stage all of them, as stemma.typ's `notes` gives them. A note for every
+// stage has no stage.
+function noteList(it, stage) {
+  if (!it.notes) return [];
+  if (Array.isArray(it.notes)) return [[null, it.notes]];
+  return (stage == null ? IX.treeOrder : path(stage)).filter((s) => it.notes[s]).map((s) => [s, it.notes[s]]);
+}
+
+// The properties in force at a stage, such as gender: lexicon.json gives
+// them where they change.
+function propertiesAt(it, stage) {
+  for (const s of path(stage).reverse()) if (it.properties?.[s]) return it.properties[s];
+  return {};
+}
+const propsHtml = (ps) => Object.keys(ps).sort().map((k) => `<i title="${esc(k)}">${esc(ps[k])}</i>`).join(" ");
+
 // The forms of an item on the way to a stage, nearest first, as [stage,
 // item], as stemma.typ's `lineage` gives them: where a cell continues
 // another (`continues`), the other one's above where it is joined.
@@ -749,6 +766,9 @@ function viewItem(id) {
   if (it.source) h += `<dt>Source</dt><dd>${linkSource(it.source)}</dd>`;
   if (it.owner) h += `<dt>${it.kind === "cell" ? "Cell of" : "Derivative of"}</dt><dd>${linkId(it.owner)}</dd>`;
   if (it.variant_of) h += `<dt>Variant</dt><dd>${esc(it.variant)} of ${linkId(it.variant_of)}</dd>`;
+  const props = propertiesAt(it, shownAt);
+  for (const k of Object.keys(props).sort())
+    h += `<dt>${esc(k[0].toUpperCase() + k.slice(1))}</dt><dd>${esc(props[k])} <span class="muted">in ${esc(stageName(shownAt))}</span></dd>`;
   if (it.paradigm) h += `<dt>Paradigm</dt><dd>${esc(it.paradigm)}${[...it.repatterns]
     .sort((a, b) => IX.treeOrder.indexOf(a.at) - IX.treeOrder.indexOf(b.at)).map((r) =>
     ` <span class="muted">→ ${esc(r.paradigm)} at ${esc(stageName(r.at))}</span>`).join("")}</dd>`;
@@ -766,7 +786,9 @@ function viewItem(id) {
       `${k ? `<span class="faint">›</span>` : ""}<span class="tag">${esc(c.is)}</span><span class="at">${esc(stageAbbr(c.at))}</span>`).join(" ") + `</div>`;
   }
 
-  if (it.notes?.length) h += `<h3>Notes</h3><div class="notes">${renderNotes(it.notes)}</div>`;
+  const notes = noteList(it, null);
+  if (notes.length) h += `<h3>Notes</h3>` + notes.map(([s, runs]) =>
+    `<div class="notes">${s ? `<div class="muted" style="font-size:12.5px">From ${esc(stageName(s))}</div>` : ""}${renderNotes(runs)}</div>`).join("");
 
   if (it.paradigm && it.cells.length) h += `<h3>Paradigm · ${esc(stageName(S.stage))}</h3>` + paradigmTable(it, S.stage);
 
@@ -813,7 +835,7 @@ function reflexTable(id) {
       <td class="name" style="padding-left:${10 + 16 * (IX.depth(s) - base)}px"><span class="tw">${traced ? "▸" : ""}</span> ${esc(stageName(s))}</td>
       <td>${fmt(formsAt(x, s), s)}</td>
       <td>${r.forms ? `<span class="f ph">/${esc(r.forms.join(" ~ "))}/</span>` : ""}</td>
-      <td>${r.category ? `<span class="sc">${esc(r.category)}</span>` : ""}${r.gloss && r.gloss !== it.gloss ? ` “${esc(r.gloss)}”` : ""}</td>
+      <td>${r.category ? `<span class="sc">${esc(r.category)}</span>` : ""} ${propsHtml(propertiesAt(it, s))}${r.gloss && r.gloss !== it.gloss ? ` “${esc(r.gloss)}”` : ""}</td>
       <td>${notes.join(" ")}</td></tr>`;
     if (open && traced) h += `<tr class="trace"><td colspan="5">${traceHtml(r, s)}</td></tr>`;
   }
@@ -895,10 +917,11 @@ function viewDict() {
     const hw = (headAt(it, stage) || []).join(" ~ ") + (it.bound && !it.cells.length ? "-" : "");
     return `<div class="e"><a href="${href(id)}" class="hw f">${esc(hw)}</a>
       ${r.category ? ` <span class="sc">${esc(r.category)}</span>` : ""}
+      ${Object.keys(propertiesAt(it, stage)).length ? ` ${propsHtml(propertiesAt(it, stage))}` : ""}
       ${r.gloss ? ` “${esc(r.gloss)}”` : ""}
       ${chain ? ` <span class="ety">&lt; ${chain}</span>` : ""}
       ${it.source ? ` <span class="muted">(${linkSource(it.source)})</span>` : ""}
-      ${it.notes?.length ? `<div class="n notes">${renderNotes(it.notes)}</div>` : ""}</div>`;
+      ${noteList(it, stage).map(([, runs]) => `<div class="n notes">${renderNotes(runs)}</div>`).join("")}</div>`;
   });
   return `<div class="wrap"><h2>${esc(stageName(stage))} dictionary</h2>
     <p class="muted">${ids.length} entries · change the stage at the top right</p>

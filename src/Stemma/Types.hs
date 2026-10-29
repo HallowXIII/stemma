@@ -24,9 +24,11 @@ module Stemma.Types
   , Expect (..)
   , Cite (..)
   , citations
-  , Gloss (..)
+  , Staged (..)
+  , Gloss
   , glossIn
   , glossStages
+  , notesIn
   , CatShift (..)
   , parseRulesRef
   , renderRulesRef
@@ -158,6 +160,9 @@ data Paradigm = Paradigm
   , pdCite :: Maybe Cite
   , pdEvents :: [Event]
   -- ^ Events for every entry with the paradigm, before the entry's own.
+  , pdProperties :: Map Text Text
+  -- ^ Such as gender: in force for an entry from where it gets the
+  -- paradigm, until another declaration (its own, or another paradigm's).
   }
   deriving (Show)
 
@@ -226,6 +231,7 @@ instance FromJSON Paradigm where
     pdBecomes <- traverse (name "paradigm name") =<< o .:? "becomes" .!= Map.empty
     pdCite <- o .:! "cite"   -- `cite: ~` is the bare form, not no cite
     pdEvents <- o .:? "events" .!= []
+    pdProperties <- traverse (name "property value") =<< o .:? "properties" .!= Map.empty
     pure Paradigm {..}
     where
       dimension :: Value -> Parser Dimension
@@ -309,7 +315,10 @@ data Entry = Entry
   -- ^ Not a word on its own. Defaults to true for affixes, false otherwise.
   , enCells :: [(Text, CellOverride)]
   -- ^ Changes to the paradigm's cells for this entry, and cells of its own.
-  , enNotes :: Maybe Text
+  , enNotes :: Maybe Staged
+  -- ^ For every stage, or each from a stage on, down its own line.
+  , enProperties :: Map Text Staged
+  -- ^ Such as gender: over the paradigm's (see 'pdProperties').
   , enDerivatives :: [Entry]
   , enEvents :: [Event]
   , enFate :: Map StageId Fate
@@ -469,29 +478,38 @@ instance FromJSON Cite where
       cell Null = pure Nothing
       cell v = Just <$> name "cell name" v
 
--- | What an entry means: one gloss for every stage, or one from each of
--- some stages on, as for a citation.
-data Gloss = GlossAlways Text | GlossFrom (Map StageId Text)
+-- | A text for every stage, or one from each of some stages on, each in
+-- force down its own line: a gloss, a property's value, a note.
+data Staged = Always Text | From (Map StageId Text)
   deriving (Show)
 
--- | The gloss in force at a stage, given the stages on the path back to the
+-- | What an entry means, as for a citation.
+type Gloss = Staged
+
+-- | The text in force at a stage, given the stages on the path back to the
 -- root, nearest first.
-glossIn :: Gloss -> [StageId] -> Maybe Text
-glossIn (GlossAlways g) _ = Just g
-glossIn (GlossFrom m) path = case [g | s <- path, Just g <- [Map.lookup s m]] of
+glossIn :: Staged -> [StageId] -> Maybe Text
+glossIn (Always g) _ = Just g
+glossIn (From m) path = case [g | s <- path, Just g <- [Map.lookup s m]] of
   g : _ -> Just g
   [] -> Nothing
 
--- | The stages a gloss names.
-glossStages :: Maybe Gloss -> [StageId]
+-- | The stages a text names.
+glossStages :: Maybe Staged -> [StageId]
 glossStages = \case
-  Just (GlossFrom m) -> Map.keys m
+  Just (From m) -> Map.keys m
   _ -> []
 
-instance FromJSON Gloss where
+-- | Notes add up rather than replace each other: every note on the path
+-- back to the root (given nearest first) is in force, root first.
+notesIn :: Staged -> [StageId] -> [(Maybe StageId, Text)]
+notesIn (Always t) _ = [(Nothing, t)]
+notesIn (From m) path = [(Just s, t) | s <- reverse path, Just t <- [Map.lookup s m]]
+
+instance FromJSON Staged where
   parseJSON = \case
-    Object o -> GlossFrom . Map.fromList <$> traverse (\(k, v) -> (Key.toText k,) <$> parseJSON v) (KM.toList o)
-    v -> GlossAlways <$> parseJSON v
+    Object o -> From . Map.fromList <$> traverse (\(k, v) -> (Key.toText k,) <$> name "text" v) (KM.toList o)
+    v -> Always <$> name "text" v
 
 data Fate = Lost | ReplacedBy ItemId
   deriving (Show)
@@ -527,6 +545,7 @@ parseEntryBody enId = withObject "entry" $ \o -> do
   cellsRaw <- o .:? "cells" .!= KM.empty
   enCells <- concat <$> traverse (\(k, v) -> map (Key.toText k,) <$> cellOverrides v) (KM.toList cellsRaw)
   enNotes <- o .:? "notes"
+  enProperties <- o .:? "properties" .!= Map.empty
   enDerivatives <- o .:? "derivatives" .!= []
   enEvents <- o .:? "events" .!= []
   enFate <- o .:? "fate" .!= Map.empty
