@@ -35,7 +35,47 @@ main = do
   inputs <- checkInputs
   noRules <- checkNoRules
   continued <- checkContinuesJson
-  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued) exitFailure
+  outputs <- checkOutputs
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs) exitFailure
+
+-- | The checks on a stage's forms: U+FFFD, graphemes the rules don't
+-- declare (here the multigraph xx, from a rule written without a space),
+-- and forbidden sequences, which are found across a morpheme boundary but
+-- not at the edge where a bound form attaches.
+checkOutputs :: IO Bool
+checkOutputs = do
+  built <- withFamily "    forbid: [\"i b\", \"# i\", \"a l #\"]\n"
+  misforbidden <- withFamily "    forbid: [\"a # b\"]\n"
+  let warned = either (const []) bWarnings built
+      has p = any p warned
+      failures =
+        [ "the project should build: " <> T.intercalate "; " errs | Left errs <- [built] ]
+          ++ [ "an undeclared multigraph should be warned about: " <> T.pack (show warned)
+             | not (has ("modern: xx is not declared in the rules, but is in oxx (ox)" ==)) ]
+          ++ [ "U+FFFD should be warned about: " <> T.pack (show warned)
+             | not (has (\w -> "modern: U+FFFD, in place of" `T.isPrefixOf` w && "(qa)" `T.isInfixOf` w)) ]
+          ++ [ "a forbidden sequence across a boundary should be found: " <> T.pack (show warned)
+             | not (has (\w -> "modern: i b is forbidden, but is in " `T.isPrefixOf` w && "(bed.1S)" `T.isInfixOf` w)) ]
+          ++ [ "# should match the end of a word: " <> T.pack (show warned)
+             | not (has ("modern: a l # is forbidden, but is in kal (kar.DIR)" ==)) ]
+          ++ [ "# should not match where a bound form attaches: " <> T.pack (show warned)
+             | has ("modern: # i is forbidden" `T.isPrefixOf`) ]
+          ++ [ "# inside a forbidden sequence should be an error"
+             | not (either (any ("# marks a word edge" `T.isInfixOf`)) (const False) misforbidden) ]
+  forM_ failures $ \f -> TIO.putStrLn ("outputs: " <> f)
+  TIO.putStrLn (if null failures then "outputs: U+FFFD, undeclared and forbidden graphemes are reported" else "outputs: FAILED")
+  pure (null failures)
+  where
+    withFamily forbid = do
+      let family = "name: Boundary\nnotation:\n  boundary: \"+\"\nstages:\n  proto:\n    name: Proto\n"
+                <> "  modern:\n    name: Modern\n    parent: proto\n    rules: rules/proto-to-modern.bsc\n" <> forbid
+          rules = "categories\nC = p t k b d g m n l r s v x\nV = a e i o u\nB = &+\nend\n"
+               <> "x r / xx\nr / n / _ + i\nd / t / _ #\nr / l / _ #\n"
+          entries = "- id: ox\n  form: \"*oxr\"\n- id: qa\n  form: \"*qa\"\n"
+      proj <- loadProjectWith (overlay (Map.fromList [ ("family.yaml", family), ("rules/proto-to-modern.bsc", rules)
+                                                     , ("lexicon/zz.yaml", entries) ]) [])
+                "test/fixtures/boundary"
+      either (pure . Left) (build brassicaEngine) proj
 
 -- | lexicon.json gives a continued cell's reflexes on every line it is
 -- joined on, and what it continues, so that the views can follow it back.

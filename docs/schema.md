@@ -44,6 +44,7 @@ stages:
     parent: old-azal
     rules: "rules/pe-to-azal.bsc#2"
     orthography: rules/azal-ortho.bsc   # optional: phonemic > spelling
+    forbid: ["v y", "t g", "# ŋ"]       # optional: sequences no form may have
     current: true
 
   wiyan:
@@ -68,6 +69,29 @@ category block defined in segment 1 is still in force in segment 2.
 
 Adding a stage later is cheap. Insert a `report`, renumber the segments in
 `family.yaml`, and re-point any events that belong to the new stage.
+
+### Checks on a stage's forms
+
+After each stage, `build` warns about:
+
+- **U+FFFD** in a form or its spelling. Brassica puts it in place of any
+  grapheme that a `categories` block doesn't declare.
+- **Graphemes the rules don't declare.** A rule written without spaces
+  makes a multigraph: `x r / xx` gives one grapheme *xx*, which looks right
+  but never matches a later `x x`. A grapheme a rule makes after the last
+  `categories` block is also caught here, since the next block would replace
+  it with U+FFFD. The inventory is every grapheme in the `categories`
+  blocks of the stage's rules (from the one in force at the start of its
+  segment), its morphophonology, `notation.graphemes` and the boundary.
+  Stages without rules, or whose rules have only `categories noreplace`
+  blocks, aren't checked. Declare a grapheme that only rules make in a
+  category the rules don't use (`Made = θ x`); Brassica 1.0's `extra`
+  hides the categories' graphemes from stemma.
+- **Forbidden sequences**, listed under `forbid`: graphemes separated by
+  spaces, with `#` first or last for a word edge (`"# ŋ"`, `"t #"`).
+  Boundaries are ignored, so `"t g"` is found in *bolt+gam*, but `#` doesn't
+  match at the edge where a bound form attaches. A stage's `forbid` applies
+  to that stage only.
 
 ---
 

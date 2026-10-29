@@ -100,6 +100,9 @@ The new paradigm may also add cells, which are joined at that stage.
 
 ## E. Stage output checks: M
 
+**Done** except categories in `forbid:`; see `schema.md` §1, "Checks on
+a stage's forms".
+
 Covers findings 5, 5a and 11. The causes of 5 and 5a are in Brassica, but
 stemma can detect them. One pass after each stage:
 
@@ -114,20 +117,29 @@ stemma can detect them. One pass after each stage:
 
 | finding | change | effort |
 |---|---|---|
-| 10 | `expect: { azal: { form: x, disputed: "typo?" } }`: warns instead of failing, and reports when it starts passing | S |
 | 7 | `-- include: file.bsc`, spliced in before the file goes to Brassica, so generated tables live in their own file. Stemma-level tables from data are not planned. | S |
-| §2 | `trace` separates graphemes (`ny·j`). Showing the matched element of a generated rule would need Brassica. | S |
 | §2 | `shifts` across derivation: compare a derivative's first category with its base's where it was formed | S |
 | §2 | Collation: `alphabet:` per stage, with a sort key written to `lexicon.json` | S |
 | §2 | Capitalisation: `capitalise: [PROPN]` in `family.yaml`, applied when spelling and based on the category at that stage; capitalises a whole multigraph (*Ny*) | S |
 | §2 | `stemma.typ` as a Typst package (`typst.toml`), installed by the flake under `share/typst/packages/local/stemma/0.1.0` | S |
 
+**Declined.**
+
+- Disputed expectations (10). A form that may be wrong in its source can
+  be left out of `expect` and discussed in `notes`. A form that was written
+  by hand and contradicts the build calls for fixing the grammar or the
+  rules, not for silencing the mismatch.
+- Grapheme separators in `trace` (§2). An invisible multigraph is caught on
+  every build by the inventory check (§E), and a rule that merges
+  graphemes already has its own step in the trace. A trace showing a whole
+  generated row instead of the element that matched is a sign that the
+  rule should be split into one line per change, as it would be by hand.
+
 ---
 
 ## Order
 
-1. Quick wins: expectation markers (10), trace separators, and §E without
-   categories.
+1. Quick wins: §E without categories.
 2. §A, opt-in so the Echo example passes unchanged.
 3. §B, then §C, rewriting the Azal `verbs.yaml` from derivatives into a
    paradigm as the real-world test.

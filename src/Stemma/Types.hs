@@ -5,6 +5,7 @@ module Stemma.Types
   , RulesRef (..)
   , Family (..)
   , Stage (..)
+  , Forbid (..)
   , Morphology (..)
   , Paradigm (..)
   , Dimension (..)
@@ -97,8 +98,31 @@ data Stage = Stage
   -- ^ Rules for forms joined from parts out of this stage's forms.
   , stOrthography :: Maybe RulesRef
   , stCurrent :: Bool
+  , stForbid :: [Forbid]
+  -- ^ Sequences no form at the stage should have.
   }
   deriving (Show)
+
+-- | A forbidden sequence of graphemes, as written (@"v y"@, @"# ŋ"@),
+-- and whether it must be at the start or the end of the word.
+data Forbid = Forbid
+  { fbText :: Text
+  , fbStart :: Bool
+  , fbGraphemes :: [Text]
+  , fbEnd :: Bool
+  }
+  deriving (Show)
+
+instance FromJSON Forbid where
+  parseJSON v = do
+    t <- name "forbidden sequence" v
+    let ws = T.words t
+        start = take 1 ws == ["#"]
+        end = length ws > 1 && last ws == "#"
+        gs = (if end then init else id) (if start then drop 1 ws else ws)
+    when (null gs) $ fail ("forbidden sequence " <> show t <> " has no graphemes")
+    when ("#" `elem` gs) $ fail ("forbidden sequence " <> show t <> ": # marks a word edge, so it can only come first or last")
+    pure (Forbid t start gs end)
 
 instance FromJSON Family where
   parseJSON = withObject "family" $ \o -> do
@@ -126,6 +150,7 @@ instance FromJSON Stage where
     stMorphophonology <- o .:? "morphophonology"
     stOrthography <- o .:? "orthography"
     stCurrent <- o .:? "current" .!= False
+    stForbid <- o .:? "forbid" .!= []
     pure Stage {..}
 
 ------------------------------------------------------------------------

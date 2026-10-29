@@ -8,6 +8,8 @@ Vs = á é ɛ́ í ó ɔ́ ú ý áu
 V = Vu Vs
 Stop = p b t d k g kʷ gʷ
 C = Stop f v s z m n l r j w β ʎ ɲ tʃ dʒ ts dz ʃ ʒ θ ð h
+; only made by rules; listed so that no categories block drops them
+Made = ɥ
 end
 
 ; rēx: x > is
