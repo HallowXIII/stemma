@@ -7,10 +7,10 @@
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   expect:
-    old-spanish: { ACC.SG: múɾo, ACC.PL: múɾos }
-    spanish: { ACC.SG: múɾo, ACC.PL: múɾos }
+    old-spanish: { SG: múɾo, PL: múɾos }
+    spanish: { SG: múɾo, PL: múɾos }
     old-french: { NOM.SG: myrs, ACC.SG: myr, NOM.PL: myr, ACC.PL: myrs }
-    french: { ACC.SG: myʁ, ACC.PL: myʁ }
+    french: { SG: myʁ, PL: myʁ }
 
 - id: lupus
   form: "*lup-"
@@ -21,10 +21,10 @@
     # loup /lu/, not *leu: after the feminine louve and the Latin spelling
     - analogy: { at: french, replace: { o: u, w: "" }, model: "louve" }
   expect:
-    old-spanish: { ACC.SG: lóbo, ACC.PL: lóbos }
-    spanish: { ACC.SG: lóbo, ACC.PL: lóbos }
+    old-spanish: { SG: lóbo, PL: lóbos }
+    spanish: { SG: lóbo, PL: lóbos }
     old-french: { NOM.SG: lows, ACC.SG: low, NOM.PL: low, ACC.PL: lows }
-    french: { ACC.SG: lu, ACC.PL: lu }
+    french: { SG: lu, PL: lu }
 
 - id: focus
   form: "*fok-"
@@ -35,10 +35,10 @@
     # fou, not *fuez: the nominative plural remade on the other cells
     - analogy: { at: gallo-romance, cell: NOM.PL, replace: { dz: g }, model: "fou" }
   expect:
-    old-spanish: { ACC.SG: fwégo, ACC.PL: fwégos }
-    spanish: { ACC.SG: fwégo, ACC.PL: fwégos }
+    old-spanish: { SG: fwégo, PL: fwégos }
+    spanish: { SG: fwégo, PL: fwégos }
     old-french: { NOM.SG: fows, ACC.SG: fow, NOM.PL: fow, ACC.PL: fows }
-    french: { ACC.SG: fø, ACC.PL: fø }
+    french: { SG: fø, PL: fø }
 
 - id: annus
   form: "*ann-"
@@ -46,10 +46,10 @@
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   expect:
-    old-spanish: { ACC.SG: áɲo, ACC.PL: áɲos }
-    spanish: { ACC.SG: áɲo, ACC.PL: áɲos }
+    old-spanish: { SG: áɲo, PL: áɲos }
+    spanish: { SG: áɲo, PL: áɲos }
     old-french: { NOM.SG: ants, ACC.SG: an, NOM.PL: an, ACC.PL: ants }
-    french: { ACC.SG: ɑ̃, ACC.PL: ɑ̃ }
+    french: { SG: ɑ̃, PL: ɑ̃ }
 
 - id: caballus
   form: "*kaball-"
@@ -57,10 +57,10 @@
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   expect:
-    old-spanish: { ACC.SG: kaβáʎo, ACC.PL: kaβáʎos }
-    spanish: { ACC.SG: kabáʎo, ACC.PL: kabáʎos }
+    old-spanish: { SG: kaβáʎo, PL: kaβáʎos }
+    spanish: { SG: kabáʎo, PL: kabáʎos }
     old-french: { NOM.SG: tʃəvaws, ACC.SG: tʃəval, NOM.PL: tʃəval, ACC.PL: tʃəvaws }
-    french: { ACC.SG: ʃəval, ACC.PL: ʃəvo }
+    french: { SG: ʃəval, PL: ʃəvo }
 
 - id: oculus
   form: "*okul-"
@@ -68,10 +68,10 @@
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   expect:
-    old-spanish: { ACC.SG: óʒo, ACC.PL: óʒos }
-    spanish: { ACC.SG: óxo, ACC.PL: óxos }
+    old-spanish: { SG: óʒo, PL: óʒos }
+    spanish: { SG: óxo, PL: óxos }
     old-french: { NOM.SG: wɛwts, ACC.SG: wɛʎ, NOM.PL: wɛʎ, ACC.PL: wɛwts }
-    french: { ACC.SG: œj, ACC.PL: jø }
+    french: { SG: œj, PL: jø }
 
 - id: digitus
   form: "*digit-"
@@ -79,10 +79,10 @@
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   expect:
-    old-spanish: { ACC.SG: dédo, ACC.PL: dédos }
-    spanish: { ACC.SG: dédo, ACC.PL: dédos }
+    old-spanish: { SG: dédo, PL: dédos }
+    spanish: { SG: dédo, PL: dédos }
     old-french: { NOM.SG: dojts, ACC.SG: dojt, NOM.PL: dojt, ACC.PL: dojts }
-    french: { ACC.SG: dwa, ACC.PL: dwa }
+    french: { SG: dwa, PL: dwa }
 
 - id: filius
   form: "*fīli-"
@@ -100,8 +100,8 @@
         - irregular: { at: french, form: "fis", reason: "spelling pronunciation; fiz gives fi" }
       expect: { french: fis }
   expect:
-    old-spanish: { ACC.SG: fíʒo, ACC.PL: fíʒos }
-    spanish: { ACC.SG: íxo, ACC.PL: íxos }
+    old-spanish: { SG: fíʒo, PL: fíʒos }
+    spanish: { SG: íxo, PL: íxos }
     old-french: { NOM.SG: fits, ACC.SG: fiʎ, NOM.PL: fiʎ, ACC.PL: fits }
 
 - id: ferrum
@@ -110,10 +110,10 @@
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o-n
   expect:
-    old-spanish: { ACC.SG: fjéro, ACC.PL: fjéros }
-    spanish: { ACC.SG: ʝéro, ACC.PL: ʝéros }
+    old-spanish: { SG: fjéro, PL: fjéros }
+    spanish: { SG: ʝéro, PL: ʝéros }
     old-french: { NOM.SG: fɛrs, ACC.SG: fɛr, NOM.PL: fɛr, ACC.PL: fɛrs }
-    french: { ACC.SG: fɛʁ, ACC.PL: fɛʁ }
+    french: { SG: fɛʁ, PL: fɛʁ }
 
 - id: castellum
   form: "*kastell-"
@@ -122,12 +122,12 @@
   paradigm: noun-o-n
   events:
     # château: the singular remade on chasteaus
-    - analogy: { at: french, cell: ACC.SG, replace: { l: a w }, model: "chasteaus" }
+    - analogy: { at: french, cell: SG, replace: { l: a w }, model: "chasteaus" }
   expect:
-    old-spanish: { ACC.SG: kastjéʎo, ACC.PL: kastjéʎos }
-    spanish: { ACC.SG: kastíʎo, ACC.PL: kastíʎos }
+    old-spanish: { SG: kastjéʎo, PL: kastjéʎos }
+    spanish: { SG: kastíʎo, PL: kastíʎos }
     old-french: { NOM.SG: tʃastɛaws, ACC.SG: tʃastɛl, NOM.PL: tʃastɛl, ACC.PL: tʃastɛaws }
-    french: { ACC.SG: ʃato, ACC.PL: ʃato }
+    french: { SG: ʃato, PL: ʃato }
 
 - id: lectus
   form: "*lekt-"
@@ -135,10 +135,10 @@
   category: [{ at: latin, is: "N" }]
   paradigm: noun-o
   expect:
-    old-spanish: { ACC.SG: létʃo, ACC.PL: létʃos }
-    spanish: { ACC.SG: létʃo, ACC.PL: létʃos }
+    old-spanish: { SG: létʃo, PL: létʃos }
+    spanish: { SG: létʃo, PL: létʃos }
     old-french: { NOM.SG: lits, ACC.SG: lit, NOM.PL: lit, ACC.PL: lits }
-    french: { ACC.SG: li, ACC.PL: li }
+    french: { SG: li, PL: li }
 
 - id: populus
   form: "*popul-"
@@ -149,10 +149,10 @@
     # pueple, not *pueble: p kept under the influence of Latin populus
     - analogy: { at: old-french, replace: { b: p }, model: "Latin populus" }
   expect:
-    old-spanish: { ACC.SG: pwéblo, ACC.PL: pwéblos }
-    spanish: { ACC.SG: pwéblo, ACC.PL: pwéblos }
+    old-spanish: { SG: pwéblo, PL: pwéblos }
+    spanish: { SG: pwéblo, PL: pwéblos }
     old-french: { NOM.SG: pwɛpləs, ACC.SG: pwɛplə, NOM.PL: pwɛplə, ACC.PL: pwɛpləs }
-    french: { ACC.SG: pœpl, ACC.PL: pœpl }
+    french: { SG: pœpl, PL: pœpl }
 
 # Vulgar Latin *capum, for caput.
 - id: caput
@@ -163,9 +163,9 @@
   paradigm: noun-o
   events:
     # chefs: the plural remade on the singular
-    - analogy: { at: french, cell: ACC.PL, replace: { s: f }, model: "chef" }
+    - analogy: { at: french, cell: PL, replace: { s: f }, model: "chef" }
   expect:
-    old-spanish: { ACC.SG: kábo, ACC.PL: kábos }
-    spanish: { ACC.SG: kábo, ACC.PL: kábos }
+    old-spanish: { SG: kábo, PL: kábos }
+    spanish: { SG: kábo, PL: kábos }
     old-french: { NOM.SG: tʃjes, ACC.SG: tʃjef, NOM.PL: tʃjef, ACC.PL: tʃjes }
-    french: { ACC.SG: ʃɛf, ACC.PL: ʃɛf }
+    french: { SG: ʃɛf, PL: ʃɛf }

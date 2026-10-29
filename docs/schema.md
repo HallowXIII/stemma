@@ -179,20 +179,34 @@ and a cell's variants are lost with it. Every entry with the paradigm gets
 the cell fate `lost` at that stage (§5), so would-be forms are still
 computed. `lost` is inherited and merged like `exclude`.
 
+A loss changes the paradigm itself, not just the entries that have it at
+the time. An entry takes its paradigm as it is at the stage where it gets
+it: an entry formed at or below a loss, or changing to the paradigm there
+(`becomes`, `repattern`), never has the lost cells, and the paradigm's
+re-formings (`at:`) and `events` skip them. An entry that changes to another
+paradigm follows the losses of the one in force at each stage.
+
 ```yaml
   noun-o:
     lost:
       western-romance: ["GEN.*"]         # the genitive goes everywhere
-      old-spanish: ["NOM.*"]             # the nominative in Spanish, and
-      french: ["NOM.*"]                  # only later in French
 ```
+
+Where a category is lost by merging cells rather than by losing some of
+them, as case is in Spanish and French, the paradigm `becomes` one whose
+cells continue the old ones (below).
 
 **Change on one line.** `becomes` names stages where every entry with the
 paradigm changes to another one, as if each had a `repattern` event
 there (§4): cells are rebuilt from the new paradigm's templates, cells it
 lacks are lost, and cells only it has are joined there. Other lines of
 descent keep the paradigm. An entry with its own `repattern` at that stage
-keeps it instead. The new paradigm's own `becomes` follows in turn.
+keeps it instead. The new paradigm's own `becomes` follows in turn, below
+that stage. So does that of a paradigm an entry repatterns to, below the
+repattern, and an entry's repattern ends the `becomes` of the paradigm it
+leaves. A cell that an earlier paradigm lost and a later one has again is
+joined again where that one comes into force. Nothing is changed or joined
+at or below a stage where the entry itself is lost or replaced (§5).
 `becomes` is not inherited, since a paradigm that extends the one it
 replaces would otherwise become itself.
 
@@ -201,6 +215,34 @@ replaces would otherwise become itself.
     cells: ...
     becomes: { western-romance: noun-a-wr }   # nominative plural in -ās
 ```
+
+**Continuing cells.** Where an entry changes to a paradigm, a cell of the
+new one can continue a cell of the old one instead of being rebuilt:
+`continues` names the old cell, whose form entering the stage the new
+cell takes as it is, and then goes through the stage's rules. This is how
+a paradigm loses a category, such as case, by merging its cells: the
+Romance nouns become number-only nouns, whose singular continues the
+accusative singular.
+
+```yaml
+  noun-o:
+    cells: ...
+    becomes: { old-spanish: noun-rom, french: noun-rom }
+  noun-rom:
+    cite: SG
+    cells:
+      - SG: { continues: ACC.SG }
+      - PL: [O.ACC.PL, { continues: ACC.PL }]
+```
+
+The old cells are lost there, if the new paradigm lacks them, so their
+would-be forms are still computed, and `trace` says what each cell
+continues. An entry can continue another cell instead (§3). Where an
+entry is formed with the paradigm, a continuing cell is formed from its
+template, or as the bare base if it has none. A cell continues at most
+one cell, and its re-formings (`at:`) may go in the same list. It is an
+error for an entry that changes to the paradigm not to have the cell
+continued.
 
 **Re-forming on one line.** A cell can be re-formed at a later stage for
 every entry with the paradigm, as an entry's `at:` cell is (§3): it is
@@ -535,6 +577,31 @@ on one line and another elsewhere:
 A template in the list stands for the change without `at:`; write a
 longer one as a list inside the list.
 
+**Continuing another cell.** `continues` on a cell picks which cell of
+the previous paradigm it continues where the entry changes to a paradigm
+with continuing cells (§2), over the paradigm's choice. French *prêtre*
+continues the Latin nominative where most nouns continue the accusative:
+
+```yaml
+- id: presbyter
+  cells:
+    SG: { continues: NOM.SG }
+    SG~obl: { continues: ACC.SG }    # a second form, as a variant
+```
+
+A cell the entry's own paradigm lacks is added only to the paradigm it
+changes to, as a variant is here. `continues` can go with a template,
+`base` or `stem`, which apply where the entry is formed with the paradigm.
+
+With `at: S`, `continues` applies only where the entry changes paradigm at
+S, so that one line can continue another cell. It takes nothing else, and
+it is an error if the entry doesn't change at S to a paradigm with the
+cell:
+
+```yaml
+    SG: { at: french, continues: NOM.SG }   # Old Spanish keeps the paradigm's
+```
+
 **Citation.** `cite`, as on a paradigm (§2), sets the cell this entry is
 cited by, over its paradigm's: `cite: ~` cites a verb by its stem.
 
@@ -635,7 +702,7 @@ chosen (§2).
 ### `repattern`
 
 ```yaml
-- repattern: { at: ibero-romance, paradigm: noun-o-rom, stem: "kɔ́rp-" }   # corpus > cuerpo
+- repattern: { at: ibero-romance, paradigm: noun-o, stem: "kɔ́rp-" }   # corpus > cuerpo
 ```
 
 The entry changes paradigm at this stage: every cell is rebuilt from the
@@ -645,12 +712,19 @@ parent stage's morphophonology (§2), and then
 through the stage's rules and morphophonology. `stem` is written as at
 that stage and is optional; without it the entry's own form is used. With
 it, the bare entry takes the new stem too. The entry's own `cells` changes
-(§3) apply to the new paradigm as well, and a suppletive cell keeps its
+(§3) apply to the cells of the new paradigm they name as well (a change
+to a cell only an earlier paradigm has, such as an oblique `stem:`, does
+not add it), and a suppletive cell keeps its
 base, as a cell with its own `stem` keeps its stem.
 
-Cells that the new paradigm lacks are lost from this stage on. Cells that
-it has and the old one lacks are joined at this stage, the same way, and
-exist only from here on. A repattern applies to the
+The entry takes the new paradigm as it is at this stage, as an entry that
+always had it would: cells the new paradigm has lost (§2) at this stage or
+above count as lacking. Cells that the new paradigm lacks are lost from
+this stage on. Cells that it has and the old one lacks are joined at this
+stage, the same way, and exist only from here on. Where such a cell is
+given on more than one line (Spanish and French each lose case), it is
+joined on each. An entry's `at:` on the cell at this stage re-forms it
+after it is given. A repattern applies to the
 whole entry, so it takes no `cell:`. Other lines of descent keep the old
 paradigm, and Typst's `paradigm()` uses the one in force at the stage.
 
@@ -702,7 +776,7 @@ output. They are assertions, not data: nothing is computed from them.
 ```yaml
 expect:
   spanish: más                 # the item's own form
-  # or, for paradigm cells:    old-spanish: { ACC.SG: ómne, ACC.PL: ómnes }
+  # or, for paradigm cells:    old-spanish: { SG: ómne, PL: ómnes }
   # or both:                   old-french: { form: ɔm, NOM.SG: ɔm }
 ```
 
@@ -718,7 +792,7 @@ non-zero when any expectation fails.
 |---|---|
 | `{magis}` | the form where the item was formed, starred if reconstructed: *\*magis* |
 | `{magis @ spanish}` | the Spanish reflex, spelled |
-| `{homo.ACC.SG @ old-spanish}` | a paradigm cell |
+| `{homo.SG @ old-spanish}` | a paradigm cell |
 | `{magis @ spanish /}` | phonemic rather than spelled |
 | `{magis @ spanish !}` | the regularly expected form: the whole lexicon rebuilt with no events and no fates |
 | `{{` | a literal `{` |

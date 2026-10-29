@@ -14,7 +14,6 @@ README.
   (finding 2).
 - Analogies that only the spelling shows (8), and a spelling layer for
   conservative written forms such as OSp *omne* (16).
-- Whether a `repattern` should honour `lost` above its stage (12).
 - A reason category on `irregular` (16).
 - A `clitic` property instead of the `°` notation (17).
 - Events that apply after their stage's rules (22).
@@ -178,10 +177,19 @@ README.
 12. **A `repattern` brings back cells lost earlier.** Remaking *corpus* as
     `noun-o` at Old Spanish joined its genitive and nominative cells
     there, although `noun-o` loses them at Western Romance and Old
-    Spanish. The example uses a Romance paradigm with only the accusative
-    cells (`noun-o-rom`).
+    Spanish. The example used a Romance paradigm with only the accusative
+    cells (`noun-o-rom`), now gone (finding 25).
 
-    **Open:** whether a repattern should honour `lost` above its stage.
+    **Fixed:** a loss changes the paradigm, not just the entries that
+    have it at the time. A repattern is an analogy to a more frequent
+    paradigm, so the entry takes that paradigm as it is at that stage:
+    the cells it has lost there or above are not joined, and are lost
+    there. An entry formed below a loss gets the paradigm the same way
+    (Spanish *perro*, formed at Old Spanish as an o-stem, has no
+    nominative or genitive). A paradigm's `lost` also applies only where
+    the paradigm is in force, so `noun-o`'s loss of the nominative at
+    French no longer reaches an entry repatterned as `noun-o` on the
+    Spanish line.
 
 13. **`replace` can't change one of two equal graphemes.** OF *estoile*
     needs *\*stēla* with a single *l*, from WR *estélla*.
@@ -288,6 +296,29 @@ README.
     each line as a category is. *causa* is "thing", *caballus* "horse",
     *mittere* "put" from Western Romance on, and *caput* "end" in Spanish
     but "chief" in French.
+
+25. **Case is lost by merging cells, not by losing some.** With `lost`,
+    Spanish and French nouns kept the cells ACC.SG and ACC.PL after the
+    loss of case, which is the etymology of most of their forms but not
+    the shape of the paradigm, and French nouns that continue the
+    nominative (*prêtre*, *sœur*, *on*) had to re-form their accusative
+    cells on it.
+
+    **Done:** a cell of a paradigm an entry changes to `continues` a
+    cell of the old one, taking its form as it is; an entry can name
+    another cell to continue (on one line, with `at:`), or add a variant
+    continuing one. The example's nouns and adjectives become `noun-rom`
+    and `adj-rom` in Spanish and French, *prêtre* continues the
+    nominative, and the `noun-o-rom` and `noun-c-rom` workarounds are
+    gone. Every form is the same as before; *corpus*, *tempus* and
+    *nomen*, remade at Ibero-Romance, now have that stage's nominative
+    too.
+
+    Making this work needed a cell to be joined on each line where a
+    paradigm gives it (the singular is new at Old Spanish and at French),
+    `becomes` to follow the paradigm in force (an entry repatterned as
+    `noun-o` gets its `becomes`), and an entry's changes to its old cells
+    not to add them to the new paradigm.
 
 ## Brassica
 

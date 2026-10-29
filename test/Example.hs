@@ -24,7 +24,7 @@ import Stemma.View
 import Server.StageRules (addStageRules)
 
 projects :: [FilePath]
-projects = ["examples/romance","test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs", "test/fixtures/becomes"]
+projects = ["examples/romance","test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs", "test/fixtures/becomes", "test/fixtures/continues"]
 
 main :: IO ()
 main = do
@@ -182,6 +182,25 @@ viewFailures dir b
          | not (case historyView b "valyk.SG.COM" "missing" of
              Left _ -> True
              _ -> False) ]
+  | dir == "test/fixtures/lost" =
+      [ "a repattern should not join cells its paradigm lost above it"
+      | any (`Map.member` prItems (bProject b)) ["sem.SG.GEN", "sem.PL.GEN"]
+          || not (Map.member "sem.SG.COM" (prItems (bProject b))) ]
+      ++ [ "an entry formed below a loss should not have the lost cells"
+         | any (`Map.member` prItems (bProject b)) ["ren.SG.GEN", "ren.PL.GEN"] ]
+  | dir == "test/fixtures/continues" =
+      [ "a continued cell should say what it continues, and go through the stage's rules"
+      | not (case traceView b "pero.SG" (Just "azal") of
+          Right xs -> any ("continues pero.SG.DIR" `T.isInfixOf`) xs && any ("o / u" `T.isInfixOf`) xs
+          _ -> False) ]
+      ++ [ "the case cells should be lost where case is"
+         | not (case (historyView b "tako.SG.OBL" "azal", historyView b "tako.SG.OBL" "wiyan") of
+             (Right a, Right w) -> any ("(lost)" `T.isInfixOf`) a && not (any ("(lost)" `T.isInfixOf`) w)
+             _ -> False) ]
+      ++ [ "an entry's changes to its case cells should not add them to the new paradigm"
+         | any (\st -> spelledAt b False st "homa.SG.OBL" /= Nothing) ["azal", "new-wiyan"] ]
+      ++ [ "an entry should be cited by the cell its paradigm in force names"
+         | [cite "tako" "proto", cite "tako" "azal"] /= ["tako.SG.DIR", "tako.SG"] ]
   | dir == "test/fixtures/cells" =
       [ "entry-specific cells and variants should be shown"
       | not (case (paradigmView b "ego" "proto", paradigmView b "bes" "proto") of
@@ -198,6 +217,10 @@ viewFailures dir b
   | dir == "test/fixtures/becomes" =
       [ "the citation should follow the paradigm in force, unless the entry gives one: " <> T.pack (show cites)
       | cites /= ["see.PST.1S", "see.NPST.1S", "see.PST.1S", "go.PST.1S", "go"] ]
+      ++ [ "becomes should follow the paradigm in force: " <> T.pack (show inForce)
+         | inForce /= ["wood @ late (noun-new)", "wood @ other (noun-late)", "ash @ late (noun-late)"] ]
+      ++ [ "a lost entry's cells should not come back, nor new ones be joined"
+         | spelledAt b False "late" "elm.PL" /= Nothing || Map.member "oak.PL" (prItems (bProject b)) ]
   | dir == "test/fixtures/allomorphs" =
       [ "the affix's own reflex should list the allomorphs in force"
       | [spelledAt b False s "DAT" | s <- ["mid", "late", "other"]]
@@ -213,6 +236,8 @@ viewFailures dir b
   | otherwise = []
   where
     cite i s = maybe "" (\it -> citedAt (bProject b) it s) (Map.lookup i (prItems (bProject b)))
+    inForce = [x | (i, st) <- [("wood", "late"), ("wood", "other"), ("ash", "late")]
+                 , Right (x : _) <- [paradigmView b i st]]
     cites = [cite "see" "mid", cite "see" "late", cite "see" "other", cite "go" "mid", cite "go" "late"]
     respelled =b {bSpelled = Map.adjust (Map.insert "valyk.SG.DIR" ["written"]) "azal" (bSpelled b)}
     ordered mainCell variant xs = case (findIndex mainCell xs, findIndex variant xs) of
@@ -233,6 +258,12 @@ checkInputs = do
   uncited <- buildWith "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cite: NOPE\n"
   glossed <- buildWith "- id: ka\n  form: \"*ka\"\n  gloss: { proto: water, azal: river }\n"
   misglossed <- buildWith "- id: ka\n  form: \"*ka\"\n  gloss: { nowhere: water }\n"
+  discontinued <- either (pure . Left) (build brassicaEngine) =<< loadProjectWith
+    (overlay (Map.singleton "lexicon/zz.yaml" "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cells:\n    SG: { continues: VOC }\n") [])
+    "test/fixtures/continues"
+  misplaced <- either (pure . Left) (build brassicaEngine) =<< loadProjectWith
+    (overlay (Map.singleton "lexicon/zz.yaml" "- id: ka\n  form: \"*ka\"\n  paradigm: noun\n  cells:\n    SG: { at: wiyan, continues: SG.DIR }\n") [])
+    "test/fixtures/continues"
   glossJson <- withSystemTempDirectory "stemma-gloss" $ \tmp -> case glossed of
     Left _ -> pure ""
     Right b -> writeBuild tmp b >> T.filter (/= ' ') <$> TIO.readFile (tmp </> "lexicon.json")
@@ -247,6 +278,10 @@ checkInputs = do
              | either (const True) (\b -> spelledAt b False "azal" "ka" /= Just ["kai"]) spaced ]
           ++ [ "an analogy key of several graphemes should be an error: " <> describe wide
              | not (failsWith "is not one grapheme" wide) ]
+          ++ [ "continuing a cell the entry lacks should be an error: " <> describe discontinued
+             | not (failsWith "cell SG continues VOC, which ka does not have" discontinued) ]
+          ++ [ "continuing at a stage without a change of paradigm should be an error: " <> describe misplaced
+             | not (failsWith "cell SG continues SG.DIR at wiyan, but the entry doesn't change there" misplaced) ]
           ++ [ "a citation naming an unknown cell should be an error: " <> describe uncited
              | not (failsWith "cite names unknown cell NOPE" uncited) ]
           ++ [ "a gloss should hold from its stage down its own line: " <> T.pack (show glosses)

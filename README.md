@@ -28,7 +28,7 @@ of what changed.
    idiosyncratic to structure. Changes of part of speech or grammatical
    function (N.ADESS > POSTP, DEF > SG) are structured, so you can query
    grammaticalisation paths.
-5. **Prose quotes forms by reference.** `{homo.ACC.SG @ old-spanish}` in a note is
+5. **Prose quotes forms by reference.** `{homo.SG @ old-spanish}` in a note is
    rendered with whatever the current rules produce.
 
 ## Layout of a project
@@ -46,9 +46,9 @@ rules/*.bsc          Brassica sound changes; `report` marks stage breaks
 nix develop                                  # GHC, cabal, HLS; Brassica pinned
 cabal run stemma -- -d examples/romance build      # compute; prints what changed
 cabal run stemma -- -d examples/romance paradigm facere old-french
-cabal run stemma -- -d examples/romance history homo.ACC.SG spanish
+cabal run stemma -- -d examples/romance history homo.SG spanish
 cabal run stemma -- -d examples/romance trace homo.ACC.SG
-cabal run stemma -- -d examples/romance trace homo.ACC.SG spanish
+cabal run stemma -- -d examples/romance trace homo.SG spanish
 cabal run stemma -- -d examples/romance shifts '*' '*'
 cabal test                                        # the example must reproduce its attested forms
 ```
@@ -137,7 +137,7 @@ typst compile examples/romance/dictionary-old-french.typ
 ```typst
 #import "stemma.typ": stemma
 #let (reflex, notes, entry, dictionary) = stemma(json("build/lexicon.json"))
-Latin _hominem_ gives Old Spanish #reflex("homo.ACC.SG", "old-spanish").
+Latin _hominem_ gives Old Spanish #reflex("homo.SG", "old-spanish").
 ```
 
 See [`docs/schema.md`](docs/schema.md) for the format, and

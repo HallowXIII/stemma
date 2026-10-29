@@ -7,10 +7,10 @@
   category: [{ at: latin, is: ADJ }]
   paradigm: adj-o-a
   expect:
-    old-spanish: { M.ACC.SG: ʎéno, M.ACC.PL: ʎénos, F.ACC.SG: ʎéna, F.ACC.PL: ʎénas }
-    spanish: { M.ACC.SG: ʎéno, M.ACC.PL: ʎénos, F.ACC.SG: ʎéna, F.ACC.PL: ʎénas }
+    old-spanish: { M.SG: ʎéno, M.PL: ʎénos, F.SG: ʎéna, F.PL: ʎénas }
+    spanish: { M.SG: ʎéno, M.PL: ʎénos, F.SG: ʎéna, F.PL: ʎénas }
     old-french: { M.NOM.SG: plejns, M.ACC.SG: plejn, M.NOM.PL: plejn, M.ACC.PL: plejns, F.ACC.SG: plejnə, F.ACC.PL: plejnəs }
-    french: { M.ACC.SG: plɛ̃, M.ACC.PL: plɛ̃, F.ACC.SG: plɛn, F.ACC.PL: plɛn }
+    french: { M.SG: plɛ̃, M.PL: plɛ̃, F.SG: plɛn, F.PL: plɛn }
 
 - id: fragilis
   form: "*fragil-"
@@ -37,7 +37,7 @@
       expect: { spanish: fɾáxil }
   expect:
     old-french: { M.NOM.SG: frajlə, M.ACC.SG: frajlə, M.NOM.PL: frajlə, M.ACC.PL: frajləs, F.ACC.SG: frajlə, F.ACC.PL: frajləs }
-    french: { M.ACC.SG: fʁɛl, M.ACC.PL: fʁɛl, F.ACC.SG: fʁɛl, F.ACC.PL: fʁɛl }
+    french: { M.SG: fʁɛl, M.PL: fʁɛl, F.SG: fʁɛl, F.PL: fʁɛl }
 
 - id: bonus
   form: "*bon-"
@@ -48,10 +48,10 @@
     # Francien bon, not buen: unstressed before its noun
     - analogy: { at: old-french, replace: { ɔ́: o }, model: "proclitic use" }
   expect:
-    old-spanish: { M.ACC.SG: bwéno, M.ACC.PL: bwénos, F.ACC.SG: bwéna, F.ACC.PL: bwénas }
-    spanish: { M.ACC.SG: bwéno, M.ACC.PL: bwénos, F.ACC.SG: bwéna, F.ACC.PL: bwénas }
+    old-spanish: { M.SG: bwéno, M.PL: bwénos, F.SG: bwéna, F.PL: bwénas }
+    spanish: { M.SG: bwéno, M.PL: bwénos, F.SG: bwéna, F.PL: bwénas }
     old-french: { M.NOM.SG: bons, M.ACC.SG: bon, M.NOM.PL: bon, M.ACC.PL: bons, F.ACC.SG: bonə, F.ACC.PL: bonəs }
-    french: { M.ACC.SG: bɔ̃, M.ACC.PL: bɔ̃, F.ACC.SG: bɔn, F.ACC.PL: bɔn }
+    french: { M.SG: bɔ̃, M.PL: bɔ̃, F.SG: bɔn, F.PL: bɔn }
 
 - id: novus
   form: "*now-"
@@ -60,12 +60,12 @@
   paradigm: adj-o-a
   cells:
     # neufs: the plural remade on the singular
-    M.ACC.PL: { at: french, base: novus.M.ACC.SG, morph: ~ }
+    M.PL: { at: french, base: novus.M.ACC.SG, morph: ~ }
   expect:
-    old-spanish: { M.ACC.SG: nwéβo, M.ACC.PL: nwéβos, F.ACC.PL: nwéβas }
-    spanish: { M.ACC.SG: nwébo, M.ACC.PL: nwébos, F.ACC.SG: nwéba, F.ACC.PL: nwébas }
+    old-spanish: { M.SG: nwéβo, M.PL: nwéβos, F.PL: nwéβas }
+    spanish: { M.SG: nwébo, M.PL: nwébos, F.SG: nwéba, F.PL: nwébas }
     old-french: { M.NOM.SG: nwɛs, M.ACC.SG: nwɛf, M.NOM.PL: nwɛf, M.ACC.PL: nwɛs, F.ACC.SG: nwɛvə, F.ACC.PL: nwɛvəs }
-    french: { M.ACC.SG: nœf, M.ACC.PL: nœf, F.ACC.SG: nœv, F.ACC.PL: nœv }
+    french: { M.SG: nœf, M.PL: nœf, F.SG: nœv, F.PL: nœv }
 
 - id: altus
   form: "*alt-"
@@ -76,10 +76,10 @@
     # haut: h- from Frankish *hauh
     - analogy: { at: old-french, replace: { á: h á }, model: "Frankish *hauh" }
   expect:
-    old-spanish: { M.ACC.SG: álto, M.ACC.PL: áltos, F.ACC.SG: álta, F.ACC.PL: áltas }
-    spanish: { M.ACC.SG: álto, M.ACC.PL: áltos, F.ACC.SG: álta, F.ACC.PL: áltas }
+    old-spanish: { M.SG: álto, M.PL: áltos, F.SG: álta, F.PL: áltas }
+    spanish: { M.SG: álto, M.PL: áltos, F.SG: álta, F.PL: áltas }
     old-french: { M.NOM.SG: hawts, M.ACC.SG: hawt, M.NOM.PL: hawt, M.ACC.PL: hawts, F.ACC.SG: hawtə, F.ACC.PL: hawtəs }
-    french: { M.ACC.SG: o, M.ACC.PL: o, F.ACC.SG: ot, F.ACC.PL: ot }
+    french: { M.SG: o, M.PL: o, F.SG: ot, F.PL: ot }
 
 - id: grandis
   form: "*grand-"
@@ -88,13 +88,13 @@
   paradigm: adj-c
   cells:
     # French feminine -e, after bonne
-    F.ACC.SG: { at: french, stem: "grand-", morph: [~, A.ACC.SG] }
-    F.ACC.PL: { at: french, stem: "grand-", morph: [~, A.ACC.PL] }
+    F.SG: { at: french, stem: "grand-", morph: [~, A.ACC.SG] }
+    F.PL: { at: french, stem: "grand-", morph: [~, A.ACC.PL] }
   expect:
-    old-spanish: { M.ACC.SG: gɾánde, M.ACC.PL: gɾándes, F.ACC.SG: gɾánde, F.ACC.PL: gɾándes }
-    spanish: { M.ACC.SG: gɾánde, M.ACC.PL: gɾándes, F.ACC.SG: gɾánde, F.ACC.PL: gɾándes }
+    old-spanish: { M.SG: gɾánde, M.PL: gɾándes, F.SG: gɾánde, F.PL: gɾándes }
+    spanish: { M.SG: gɾánde, M.PL: gɾándes, F.SG: gɾánde, F.PL: gɾándes }
     old-french: { M.NOM.SG: grants, M.ACC.SG: grant, M.NOM.PL: grant, M.ACC.PL: grants, F.ACC.SG: grant, F.ACC.PL: grants }
-    french: { M.ACC.SG: gʁɑ̃, M.ACC.PL: gʁɑ̃, F.ACC.SG: gʁɑ̃d, F.ACC.PL: gʁɑ̃d }
+    french: { M.SG: gʁɑ̃, M.PL: gʁɑ̃, F.SG: gʁɑ̃d, F.PL: gʁɑ̃d }
 
 - id: fortis
   form: "*fort-"
@@ -103,13 +103,13 @@
   paradigm: adj-c
   cells:
     # French feminine -e, after bonne
-    F.ACC.SG: { at: french, stem: "fɔrt-", morph: [~, A.ACC.SG] }
-    F.ACC.PL: { at: french, stem: "fɔrt-", morph: [~, A.ACC.PL] }
+    F.SG: { at: french, stem: "fɔrt-", morph: [~, A.ACC.SG] }
+    F.PL: { at: french, stem: "fɔrt-", morph: [~, A.ACC.PL] }
   expect:
-    old-spanish: { M.ACC.SG: fwéɾte, M.ACC.PL: fwéɾtes, F.ACC.SG: fwéɾte, F.ACC.PL: fwéɾtes }
-    spanish: { M.ACC.SG: fwéɾte, M.ACC.PL: fwéɾtes, F.ACC.SG: fwéɾte, F.ACC.PL: fwéɾtes }
+    old-spanish: { M.SG: fwéɾte, M.PL: fwéɾtes, F.SG: fwéɾte, F.PL: fwéɾtes }
+    spanish: { M.SG: fwéɾte, M.PL: fwéɾtes, F.SG: fwéɾte, F.PL: fwéɾtes }
     old-french: { M.NOM.SG: fɔrts, M.ACC.SG: fɔrt, M.NOM.PL: fɔrt, M.ACC.PL: fɔrts, F.ACC.SG: fɔrt, F.ACC.PL: fɔrts }
-    french: { M.ACC.SG: fɔʁ, M.ACC.PL: fɔʁ, F.ACC.SG: fɔʁt, F.ACC.PL: fɔʁt }
+    french: { M.SG: fɔʁ, M.PL: fɔʁ, F.SG: fɔʁt, F.PL: fɔʁt }
 
 - id: viridis
   form: "*wirid-"
@@ -118,13 +118,13 @@
   paradigm: adj-c
   cells:
     # French feminine -e, after bonne
-    F.ACC.SG: { at: french, stem: "vert-", morph: [~, A.ACC.SG] }
-    F.ACC.PL: { at: french, stem: "vert-", morph: [~, A.ACC.PL] }
+    F.SG: { at: french, stem: "vert-", morph: [~, A.ACC.SG] }
+    F.PL: { at: french, stem: "vert-", morph: [~, A.ACC.PL] }
   expect:
-    old-spanish: { M.ACC.SG: βéɾde }
-    spanish: { M.ACC.SG: béɾde, M.ACC.PL: béɾdes, F.ACC.SG: béɾde, F.ACC.PL: béɾdes }
+    old-spanish: { M.SG: βéɾde }
+    spanish: { M.SG: béɾde, M.PL: béɾdes, F.SG: béɾde, F.PL: béɾdes }
     old-french: { M.NOM.SG: verts, M.ACC.SG: vert, M.NOM.PL: vert, M.ACC.PL: verts, F.ACC.SG: vert, F.ACC.PL: verts }
-    french: { M.ACC.SG: vɛʁ, M.ACC.PL: vɛʁ, F.ACC.SG: vɛʁt, F.ACC.PL: vɛʁt }
+    french: { M.SG: vɛʁ, M.PL: vɛʁ, F.SG: vɛʁt, F.PL: vɛʁt }
 
 - id: longus
   form: "*long-"
@@ -133,16 +133,16 @@
   paradigm: adj-o-a
   cells:
     # French feminine -e, after bonne
-    F.ACC.SG: { at: french, stem: "long-", morph: [~, A.ACC.SG] }
-    F.ACC.PL: { at: french, stem: "long-", morph: [~, A.ACC.PL] }
+    F.SG: { at: french, stem: "long-", morph: [~, A.ACC.SG] }
+    F.PL: { at: french, stem: "long-", morph: [~, A.ACC.PL] }
   events:
     # lonc, not *loing: the nominative plural remade on the other cells
     - analogy: { at: gallo-romance, cell: M.NOM.PL, replace: { ɲ: n g }, model: "lonc" }
   expect:
-    old-spanish: { M.ACC.SG: lwéngo, F.ACC.SG: lwénga }
-    spanish: { M.ACC.SG: lwéngo, F.ACC.SG: lwénga }
+    old-spanish: { M.SG: lwéngo, F.SG: lwénga }
+    spanish: { M.SG: lwéngo, F.SG: lwénga }
     old-french: { M.NOM.SG: lons, M.ACC.SG: lonk, M.NOM.PL: lonk, M.ACC.PL: lons, F.ACC.SG: londʒə, F.ACC.PL: londʒəs }
-    french: { M.ACC.SG: lɔ̃, M.ACC.PL: lɔ̃, F.ACC.SG: lɔ̃g, F.ACC.PL: lɔ̃g }
+    french: { M.SG: lɔ̃, M.PL: lɔ̃, F.SG: lɔ̃g, F.PL: lɔ̃g }
 
 - id: clarus
   form: "*klār-"
@@ -153,10 +153,10 @@
     # Spanish claro, not *llaro: kl- restored after Latin clarus
     - analogy: { at: old-spanish, replace: { ʎ: k l }, model: "Latin clarus" }
   expect:
-    old-spanish: { M.ACC.SG: kláɾo, M.ACC.PL: kláɾos, F.ACC.SG: kláɾa }
-    spanish: { M.ACC.SG: kláɾo, M.ACC.PL: kláɾos, F.ACC.SG: kláɾa, F.ACC.PL: kláɾas }
+    old-spanish: { M.SG: kláɾo, M.PL: kláɾos, F.SG: kláɾa }
+    spanish: { M.SG: kláɾo, M.PL: kláɾos, F.SG: kláɾa, F.PL: kláɾas }
     old-french: { M.NOM.SG: klers, M.ACC.SG: kler, M.NOM.PL: kler, M.ACC.PL: klers, F.ACC.SG: klerə, F.ACC.PL: klerəs }
-    french: { M.ACC.SG: klɛʁ, M.ACC.PL: klɛʁ, F.ACC.SG: klɛʁ, F.ACC.PL: klɛʁ }
+    french: { M.SG: klɛʁ, M.PL: klɛʁ, F.SG: klɛʁ, F.PL: klɛʁ }
 
 - id: siccus
   form: "*sikk-"
@@ -165,15 +165,15 @@
   paradigm: adj-o-a
   cells:
     # secs: the plural remade on the singular
-    M.ACC.PL: { at: french, base: siccus.M.ACC.SG, morph: ~ }
+    M.PL: { at: french, base: siccus.M.ACC.SG, morph: ~ }
   events:
     # sec, not *seiz: the nominative plural remade on the other cells
     - analogy: { at: gallo-romance, cell: M.NOM.PL, replace: { ts: k }, model: "sec" }
   expect:
-    old-spanish: { M.ACC.SG: séko }
-    spanish: { M.ACC.SG: séko, M.ACC.PL: sékos, F.ACC.SG: séka, F.ACC.PL: sékas }
+    old-spanish: { M.SG: séko }
+    spanish: { M.SG: séko, M.PL: sékos, F.SG: séka, F.PL: sékas }
     old-french: { M.NOM.SG: ses, M.ACC.SG: sek, M.NOM.PL: sek, M.ACC.PL: ses, F.ACC.SG: setʃə, F.ACC.PL: setʃəs }
-    french: { M.ACC.SG: sɛk, M.ACC.PL: sɛk, F.ACC.SG: sɛʃ, F.ACC.PL: sɛʃ }
+    french: { M.SG: sɛk, M.PL: sɛk, F.SG: sɛʃ, F.PL: sɛʃ }
 
 - id: malus
   form: "*mal-"
@@ -184,10 +184,10 @@
     # mal, not *mel: after the adverb mal (male)
     - analogy: { at: old-french, replace: { á: a }, model: "the adverb mal" }
   expect:
-    old-spanish: { M.ACC.SG: málo, M.ACC.PL: málos, F.ACC.SG: mála, F.ACC.PL: málas }
-    spanish: { M.ACC.SG: málo, M.ACC.PL: málos, F.ACC.SG: mála, F.ACC.PL: málas }
+    old-spanish: { M.SG: málo, M.PL: málos, F.SG: mála, F.PL: málas }
+    spanish: { M.SG: málo, M.PL: málos, F.SG: mála, F.PL: málas }
     old-french: { M.NOM.SG: maws, M.ACC.SG: mal, M.NOM.PL: mal, M.ACC.PL: maws, F.ACC.SG: malə, F.ACC.PL: maləs }
-    french: { M.ACC.SG: mal }
+    french: { M.SG: mal }
 
 - id: multus
   form: "*mult-"
@@ -195,10 +195,10 @@
   category: [{ at: latin, is: ADJ }]
   paradigm: adj-o-a
   expect:
-    old-spanish: { M.ACC.SG: mútʃo, M.ACC.PL: mútʃos, F.ACC.SG: mútʃa, F.ACC.PL: mútʃas }
-    spanish: { M.ACC.SG: mútʃo, M.ACC.PL: mútʃos, F.ACC.SG: mútʃa, F.ACC.PL: mútʃas }
+    old-spanish: { M.SG: mútʃo, M.PL: mútʃos, F.SG: mútʃa, F.PL: mútʃas }
+    spanish: { M.SG: mútʃo, M.PL: mútʃos, F.SG: mútʃa, F.PL: mútʃas }
     old-french: { M.NOM.SG: mowts, M.ACC.SG: mowt, M.ACC.PL: mowts, F.ACC.SG: mowtə, F.ACC.PL: mowtəs }
-    french: { M.ACC.SG: mu }
+    french: { M.SG: mu }
 
 - id: largus
   form: "*larg-"
@@ -207,7 +207,7 @@
   paradigm: adj-o-a
   fate: { old-french: lost }
   expect:
-    spanish: { M.ACC.SG: láɾgo, F.ACC.SG: láɾga }
+    spanish: { M.SG: láɾgo, F.SG: láɾga }
 
 - id: malifatius
   form: "*malifāti-"
@@ -218,4 +218,4 @@
   fate: { old-spanish: lost }
   expect:
     old-french: { M.ACC.SG: mawvajs }
-    french: { M.ACC.SG: movɛ, M.ACC.PL: movɛ, F.ACC.SG: movɛz, F.ACC.PL: movɛz }
+    french: { M.SG: movɛ, M.PL: movɛ, F.SG: movɛz, F.PL: movɛz }
