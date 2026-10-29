@@ -134,6 +134,11 @@ stemma -d examples/romance typst --stage old-french   # stemma.typ, dictionary-o
 typst compile examples/romance/dictionary-old-french.typ
 ```
 
+Headwords are bold and upright, since Typst's bundled Libertinus Serif has
+no IPA letters in bold italic. `stemma(..., form-font: "Charis")` sets an
+IPA font for every form, and `head-style` the headwords' style (see the top
+of `typst/stemma.typ`).
+
 ```typst
 #import "stemma.typ": stemma
 #let (reflex, notes, entry, dictionary) = stemma(json("build/lexicon.json"))

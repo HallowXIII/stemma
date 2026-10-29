@@ -14,8 +14,18 @@
 //   #paradigm("ir", "azal")                a table of the cells, one row per
 //                                          member of the last dimension
 //   #paradigm("ir", "azal", rows: "number")   ... or of another dimension
+//
+// Forms are set with `form-style` (italic), and dictionary headwords with
+// `head-style` (bold, upright: the bundled Libertinus Serif has no IPA in
+// bold italic). `form-font` sets a font for every form, such as SIL's
+// Charis, made for IPA ("Charis SIL" before version 7), which has it in
+// every style:
+//
+//   #let (..) = stemma(json("build/lexicon.json"), form-font: "Charis",
+//     head-style: x => strong(emph(x)))
 
-#let stemma(lex, form-style: emph) = {
+#let stemma(lex, form-style: emph, head-style: strong, form-font: none) = {
+  let in-font(body) = if form-font == none { body } else { text(font: form-font, body) }
   let stage-info = (:)
   for s in lex.stages { stage-info.insert(s.id, s) }
 
@@ -92,7 +102,7 @@
   let style(forms, star) = {
     if forms == none or forms.len() == 0 { return [—] }
     let t = forms.join(" ~ ")
-    form-style(if star { "*" + t } else { t })
+    in-font(form-style(if star { "*" + t } else { t }))
   }
 
   let reflex(id, ..args, phonemic: false, regular: false) = {
@@ -144,7 +154,7 @@
       [#abbr #reflex(x, s)]
     })
     block(breakable: false, {
-      strong(form-style(head))
+      in-font(head-style(head))
       if r.category != none { [ #h(0.3em) #smallcaps(lower(r.category))] }
       if r.gloss != none { [ #h(0.3em) "#r.gloss"] }
       if chain.len() > 0 { [ #h(0.3em) < #chain.join([ < ])] }
