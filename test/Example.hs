@@ -34,7 +34,27 @@ main = do
   typst <- checkTypst
   inputs <- checkInputs
   noRules <- checkNoRules
-  unless (and ok && overlaid && stageRules && typst && inputs && noRules) exitFailure
+  continued <- checkContinuesJson
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued) exitFailure
+
+-- | lexicon.json gives a continued cell's reflexes on every line it is
+-- joined on, and what it continues, so that the views can follow it back.
+-- Its regular forms continue too. Read after `check` has written it.
+checkContinuesJson :: IO Bool
+checkContinuesJson = do
+  json <- T.filter (`notElem` (" \n" :: String)) <$> TIO.readFile "test/fixtures/continues/build/lexicon.json"
+  let (_, rest) = T.breakOn "\"tako.SG\":{" json
+      cell = fst (T.breakOn "\"tako.SG.DIR\":" rest)
+      failures =
+        [ "a cell joined on two lines should have reflexes on both"
+        | not (all (`T.isInfixOf` cell) ["\"azal\":{", "\"new-wiyan\":{"]) ]
+          ++ [ "a continued cell should say what it continues"
+             | not ("\"continues\":{\"azal\":\"tako.SG.OBL\",\"new-wiyan\":\"tako.SG.OBL\"}" `T.isInfixOf` cell) ]
+          ++ [ "a continued cell's regular forms should continue too"
+             | "\"regular\"" `T.isInfixOf` cell ]
+  forM_ failures $ \f -> TIO.putStrLn ("lexicon.json: " <> f)
+  TIO.putStrLn (if null failures then "lexicon.json: continued cells can be followed back" else "lexicon.json: FAILED")
+  pure (null failures)
 
 -- | A stage without rules copies its parent's forms, with a warning.
 checkNoRules :: IO Bool

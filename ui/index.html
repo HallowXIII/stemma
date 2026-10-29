@@ -129,6 +129,7 @@ tr.trace > td { background: var(--sunk); padding: 8px 10px 12px 34px; }
 .steps .arrow { color: var(--faint); }
 .steps .rule { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
 .ev { display: block; font-size: 12.5px; color: var(--warn); }
+.cellref { font-family: var(--mono); font-size: 12px; margin-right: 6px; }
 .diffreg { text-decoration: line-through; color: var(--faint); }
 
 .para th[scope=row] { color: var(--ink); font-weight: 600; font-size: 13px; }
@@ -434,6 +435,22 @@ function headId(it, stage) {
 }
 const headAt = (it, stage) => formsAt(headId(it, stage), stage);
 
+// The forms of an item on the way to a stage, nearest first, as [stage,
+// item], as stemma.typ's `lineage` gives them: where a cell continues
+// another (`continues`), the other one's above where it is joined.
+function lineage(id, stage) {
+  const out = [];
+  let cur = id;
+  for (const s of path(stage).reverse()) {
+    const it = S.lex.items[cur];
+    if (!it.reflexes[s]) break;
+    out.push([s, cur]);
+    const p = IX.stages.get(s).parent, next = it.continues?.[s];
+    if (p != null && next && !it.reflexes[p]) cur = next;
+  }
+  return out;
+}
+
 function irregularAt(r) { return r && r.forms != null && !same(r.forms, r.regular); }
 
 // ---------------------------------------------------------------------------
@@ -705,7 +722,10 @@ function linkSource(src) {
 function viewItem(id) {
   const it = S.lex.items[id];
   const formed = it.formed;
-  const head = formsAt(id, formed);
+  // An entry with cells is headed by the cell it is cited by: at the stage
+  // shown, if it is there, or else where it was formed.
+  const shownAt = it.cells.length && it.reflexes[S.stage]?.forms != null ? S.stage : formed;
+  const head = it.cells.length ? headAt(it, shownAt) : formsAt(id, formed);
   // Bound roots are cited as ber-. Affixes are not: lexicon.json doesn't
   // say which side they attach on.
   const bound = it.bound && it.kind !== "affix" ? "-" : "";
@@ -721,7 +741,7 @@ function viewItem(id) {
     : it.kind === "cell" ? `<span class="muted" style="font-size:12.5px">Built from ${linkId(it.owner)}'s paradigm</span>`
     : `<button data-act="edit" title="Edit this entry's form and gloss">Edit</button><button data-act="edit-yaml" title="Edit this entry's YAML">YAML</button><button data-act="delete" class="danger" title="Delete this entry from the lexicon">Delete</button>`;
   let h = `<div class="wrap">
-    <div class="ihead"><h2>${head ? fmt(head.map((f) => f + bound), formed) : esc(id)}</h2><span class="spacer"></span>${tools}</div>
+    <div class="ihead"><h2>${head ? fmt(head.map((f) => f + (it.cells.length ? "" : bound)), shownAt) : esc(id)}</h2><span class="spacer"></span>${tools}</div>
     <div class="sub">${it.gloss ? `<span class="gloss">“${esc(it.gloss)}”</span>` : ""}${badges.join("")}</div>
     <dl class="kv">
       <dt>ID</dt><dd class="mono">${esc(id)}</dd>
@@ -729,7 +749,8 @@ function viewItem(id) {
   if (it.source) h += `<dt>Source</dt><dd>${linkSource(it.source)}</dd>`;
   if (it.owner) h += `<dt>${it.kind === "cell" ? "Cell of" : "Derivative of"}</dt><dd>${linkId(it.owner)}</dd>`;
   if (it.variant_of) h += `<dt>Variant</dt><dd>${esc(it.variant)} of ${linkId(it.variant_of)}</dd>`;
-  if (it.paradigm) h += `<dt>Paradigm</dt><dd>${esc(it.paradigm)}${it.repatterns.map((r) =>
+  if (it.paradigm) h += `<dt>Paradigm</dt><dd>${esc(it.paradigm)}${[...it.repatterns]
+    .sort((a, b) => IX.treeOrder.indexOf(a.at) - IX.treeOrder.indexOf(b.at)).map((r) =>
     ` <span class="muted">→ ${esc(r.paradigm)} at ${esc(stageName(r.at))}</span>`).join("")}</dd>`;
   for (const [s, f] of Object.entries(it.fate || {}))
     h += `<dt>Fate</dt><dd>${f === "lost" ? "lost" : `replaced by ${linkId(f["replaced-by"])}`} at ${esc(stageName(s))}</dd>`;
@@ -767,6 +788,7 @@ function renderNotes(runs) {
   return html.split(/\n\s*\n/).map((p) => `<p>${p.replace(/\n/g, " ")}</p>`).join("");
 }
 
+// An entry with cells shows, at each stage, the cell it is cited by there.
 function reflexTable(id) {
   const it = S.lex.items[id];
   const stages = IX.treeOrder.filter((s) => it.reflexes[s]);
@@ -774,20 +796,22 @@ function reflexTable(id) {
   let h = `<div class="card"><table>
     <tr><th>Stage</th><th>Form</th><th>Phonemic</th><th>Category, gloss</th><th>Notes</th></tr>`;
   for (const s of stages) {
-    const r = it.reflexes[s];
-    const key = id + "|" + s;
+    const x = it.cells.length ? headId(it, s) : id;
+    const r = S.lex.items[x].reflexes[s] ?? it.reflexes[s];
+    const key = x + "|" + s;
     const open = S.open.has(key);
     const irr = irregularAt(r);
     const lost = r.forms == null;
     const notes = [];
+    if (x !== id) notes.push(`<a class="cellref" href="${href(x)}">${esc(x.slice(id.length + 1))}</a>`);
     if (r.origin && r.origin !== "inherited") notes.push(`<span class="badge ${r.origin === "borrowed" ? "loan" : ""}">${esc(r.origin)}</span>`);
     if (lost) notes.push(`<span class="badge lost">lost</span>`);
     for (const e of r.events) notes.push(`<span class="ev">${esc(e)}</span>`);
-    if (irr) notes.push(`<span class="muted">regularly ${fmt(formsAt(id, s, { regular: true }), s, "diffreg")}</span>`);
+    if (irr) notes.push(`<span class="muted">regularly ${fmt(formsAt(x, s, { regular: true }), s, "diffreg")}</span>`);
     const traced = r.trace.length > 0 || r.input != null;
     h += `<tr class="${traced ? "stage" : ""} ${open && traced ? "open" : ""} ${s === S.stage ? "focus" : ""}" ${traced ? `data-key="${esc(key)}"` : ""}>
       <td class="name" style="padding-left:${10 + 16 * (IX.depth(s) - base)}px"><span class="tw">${traced ? "▸" : ""}</span> ${esc(stageName(s))}</td>
-      <td>${fmt(formsAt(id, s), s)}</td>
+      <td>${fmt(formsAt(x, s), s)}</td>
       <td>${r.forms ? `<span class="f ph">/${esc(r.forms.join(" ~ "))}/</span>` : ""}</td>
       <td>${r.category ? `<span class="sc">${esc(r.category)}</span>` : ""}${r.gloss && r.gloss !== it.gloss ? ` “${esc(r.gloss)}”` : ""}</td>
       <td>${notes.join(" ")}</td></tr>`;
@@ -830,7 +854,10 @@ function paradigmTable(it, stage) {
   };
   const dims = pd.dimensions;
   if (!dims.length) {
-    const names = it.cells.map((c) => c.slice(it.id.length + 1)).filter((c) => !c.includes("~"));
+    // The paradigm's cells, and any the entry adds that exist here.
+    const added = it.cells.map((c) => c.slice(it.id.length + 1)).filter((c) => !c.includes("~")
+      && !pd.cells.includes(c) && S.lex.items[it.id + "." + c]?.reflexes?.[stage]?.forms != null);
+    const names = pd.cells.filter((c) => !c.includes("~")).concat(added);
     return `<div class="card para"><table>${names.map((c) =>
       `<tr><th scope="row">${esc(c)}</th><td>${cellHtml(c)}</td></tr>`).join("")}</table></div>`;
   }
@@ -859,15 +886,12 @@ function viewDict() {
   const entries = ids.map((id) => {
     const it = S.lex.items[id];
     const r = it.reflexes[stage];
-    // The etymology follows the item the entry is cited by.
-    const hid = headId(it, stage), h = S.lex.items[hid];
-    const line = path(stage);
-    const earlier = line.slice(line.indexOf(h.formed), line.length - 1).reverse();
-    const shown = earlier.filter((s, k) => {
-      const next = earlier[k + 1];
-      return next == null || !same(h.reflexes[s]?.forms, h.reflexes[next]?.forms);
-    });
-    const chain = shown.map((s) => `${esc(stageAbbr(s))} ${fmt(formsAt(hid, s), s)}`).join(" &lt; ");
+    // The etymology follows the item the entry is cited by, and what it
+    // continues.
+    const earlier = lineage(headId(it, stage), stage).slice(1);
+    const phon = ([s, x]) => S.lex.items[x].reflexes[s]?.forms;
+    const shown = earlier.filter((e, k) => k + 1 === earlier.length || !same(phon(e), phon(earlier[k + 1])));
+    const chain = shown.map(([s, x]) => `${esc(stageAbbr(s))} ${fmt(formsAt(x, s), s)}`).join(" &lt; ");
     const hw = (headAt(it, stage) || []).join(" ~ ") + (it.bound && !it.cells.length ? "-" : "");
     return `<div class="e"><a href="${href(id)}" class="hw f">${esc(hw)}</a>
       ${r.category ? ` <span class="sc">${esc(r.category)}</span>` : ""}

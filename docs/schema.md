@@ -236,7 +236,8 @@ accusative singular.
 ```
 
 The old cells are lost there, if the new paradigm lacks them, so their
-would-be forms are still computed, and `trace` says what each cell
+would-be forms are still computed (a continuation is not an event: it
+applies to the regularly expected forms too), and `trace` says what each cell
 continues. An entry can continue another cell instead (§3). Where an
 entry is formed with the paradigm, a continuing cell is formed from its
 template, or as the bare base if it has none. A cell continues at most
@@ -297,7 +298,10 @@ Where an entry changes paradigm (`becomes`, `repattern`), the citation
 follows the paradigm in force. An entry's own `cite` (§3) takes precedence
 over its paradigm's. `cite` is inherited through `extends`. Typst's `entry`
 and `ui/` show the cited cell as the headword, with its own etymology
-(*ómbre* < OSp. *ómne* < Lat. *\*hominem*). The build warns
+(*ómbre* < OSp. *ómne* < Lat. *\*hominem*), which goes on through the
+cell a continuing cell continues (French *eau* < OF *eaue* < Lat.
+*\*aquam*, from SG through ACC.SG). On an entry's page, `ui/` shows the
+cited cell at each stage. The build warns
 where an entry is cited by a cell that has no form, such as a lost
 nominative; the dictionary then falls back to the bare form. The bare
 form always evolves too, and is what `{homo @ spanish}` refers to.
@@ -326,7 +330,9 @@ cell with the main member:
 ```
 
 Variants can also be added through `cells`, in a paradigm or for one entry
-(§3). In `lexicon.json` a variant has `variant_of` and `variant`; Typst's
+(§3). In `lexicon.json` a variant has `variant_of` and `variant`, and a
+continuing cell has `continues`, the cell it continues at each stage
+where it is joined; Typst's
 `paradigm()` shows variants under their main cell.
 
 ### Morpheme boundaries
@@ -794,7 +800,7 @@ non-zero when any expectation fails.
 | `{magis @ spanish}` | the Spanish reflex, spelled |
 | `{homo.SG @ old-spanish}` | a paradigm cell |
 | `{magis @ spanish /}` | phonemic rather than spelled |
-| `{magis @ spanish !}` | the regularly expected form: the whole lexicon rebuilt with no events and no fates |
+| `{magis @ spanish !}` | the regularly expected form: the whole lexicon rebuilt with no events and no fates (but with continuations, §2) |
 | `{{` | a literal `{` |
 
 A reference that doesn't resolve is a build error.

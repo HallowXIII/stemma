@@ -132,6 +132,7 @@ itemJson b it = do
     , "repatterns" .=? nonEmpty [object ["at" .= s, "paradigm" .= p] | (s, p) <- itRepatterns it]
     , "cite" .=? cite
     , "allomorphs" .=? allomorphs
+    , "continues" .=? (if null continues then Nothing else Just (object continues))
     , "variant_of" .=? fmap fst variant
     , "variant" .=? fmap snd variant
     , "notes" .=? notes
@@ -143,10 +144,14 @@ itemJson b it = do
         , s == itStage it || (parentOf s >>= (`Map.lookup` reflexes)) /= Just r ])
     ]
   where
-    -- Every stage where the item exists: the stage it was formed at and the
-    -- stages below it.
+    -- Every stage where the item exists, as written or regularly: the
+    -- stage it was formed at and the stages below it, and where a cell is
+    -- joined on another line, the stages below that.
     reflexes = Map.fromList
-      [ (s, reflexJson s) | s <- bStageOrder b, Map.member (itId it) (regularAt s) ]
+      [ (s, reflexJson s) | s <- bStageOrder b
+      , Map.member (itId it) (regularAt s) || Map.member (itId it) (actualAt s) ]
+    -- The item a cell continues, at each stage where it does.
+    continues = [Key.fromText s .= x | Event {evAt = s, evKind = Continue x} <- itEvents it]
     parentOf s = Map.lookup s (famStages (prFamily proj)) >>= stParent
     -- The item an entry with cells is cited by, at the stages where that
     -- changes, as for reflexes.
@@ -174,7 +179,8 @@ itemJson b it = do
             , "form" .=? (case itBuild (prItems proj Map.! x) of BForm t -> Just t; _ -> Nothing) ]
           | (c, x) <- als ]
         | (s, als) <- Map.toList (itAllomorphs it) ])
-    regularAt s =fromMaybe Map.empty (Map.lookup s (bRegular b))
+    regularAt s = fromMaybe Map.empty (Map.lookup s (bRegular b))
+    actualAt s = fromMaybe Map.empty (Map.lookup s (bActual b))
     -- A field is left out when it repeats its default: @spelled@ and
     -- @regular@ default to @forms@, and @regular_spelled@ to @spelled@ (to
     -- @regular@ when the reflex is lost).

@@ -43,12 +43,13 @@
 
   // The reflex of an item at a stage, or none where the item doesn't exist.
   // lexicon.json leaves out a stage whose reflex is the same as at its
-  // parent, and fields that repeat the forms.
+  // parent, and fields that repeat the forms. It always gives the stage
+  // where an item comes into being on a line (where it is formed, or where
+  // a cell is joined on another line), so the nearest one on the way back
+  // to the root is the reflex here.
   let rx(it, stage) = {
-    let line = path(stage)
-    let from = line.position(s => s == it.formed)
-    if from == none { return none }
-    let r = line.slice(from).rev().map(s => it.reflexes.at(s, default: none)).find(r => r != none)
+    let r = path(stage).rev().map(s => it.reflexes.at(s, default: none)).find(r => r != none)
+    if r == none { return none }
     let lost = r.at("lost", default: false)
     let forms = r.at("forms", default: none)
     let spelled = r.at("spelled", default: forms)
@@ -62,6 +63,22 @@
       // A reflex gives a gloss only where it differs from the item's.
       gloss: r.at("gloss", default: it.gloss),
     )
+  }
+
+  // The forms of an item on the way to a stage, nearest first, as stage and
+  // item: where a cell continues another (`continues`), the other one's
+  // above where it is joined.
+  let lineage(id, stage) = {
+    let out = ()
+    let cur = item(id)
+    for s in path(stage).rev() {
+      if rx(cur, s) == none { break }
+      out.push((s, cur.id))
+      let p = stage-info.at(s).parent
+      let next = cur.at("continues", default: (:)).at(s, default: none)
+      if p != none and next != none and rx(cur, p) == none { cur = item(next) }
+    }
+    out
   }
 
   // The item an entry is cited by at a stage, as a headword: lexicon.json's
@@ -113,20 +130,18 @@
     let hd = head-item(it, stage)
     let cited = rx(hd, stage)
     let head = if cited.spelled != none { cited.spelled.join(" ~ ") } else { cited.forms.join(" ~ ") }
-    // Etymology: the forms of the cited item on the way here, from where it
-    // was formed.
-    let line = path(stage)
-    let from = line.position(s => s == hd.formed)
-    // Nearest stage first; stages where the form did not change are skipped.
-    let earlier = line.slice(from, line.len() - 1).rev()
-    let shown = earlier.enumerate().filter(((k, s)) => {
-      let next = if k + 1 < earlier.len() { earlier.at(k + 1) } else { none }
-      next == none or rx(hd, s).forms != rx(hd, next).forms
-    }).map(((k, s)) => s)
-    let chain = shown.map(s => {
+    // Etymology: the forms of the cited item on the way here, and of what
+    // it continues, nearest stage first; stages where the form did not
+    // change are skipped.
+    let earlier = lineage(hd.id, stage).slice(1)
+    let forms-of(((s, x))) = rx(item(x), s).forms
+    let shown = earlier.enumerate().filter(((k, e)) => {
+      k + 1 == earlier.len() or forms-of(e) != forms-of(earlier.at(k + 1))
+    }).map(((k, e)) => e)
+    let chain = shown.map(((s, x)) => {
       let info = stage-info.at(s)
       let abbr = if info.abbr != none { info.abbr } else { info.name }
-      [#abbr #reflex(hd.id, s)]
+      [#abbr #reflex(x, s)]
     })
     block(breakable: false, {
       strong(form-style(head))
@@ -187,7 +202,11 @@
       }
     }
     if dims.len() == 0 {
-      let names = it.cells.map(c => c.slice(id.len() + 1)).filter(c => not c.contains("~"))
+      // The paradigm's cells, and any the entry adds that exist here.
+      let added = it.cells.map(c => c.slice(id.len() + 1)).filter(c => not c.contains("~")
+        and c not in pd.cells and rx(item(id + "." + c), stage) != none
+        and rx(item(id + "." + c), stage).forms != none)
+      let names = pd.cells.filter(c => not c.contains("~")) + added
       return table(columns: 2, ..names.map(c => ([#c], cell(c))).flatten())
     }
     let r = if rows == auto { dims.len() - 1 } else { dims.position(d => d.name == rows) }
