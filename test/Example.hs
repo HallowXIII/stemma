@@ -197,6 +197,8 @@ viewFailures dir b
          | not (case (historyView b "tako.SG.OBL" "azal", historyView b "tako.SG.OBL" "wiyan") of
              (Right a, Right w) -> any ("(lost)" `T.isInfixOf`) a && not (any ("(lost)" `T.isInfixOf`) w)
              _ -> False) ]
+      ++ [ "an entry's changes to its case cells should not add them to the new paradigm"
+         | any (\st -> spelledAt b False st "homa.SG.OBL" /= Nothing) ["azal", "new-wiyan"] ]
       ++ [ "an entry should be cited by the cell its paradigm in force names"
          | [cite "tako" "proto", cite "tako" "azal"] /= ["tako.SG.DIR", "tako.SG"] ]
   | dir == "test/fixtures/cells" =

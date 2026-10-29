@@ -1,6 +1,7 @@
 # Test fixture for `continues`: nouns lose case at azal, where their
 # number-only cells continue the oblique (or, for some, the direct) cells.
-# Wiyan keeps case.
+# Wiyan keeps case, and New Wiyan loses it on its own, so the new cells
+# are joined on both lines.
 name: Continues
 
 stages:
@@ -15,4 +16,9 @@ stages:
     name: Wiyan
     parent: proto
     rules: rules/wiyan.bsc
+    current: true
+  new-wiyan:
+    name: New Wiyan
+    parent: wiyan
+    rules: rules/new-wiyan.bsc
     current: true

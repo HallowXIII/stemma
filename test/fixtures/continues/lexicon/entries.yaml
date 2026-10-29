@@ -4,6 +4,7 @@
   expect:
     azal: { SG: takum, PL: takuim }
     wiyan: { SG.DIR: takos, SG.OBL: takom, PL.OBL: takoim }
+    new-wiyan: { SG: takom, PL: takoim }
 
 # Continues the direct case in the singular, as French prêtre does.
 - id: pero
@@ -41,3 +42,25 @@
   expect:
     azal: { SG: lumam, PL: lumais }
     wiyan: { PL.DIR: lomais, PL.OBL: lomaim }
+
+# An oblique stem: the entry's changes to the case cells don't bring them
+# into the new paradigm.
+- id: homa
+  form: "*homa"
+  paradigm: noun
+  cells:
+    SG.OBL: { stem: "*homin-" }
+    PL.OBL: { stem: "*homin-" }
+  expect:
+    azal: { SG: huminm, PL: huminim }
+    wiyan: { SG.DIR: homas, SG.OBL: hominm }
+
+# The plural is remade on the old oblique singular where case is lost.
+- id: seka
+  form: "*seka"
+  paradigm: noun
+  cells:
+    PL: { at: azal, base: seka.SG.OBL, morph: [~, PL] }
+  expect:
+    azal: { SG: sekam, PL: sekami }
+    new-wiyan: { SG: sekam, PL: sekaim }

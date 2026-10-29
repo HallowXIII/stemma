@@ -8,7 +8,7 @@ paradigms:
     dimensions:
       - number: [SG: ~, PL: PL]
       - case: [DIR: DIR, OBL: OBL]
-    becomes: { azal: noun-az }
+    becomes: { azal: noun-az, new-wiyan: noun-az }
   # Number only. A word formed with it has a bare singular.
   noun-az:
     cite: SG

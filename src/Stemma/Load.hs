@@ -338,10 +338,15 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- A paradigm's cells with this entry's changes: name, base, template.
     -- Cells with a stage of their own (`at:`) are not part of any paradigm.
     -- A cell the entry adds by `continues` (a variant, say) is only added
-    -- to a paradigm it changes to.
-    cellsOf target p = foldl' change [(c, (eid, ps)) | (c, ps) <- maybe [] pfCells p]
+    -- to a paradigm it changes to; a change to a cell of one of its
+    -- paradigms adds nothing to the others.
+    cellsOf target p = foldl' change [(c, (eid, ps)) | (c, ps) <- pcells]
       [ (c, ov) | (c, ov) <- enCells e, coAt ov == Nothing
-      , target || coContinues ov == Nothing || c `elem` map fst (maybe [] pfCells p) ]
+      , c `elem` map fst pcells
+          || if target then coContinues ov /= Nothing || c `notElem` anyParadigmCells
+             else coContinues ov == Nothing ]
+      where pcells = maybe [] pfCells p
+    anyParadigmCells = [c | p <- toList paradigm ++ repatternParadigms, (c, _) <- pfCells p]
     -- The entry takes its paradigm as it is where the cells are formed:
     -- without the cells it lost there or above.
     entryCells = [ cell | cell@(c, _) <- cellsOf False paradigm
@@ -363,13 +368,19 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       , (c, s) `notElem` entryAts ]
 
     -- Cells joined later than the paradigm: those that a repattern's
-    -- paradigm has and the entry's own lacks, at the first repattern that
-    -- has them, and those given `at:`, unless the paradigm has them, at the
-    -- `at:` nearest the root (the others re-form it). Each is joined from
-    -- the forms entering its stage.
-    -- None is joined where the entry itself is lost or replaced.
-    later = foldl' (\acc x@(c, _, _) -> if c `elem` map fst3 acc then acc else acc ++ [x]) []
-      $ filter (\(_, _, s) -> alive s)
+    -- paradigm has and the entry's own lacks, and those given `at:`,
+    -- unless the paradigm has them. Each is joined at the stages nearest
+    -- the root where it is given, one on each line of descent (the others
+    -- re-form it), from the forms entering them; the first of those gives
+    -- its source. None is joined where the entry itself is lost or
+    -- replaced.
+    later =
+      [ (c, bp, births)
+      | c <- nub [c | (c, _, _) <- joins]
+      , let given = nub [s | (c', _, s) <- joins, c' == c]
+            births = [s | s <- given, not (any (`strictlyAbove` s) given)]
+      , bp : _ <- [[bp | (c', bp, s) <- joins, c' == c, s `elem` births]] ]
+    joins = filter (\(_, _, s) -> alive s)
       ( [ (c, (b, ps), s) | (s, _, _, new) <- repatterns, (c, (b, ps)) <- new, c `notElem` map fst entryCells ]
           ++ sortOn (\(_, _, s) -> length (ancestorsOrSelf stages s))
              [ (c, (fromMaybe eid (coBase ov), fromMaybe [PBase] (coMorph ov)), s)
@@ -377,7 +388,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     -- Is the entry itself still there (not lost or replaced) at a stage?
     -- No change there brings a cell back.
     alive s = not (any (\f -> isAncestorOrSelf stages f s) (Map.keys (enFate e)))
-    joinedAt c = listToMaybe [s | (c', _, s) <- later, c' == c]
+    joinedAt c = concat [ss | (c', _, ss) <- later, c' == c]
     -- `at:` on a cell that the paradigm, or one the entry changes to, has
     -- re-forms it there, and so does any but the first on a cell joined
     -- later.
@@ -385,7 +396,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
     reformedAt c =
       [ Event s Nothing (Rebuild (coStem ov) (fromMaybe eid (coBase ov)) (fromMaybe [PBase] (coMorph ov)) ("re-formed at " <> s))
       | (c', ov) <- atCells, c' == c, Just s <- [coAt ov]
-      , c `elem` paradigmCells || joinedAt c /= Just s ]
+      , c `elem` paradigmCells || s `notElem` joinedAt c ]
     fst3 (a, _, _) = a
     cellNames = map fst entryCells ++ map fst3 later
 
@@ -393,9 +404,10 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       (Just pname, Nothing) -> [err ("unknown paradigm " <> pname)]
       _ -> repatternErrs ++ continuesErrs ++ [ err ("variant " <> c <> " has no main cell " <> m)
            | c <- cellNames, (m, Just _) <- [splitVariant c], m `notElem` cellNames ]
-           ++ [ err ("cell " <> c <> " is joined at unknown stage " <> s) | (c, _, s) <- later, not (Map.member s stages) ]
-           ++ map (mkCell Nothing) entryCells
-           ++ [mkCell (Just s) (c, bp) | (c, bp, s) <- later, Map.member s stages]
+           ++ [ err ("cell " <> c <> " is joined at unknown stage " <> s)
+              | (c, _, ss) <- later, s <- ss, not (Map.member s stages) ]
+           ++ map (mkCell []) entryCells
+           ++ [mkCell ss (c, bp) | (c, bp, ss) <- later, all (`Map.member` stages) ss]
 
     -- Where the paradigm's cells are formed.
     paradigmStage
@@ -405,24 +417,27 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
       where pstage = fromMaybe root (paradigm >>= pfStage)
     atStem c s = listToMaybe [t | (c', ov) <- atCells, c' == c, coAt ov == Just s, Just t <- [coStem ov]]
 
+    -- A cell, formed with the paradigm, or else joined later at each of
+    -- the stages given (`born`).
     mkCell born (c, (base, parts)) = do
+      forM_ born $ \s -> unless (isAncestorOrSelf stages stage s) $
+        err ("cell " <> c <> " is joined at " <> s <> ", which is not below " <> stage <> ", where the entry is formed")
       cstage <- case born of
-        Just s
-          | isAncestorOrSelf stages stage s -> Right s
-          | otherwise -> err ("cell " <> c <> " is joined at " <> s <> ", which is not below " <> stage <> ", where the entry is formed")
-        Nothing -> paradigmStage
-      -- A cell joined later than the paradigm enters its stage by a
+        s : _ -> Right s
+        [] -> paradigmStage
+      -- A cell joined later than the paradigm enters each stage by a
       -- rebuild, unless that is the root stage, where it is simply formed.
-      let birth = case born of
-            Just s | Just _ <- Map.lookup s stages >>= stParent
-                   , s `notElem` [s' | (s', _, _, new) <- repatterns, Just _ <- [lookup c new]] ->
-                       [Event s Nothing (Rebuild (atStem c s) base parts ("joined at " <> s))]
-            _ -> []
+      let given = [s' | (s', _, _, new) <- repatterns, Just _ <- [lookup c new]]
+          birth =
+            [ Event s Nothing (Rebuild (atStem c s) base parts ("joined at " <> s))
+            | s <- born, Just _ <- [Map.lookup s stages >>= stParent], s `notElem` given ]
           -- Nothing about stages above where the cell is joined.
-          applies s = maybe True (\b -> isAncestorOrSelf stages b s) born
-      forM_ (reformedAt c) $ \ev -> unless (applies (evAt ev) && Just (evAt ev) /= born) $
+          applies s = null born || any (\b -> isAncestorOrSelf stages b s) born
+      -- Where a change of paradigm gives the cell, it can be re-formed
+      -- there too, after it is given.
+      forM_ (reformedAt c) $ \ev -> unless (applies (evAt ev) && (evAt ev `notElem` born || evAt ev `elem` given)) $
         err ("cell " <> c <> " is re-formed at " <> evAt ev <> ", which is not below "
-             <> fromMaybe cstage born <> ", where it is joined")
+             <> (if null born then cstage else T.intercalate " or " born) <> ", where it is joined")
       pure Item
         { itId = eid <> "." <> c
         , itKind = KCell
@@ -443,7 +458,7 @@ flattenEntry stages root paradigms kind owner ownerCat defStage e =
               -- cell's re-formings and before its own events.
               ++ [ev | ev@Event {evKind = Analogy {}} <- ownEvents, applies (evAt ev)]
               ++ [ev | ev <- cellEvents, evCell ev == Just c] )
-        , itFate = Map.filterWithKey (\s _ -> applies s && Just s /= born) $ Map.unions
+        , itFate = Map.filterWithKey (\s _ -> applies s && s `notElem` born) $ Map.unions
             [ enFate e
             , Map.fromList [(s, Lost) | (s, _, _, new) <- repatterns, Nothing <- [lookup c new]]
             -- A paradigm loses cells only where it is in force.

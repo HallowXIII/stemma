@@ -190,9 +190,11 @@ paradigm follows the losses of the one in force at each stage.
   noun-o:
     lost:
       western-romance: ["GEN.*"]         # the genitive goes everywhere
-      old-spanish: ["NOM.*"]             # the nominative in Spanish, and
-      french: ["NOM.*"]                  # only later in French
 ```
+
+Where a category is lost by merging cells rather than by losing some of
+them, as case is in Spanish and French, the paradigm `becomes` one whose
+cells continue the old ones (below).
 
 **Change on one line.** `becomes` names stages where every entry with the
 paradigm changes to another one, as if each had a `repattern` event
@@ -700,7 +702,7 @@ chosen (§2).
 ### `repattern`
 
 ```yaml
-- repattern: { at: ibero-romance, paradigm: noun-o-rom, stem: "kɔ́rp-" }   # corpus > cuerpo
+- repattern: { at: ibero-romance, paradigm: noun-o, stem: "kɔ́rp-" }   # corpus > cuerpo
 ```
 
 The entry changes paradigm at this stage: every cell is rebuilt from the
@@ -710,14 +712,19 @@ parent stage's morphophonology (§2), and then
 through the stage's rules and morphophonology. `stem` is written as at
 that stage and is optional; without it the entry's own form is used. With
 it, the bare entry takes the new stem too. The entry's own `cells` changes
-(§3) apply to the new paradigm as well, and a suppletive cell keeps its
+(§3) apply to the cells of the new paradigm they name as well (a change
+to a cell only an earlier paradigm has, such as an oblique `stem:`, does
+not add it), and a suppletive cell keeps its
 base, as a cell with its own `stem` keeps its stem.
 
 The entry takes the new paradigm as it is at this stage, as an entry that
 always had it would: cells the new paradigm has lost (§2) at this stage or
 above count as lacking. Cells that the new paradigm lacks are lost from
 this stage on. Cells that it has and the old one lacks are joined at this
-stage, the same way, and exist only from here on. A repattern applies to the
+stage, the same way, and exist only from here on. Where such a cell is
+given on more than one line (Spanish and French each lose case), it is
+joined on each. An entry's `at:` on the cell at this stage re-forms it
+after it is given. A repattern applies to the
 whole entry, so it takes no `cell:`. Other lines of descent keep the old
 paradigm, and Typst's `paradigm()` uses the one in force at the stage.
 
@@ -769,7 +776,7 @@ output. They are assertions, not data: nothing is computed from them.
 ```yaml
 expect:
   spanish: más                 # the item's own form
-  # or, for paradigm cells:    old-spanish: { ACC.SG: ómne, ACC.PL: ómnes }
+  # or, for paradigm cells:    old-spanish: { SG: ómne, PL: ómnes }
   # or both:                   old-french: { form: ɔm, NOM.SG: ɔm }
 ```
 
@@ -785,7 +792,7 @@ non-zero when any expectation fails.
 |---|---|
 | `{magis}` | the form where the item was formed, starred if reconstructed: *\*magis* |
 | `{magis @ spanish}` | the Spanish reflex, spelled |
-| `{homo.ACC.SG @ old-spanish}` | a paradigm cell |
+| `{homo.SG @ old-spanish}` | a paradigm cell |
 | `{magis @ spanish /}` | phonemic rather than spelled |
 | `{magis @ spanish !}` | the regularly expected form: the whole lexicon rebuilt with no events and no fates |
 | `{{` | a literal `{` |

@@ -223,9 +223,10 @@ runMode engine proj rules inline order mode = foldM stepStage (Right (Map.empty,
         && maybe False (const True) (Map.lookup s stages >>= stParent)
     isIrregular ev = case evKind ev of Irregular {} -> True; _ -> False
     -- A cell lost above, joined again here because the paradigm in force
-    -- has it.
+    -- has it, or joined here on another line than where it is formed.
     returning prev s it =
-      itStage it /= s && isAncestorOrSelf stages (itStage it) s && not (Map.member (itId it) prev)
+      itStage it /= s && (itKind it == KCell || isAncestorOrSelf stages (itStage it) s)
+        && not (Map.member (itId it) prev)
         && any (\ev -> isRebuild ev || isContinue ev) (eventsAt s it) && not (lostAt s it)
     isRebuild ev = case evKind ev of Rebuild {} -> True; Reform -> True; _ -> False
     isContinue ev = case evKind ev of Continue {} -> True; _ -> False
