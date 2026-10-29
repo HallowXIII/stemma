@@ -45,6 +45,7 @@ stages:
     rules: "rules/pe-to-azal.bsc#2"
     orthography: rules/azal-ortho.bsc   # optional: phonemic > spelling
     forbid: ["v y", "t g", "# ŋ"]       # optional: sequences no form may have
+    alphabet: "a ā, b, d, e ē, ..., ny, ..."   # optional: dictionary order
     current: true
 
   wiyan:
@@ -69,6 +70,20 @@ category block defined in segment 1 is still in force in segment 2.
 
 Adding a stage later is cheap. Insert a `report`, renumber the segments in
 `family.yaml`, and re-point any events that belong to the new stage.
+
+### Alphabetical order
+
+Without an `alphabet`, the dictionary sorts spelled forms by code point,
+which puts *dān* after *daum*. An `alphabet` lists the stage's letters in
+order, separated by commas. A letter may be a multigraph (`ny`), and
+graphemes separated by spaces within one letter (`a ā`) are equal except to
+break ties: *da*, *dā*, *dān*, *daum*. A list (`[a ā, b, ...]`) works too,
+but YAML reads a bare `n` or `y` as a boolean, so letters like these would
+need quotes.
+
+Characters that aren't letters, such as hyphens, are skipped. A letter the
+alphabet lacks sorts after all the others, with a warning. stemma writes
+the key to `lexicon.json` as `sort`, and Typst and `ui/` sort by it.
 
 ### Checks on a stage's forms
 
@@ -934,7 +949,7 @@ applies. A parse error gives `ok: false` with the message, `line` and
 `build` writes to `DIR/build/`:
 
 - `lexicon.json` has every item, and for each stage: the forms, spelled
-  forms, regular forms and category, and the gloss where it changes. Notes are pre-resolved into runs.
+  forms, regular forms and category, and the gloss where it changes, and at a stage with an `alphabet` the key the dictionary sorts by (`sort`). Notes are pre-resolved into runs.
   Each stage carries its `rules`, `morphophonology` and `orthography` references as written
   in `family.yaml`. An affix with allomorphs has them as written, under
   `allomorphs`, by stage. An entry with cells has `cite`: the item it is

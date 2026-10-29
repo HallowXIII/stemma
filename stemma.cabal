@@ -29,6 +29,7 @@ library
     Stemma.Engine
     Stemma.Engine.Brassica
     Stemma.Build
+    Stemma.Collate
     Stemma.Notes
     Stemma.Output
     Stemma.Query

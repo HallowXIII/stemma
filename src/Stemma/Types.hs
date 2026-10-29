@@ -39,6 +39,7 @@ module Stemma.Types
 
 import Control.Monad (forM_, when)
 import Data.Foldable (toList)
+import Data.List (nub)
 import Data.Aeson
 import Data.Aeson.Key qualified as Key
 import Data.Aeson.KeyMap qualified as KM
@@ -100,6 +101,9 @@ data Stage = Stage
   , stCurrent :: Bool
   , stForbid :: [Forbid]
   -- ^ Sequences no form at the stage should have.
+  , stAlphabet :: [[Text]]
+  -- ^ The letters spelled forms sort by, in order. The graphemes of one
+  -- letter are equal but for ties.
   }
   deriving (Show)
 
@@ -151,6 +155,16 @@ instance FromJSON Stage where
     stOrthography <- o .:? "orthography"
     stCurrent <- o .:? "current" .!= False
     stForbid <- o .:? "forbid" .!= []
+    -- One string, with commas between letters, spares quoting the letters
+    -- YAML reads as booleans (n, y).
+    stAlphabet <- map T.words <$> (o .:? "alphabet" >>= \case
+      Nothing -> pure []
+      Just (String t) -> pure (T.splitOn "," t)
+      Just v -> traverse (name "letter") =<< parseJSON v)
+    let graphemes = concat stAlphabet
+    when (any null stAlphabet) $ fail "a letter of the alphabet is empty"
+    forM_ (nub [g | g <- graphemes, length (filter (== g) graphemes) > 1]) $ \g ->
+      fail ("the alphabet has " <> T.unpack g <> " more than once")
     pure Stage {..}
 
 ------------------------------------------------------------------------

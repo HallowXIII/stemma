@@ -41,6 +41,7 @@ import Data.Set qualified as Set
 import Data.Text (Text)
 import Data.Text qualified as T
 
+import Stemma.Collate (sortKey)
 import Stemma.Engine
 import Stemma.Load
 import Stemma.Sources (sourceFile)
@@ -659,6 +660,12 @@ outputWarnings rules b = concat
          , g <- nub (concat (concatMap rxForms (Map.elems res)))
          , g /= "\xFFFD", not (Set.member g declared)
          , let bad = [(i, renderForm f) | (i, rx) <- Map.toList res, f <- rxForms rx, g `elem` f] ]
+      ++ [ s <> ": the alphabet has no letter " <> c <> ", which is in " <> few bad
+         | Just st <- [Map.lookup s stages], not (null (stAlphabet st))
+         , let unknown = [ (i, t, u) | (i, ts) <- maybe [] Map.toList (Map.lookup s (bSpelled b))
+                                     , t <- take 1 ts, u <- snd (sortKey (stAlphabet st) t) ]
+         , c <- nub [u | (_, _, u) <- unknown]
+         , let bad = nub [(i, t) | (i, t, u) <- unknown, u == c] ]
       ++ [ s <> ": " <> fbText fb <> " is forbidden, but is in " <> few bad
          | fb <- maybe [] stForbid (Map.lookup s stages)
          , let bad = [(i, renderForm f) | (i, rx) <- Map.toList res, f <- rxForms rx, forbidden fb f]

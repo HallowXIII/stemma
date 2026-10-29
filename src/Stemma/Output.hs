@@ -29,7 +29,7 @@ import Data.ByteString.Lazy qualified as BL
 import Data.Either (partitionEithers)
 import Data.List (nub)
 import Data.Map.Strict qualified as Map
-import Data.Maybe (catMaybes, fromMaybe)
+import Data.Maybe (catMaybes, fromMaybe, listToMaybe)
 import Data.Set (Set)
 import Data.Set qualified as Set
 import Data.Text (Text)
@@ -41,6 +41,7 @@ import System.Directory (createDirectoryIfMissing, doesFileExist)
 import System.FilePath ((</>))
 
 import Stemma.Build
+import Stemma.Collate (sortKey)
 import Stemma.Engine
 import Stemma.Load
 import Stemma.Notes
@@ -211,7 +212,9 @@ itemJson b it = do
         , "regular_spelled" .=? differing (maybe regular Just spelled) regularSpelled
         , "category" .=? categoryAt proj it s
         , "gloss" .=? differing (glossAt proj it (itStage it)) (glossAt proj it s)
+        , "sort" .=? (if null alphabet then Nothing else fst . sortKey alphabet <$> (spelled >>= listToMaybe))
         ]
+      where alphabet = maybe [] stAlphabet (Map.lookup s (famStages (prFamily proj)))
     fateJson = \case
       Lost -> toJSON ("lost" :: Text)
       ReplacedBy x -> object ["replaced-by" .= x]

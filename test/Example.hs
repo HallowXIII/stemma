@@ -5,6 +5,7 @@ module Main (main) where
 
 import Control.Monad (forM_, unless)
 import Data.ByteString qualified as B
+import Data.List (sortOn)
 import Data.Map.Strict qualified as Map
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
@@ -14,6 +15,7 @@ import System.FilePath (takeDirectory, (</>))
 import System.IO.Temp (withSystemTempDirectory)
 
 import Stemma.Build
+import Stemma.Collate (sortKey)
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (formsTsv, writeBuild)
@@ -36,7 +38,41 @@ main = do
   noRules <- checkNoRules
   continued <- checkContinuesJson
   outputs <- checkOutputs
-  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs) exitFailure
+  collated <- checkCollation
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs && collated) exitFailure
+
+-- | A stage's alphabet orders spelled forms: letters first, then the ties
+-- within a letter (a before ā), and non-letters are skipped. lexicon.json
+-- gives the key, and a letter the alphabet lacks is warned about.
+checkCollation :: IO Bool
+checkCollation = do
+  let alphabet = [["a", "ā"], ["d"], ["m"], ["n"], ["š"], ["u"]]
+      key = fst . sortKey alphabet
+      words' = ["daum", "dāš", "dā", "dān", "da"]
+      ordered = map snd (sortOn fst [(key w, w) | w <- words'])
+  proj <- loadProjectWith (overlay (Map.singleton "family.yaml" family) []) "test/fixtures/boundary"
+  built <- either (pure . Left) (build brassicaEngine) proj
+  json <- withSystemTempDirectory "stemma-sort" $ \tmp -> case built of
+    Left _ -> pure ""
+    Right b -> writeBuild tmp b >> T.filter (`notElem` (" \n" :: String)) <$> TIO.readFile (tmp </> "lexicon.json")
+  let warned = either (const []) bWarnings built
+      failures =
+        [ "the alphabet should order letters first, ties after: " <> T.pack (show ordered)
+        | ordered /= ["da", "dā", "dān", "dāš", "daum"] ]
+          ++ [ "a hyphen should be skipped" | key "-da" /= key "da" ]
+          ++ [ "a letter the alphabet lacks should come last" | not (key "dq" > key "du") ]
+          ++ [ "the project should build: " <> T.intercalate "; " errs | Left errs <- [built] ]
+          ++ [ "lexicon.json should give the sort key: " <> T.take 200 json
+             | not ("\"sort\":\"" `T.isInfixOf` json) ]
+          ++ [ "a letter the alphabet lacks should be warned about: " <> T.pack (show warned)
+             | not (any ("modern: the alphabet has no letter k, which is in " `T.isPrefixOf`) warned) ]
+  forM_ failures $ \f -> TIO.putStrLn ("collation: " <> f)
+  TIO.putStrLn (if null failures then "collation: forms sort by the stage's alphabet" else "collation: FAILED")
+  pure (null failures)
+  where
+    family = "name: Boundary\nnotation:\n  boundary: \"+\"\nstages:\n  proto:\n    name: Proto\n"
+          <> "  modern:\n    name: Modern\n    parent: proto\n    rules: rules/proto-to-modern.bsc\n"
+          <> "    alphabet: \"a, b, d, e, i, l, m, n, o, r, t, v\"\n"
 
 -- | The checks on a stage's forms: U+FFFD, graphemes the rules don't
 -- declare (here the multigraph xx, from a rule written without a space),
