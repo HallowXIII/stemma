@@ -120,7 +120,6 @@ stemma can detect them. One pass after each stage:
 | 7 | `-- include: file.bsc`, spliced in before the file goes to Brassica, so generated tables live in their own file. Stemma-level tables from data are not planned. | S |
 | §2 | `shifts` across derivation: compare a derivative's first category with its base's where it was formed | S |
 | §2 | Collation: `alphabet:` per stage, with a sort key written to `lexicon.json` | S |
-| §2 | Capitalisation: `capitalise: [PROPN]` in `family.yaml`, applied when spelling and based on the category at that stage; capitalises a whole multigraph (*Ny*) | S |
 | §2 | `stemma.typ` as a Typst package (`typst.toml`), installed by the flake under `share/typst/packages/local/stemma/0.1.0` | S |
 
 **Declined.**
@@ -150,6 +149,26 @@ Bound roots are listed in the dictionary by default, cited as *ber-*;
 `dictionary(stage, bound: false)` leaves them out.
 
 ---
+
+## G. Orthography: an epic of its own
+
+Not planned yet. Today an orthography is a rules file from a stage's
+phonemic forms to its spelling. Anything beyond that raises the same
+question, which needs a design before any one part is built: what a
+spelling is derived from, if not the stage's own form.
+
+- **Conservative spelling.** French *chante* and OSp *omne* (findings 8
+  and 16) are spelled after an older stage. A spelling that follows an
+  ancestor's form has no form to follow for words coined after it.
+- **Scripts.** An in-world script raises the same problem. In the Azal and
+  Wiyan abugida, Azal *dalgāye ōyil šaman* is written <dlgāye ōyŕ čmn>, and
+  Wiyan *zalahaiči ūyir čama* is written <dlgāy ki ōyŕ čmn>: the spelling
+  keeps a shape the sound changes have left behind, and is nearly the same
+  in both languages.
+- **Capitalisation** (Azal §2: *ešven* for *Ešven*). `capitalise: [PROPN]`
+  by the category at each stage, capitalising a whole multigraph (*Ny*).
+  It is small, but it belongs with the rest: whether a script has case at
+  all, and on which form it applies, are spelling questions.
 
 ## Later
 

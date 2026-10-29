@@ -13,7 +13,8 @@ README.
 - Stress alternation in stems, and boundaries transparent to the rules
   (finding 2).
 - Analogies that only the spelling shows (8), and a spelling layer for
-  conservative written forms such as OSp *omne* (16).
+  conservative written forms such as OSp *omne* (16). Both are part of
+  the orthography epic (roadmap §G).
 - A reason category on `irregular` (16).
 - A `clitic` property instead of the `°` notation (17).
 - Events that apply after their stage's rules (22).
