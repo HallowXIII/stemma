@@ -24,14 +24,16 @@ import Data.Map.Strict qualified as Map
 import Data.Set (Set)
 import Data.Set qualified as Set
 import System.Directory (doesDirectoryExist, doesFileExist, listDirectory)
-import System.FilePath (normalise, takeFileName, (</>))
+import System.FilePath (isPathSeparator, takeFileName, (</>))
+import System.FilePath.Posix qualified as Posix
 
 data Sources = Sources
   { srcDir :: FilePath
   -- ^ Where the files came from. Only used to name them in messages, so
   -- it may be empty.
   , srcFiles :: Map FilePath ByteString
-  -- ^ Keyed by path relative to the project, normalised.
+  -- ^ Keyed by path relative to the project, normalised, with @/@ on
+  -- every platform.
   , srcDeleted :: Set FilePath
   -- ^ Files an 'overlay' deleted, which 'readExtra' must not read back.
   }
@@ -85,6 +87,11 @@ sourceFiles dir src =
 -- | A file's path for messages: under 'srcDir' when there is one.
 sourcePath :: Sources -> FilePath -> FilePath
 sourcePath src rel = if null (srcDir src) then rel else srcDir src </> rel
+
+-- | A relative path as a key: with @/@ between its parts, as rules are
+-- named in @family.yaml@, whatever the platform's separator.
+normalise :: FilePath -> FilePath
+normalise = Posix.normalise . map (\c -> if isPathSeparator c then '/' else c)
 
 isInputDir :: FilePath -> Bool
 isInputDir n = n /= "build" && not ("." `isPrefixOf` n)
