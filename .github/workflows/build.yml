@@ -25,7 +25,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: haskell-actions/setup@v2
         id: setup
@@ -38,7 +38,7 @@ jobs:
           cabal update
           cabal build all --enable-tests --dry-run
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ steps.setup.outputs.cabal-store }}
           key: ${{ matrix.name }}-${{ hashFiles('dist-newstyle/cache/plan.json') }}
@@ -63,7 +63,7 @@ jobs:
             tar czf "$dir.tar.gz" "$dir"
           fi
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: stemma-${{ matrix.name }}
           path: |
@@ -77,7 +77,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           merge-multiple: true
       - name: Release
