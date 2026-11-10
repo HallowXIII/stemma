@@ -14,11 +14,12 @@ import System.FilePath ((</>))
 import System.IO (stderr)
 
 import Stemma.Build
-import Stemma.Engine (Engine (..))
+import Stemma.Engine (Engine (..), renderForm)
 import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (buildReport, outlineJson, writeBuild)
 import Stemma.Query
+import Stemma.Reconstruct
 import Stemma.Types (Family (..))
 import Stemma.Typst
 import Stemma.View
@@ -31,6 +32,7 @@ data Command
   | Trace Text (Maybe Text)
   | Outline FilePath
   | Typst (Maybe Text) (Maybe FilePath) Bool Bool
+  | Reconstruct Text [Text] Int Bool
 
 data Opts = Opts
   { optDir :: FilePath
@@ -54,6 +56,17 @@ main = do
       unless (package && stage == Nothing) $ do
         proj <- loadProject optDir >>= orDie
         writeTypst optDir proj stage (fromMaybe optDir out) force package
+    -- Only loads the project and the stage's rules, so it works while the
+    -- project doesn't build.
+    Reconstruct stage forms limit list -> do
+      proj <- loadProject optDir >>= orDie
+      forM_ forms $ \f -> do
+        Reconstruction {..} <- orDie (either (Left . pure) Right (reconstruct brassicaEngine proj limit stage f))
+        case renderShape rcCategories (shape rcCandidates) of
+          _ | null rcCandidates -> TIO.putStrLn (f <> ": no form gives this")
+          first : rest -> mapM_ TIO.putStrLn ((f <> ": " <> first) : rest)
+          [] -> pure ()
+        when list $ forM_ rcCandidates (TIO.putStrLn . ("  " <>) . renderForm)
     cmd -> buildAnd optDir cmd
   where
     opts = Opts
@@ -77,7 +90,14 @@ main = do
               <*> optional (strOption (long "out" <> metavar "OUT" <> help "Where to write them (default: DIR)"))
               <*> switch (long "force" <> help "Overwrite an existing dictionary document")
               <*> switch (long "package" <> help "Install stemma.typ as the Typst package @local/stemma instead"))
-                              (progDesc "Write stemma.typ (or install it as a package), and a dictionary document for a stage")) )
+                              (progDesc "Write stemma.typ (or install it as a package), and a dictionary document for a stage"))
+       <> command "reconstruct" (info (Reconstruct
+              <$> strArgument (metavar "STAGE")
+              <*> some (strArgument (metavar "FORM" <> help "A form at STAGE; with spaces, its graphemes"))
+              <*> option auto (long "limit" <> metavar "N" <> value 10000 <> showDefault
+                               <> help "Give up at a rule with more candidates than this")
+              <*> switch (long "list" <> help "Also list every candidate"))
+                                    (progDesc "Show the shape of the forms at STAGE's parent that its rules take to FORM")) )
 
 buildAnd :: FilePath -> Command -> IO ()
 buildAnd dir cmd = do
@@ -103,6 +123,7 @@ buildAnd dir cmd = do
     Trace i s -> mapM_ TIO.putStrLn =<< orDie (traceView built i s)
     Outline _ -> pure ()
     Typst {} -> pure ()
+    Reconstruct {} -> pure ()
 
 -- | Install stemma.typ as this version's Typst package, replacing it.
 installPackage :: IO ()

@@ -33,6 +33,7 @@ library
     Stemma.Notes
     Stemma.Output
     Stemma.Query
+    Stemma.Reconstruct
     Stemma.Sources
     Stemma.Typst
     Stemma.View

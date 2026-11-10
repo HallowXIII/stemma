@@ -1,0 +1,18 @@
+categories
+Vh = i u
+Vp = i e
+V = a e i u
+C = p t k m n r s
+end
+
+; palatalisation before a front vowel
+t / t' / _ Vp
+
+; t' is only made by the rule above. It is declared after it, so that no
+; proto-form can have one.
+categories
+Cp = t'
+end
+
+; syncope of a high vowel before a consonant
+Vh / / _ [C Cp]

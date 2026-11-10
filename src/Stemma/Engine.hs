@@ -51,6 +51,13 @@ data Rules = Rules
   -- categories block of their own. Empty if they declare none.
   , rulesApply :: [Form] -> IO [Evolution]
   -- ^ Must return exactly one 'Evolution' per input, in order.
+  , rulesCategories :: [(Text, [Text])]
+  -- ^ The categories the rules name whose members are all graphemes, so
+  -- that a set of graphemes can be called by its name.
+  , rulesUndo :: Maybe (Int -> Form -> Either Text [Form])
+  -- ^ Every form the rules take to the given one, or why they can't be
+  -- listed: a rule the engine can't undo, or more candidates at one rule
+  -- than the limit. Nothing for an engine that can't.
   }
 
 -- | One statement of a rules file, for display: its kind (@rule@,

@@ -173,6 +173,91 @@ spelling is derived from, if not the stage's own form.
   It is small, but it belongs with the rest: whether a script has case at
   all, and on which form it applies, are spelling questions.
 
+## H. Reconstruction: running rules backwards
+
+Not planned yet. For working from a known later stage towards an earlier
+one: the author writes ordinary forward rules as a hypothesis, and stemma
+answers what a form must have been for those rules to produce it.
+
+```sh
+stemma -d test/fixtures/reconstruct reconstruct modern "rt'ma" tma
+rt'ma: (Vh)r(Vh)tima
+tma: (Vh)t(u)ma
+```
+
+The answer is a shape, not a list. A slot is a set of graphemes, named by
+one of the rules' categories where it equals one. Parentheses mark a slot
+that may be absent, and slots with the same superscript depend on each
+other: `(i¹)r(i¹)t`, with the combinations listed below it, if the vowel
+was on one side of the *r* only.
+
+**No backward rules.** Brassica 1.0 can't apply rules in reverse, and
+rewriting each rule into its inverse is unsound: an environment describes
+the word before the change, deletion inverts to insertion anywhere, and
+rules feed and bleed each other. Instead, rules are undone last to first,
+and a candidate survives a rule only if applying that rule forwards gives
+the form back. Rules then constrain each other with no extra logic. If
+palatalisation comes before syncope, a syncopated vowel after a plain *t*
+can't have been front, since no word gives plain *t* before a front vowel
+after palatalisation.
+
+**Constraints**, strongest first:
+
+- The earlier stage's inventory (`schema.md` §1). A grapheme outside it
+  has to be made by a rule, so whatever conditioned that rule is
+  obligatory. With no inventory, every grapheme may be original and the
+  shapes are looser.
+- The earlier stage's `forbid`.
+- Pins. The author fixes a slot (`--pin 2=i`) and the rest of the shape
+  narrows.
+- Other cells of the same entry, and the same item at a sister stage:
+  their shapes have to agree on the stem. This needs the affixes
+  reconstructed first, so it comes last.
+
+**Scope.** Forms through the rules of one stage's segment, or of several
+in a row. Events, joins and allomorphs are not undone. The result of the
+work is an ordinary project: the proto-entries chosen, the forward rules,
+and the known forms as `expect`, so no output is stored.
+
+**Steps.**
+
+1. Enumeration: **L**. **Done** for one stage's rules, without pins; see
+   `stemma reconstruct` and `test/fixtures/reconstruct`. Candidates are
+   concrete words. Undoing a rule
+   replaces places that match its replacement with each expansion of its
+   target (for a deletion, inserts at each gap), keeps those that the rule
+   takes back to the form, and drops those outside the inventory. The
+   survivors are aligned and summarised into a shape. One optional field
+   on `Rules`, `rulesUndo`; for Brassica it needs only `applyRuleStr` and
+   `applyStatementStr`, nothing internal. A target with `*` is tried up
+   to twice, a lost stretch is put back once per gap, and a wildcard or a
+   feature in a target is an error. Only good for short forms and short
+   segments, since an unconditioned loss alone doubles the candidates at
+   each gap, but enough to try the notation and pinning on real data.
+   Fixture: syncope and palatalisation, as above.
+2. Automata: several **L**. The candidates are a finite automaton and each
+   rule a transducer applied backwards, so the set is exact and never
+   listed. Pins, `forbid`, and agreement between cells are intersections.
+   The compiler reads the parsed rules (`Rule Expanded`), not Brassica's
+   internals. Step 1 stays as the fallback for a rule that doesn't compile
+   (backreferences, gemination, features and autosegments only do by
+   expanding over the inventory), and as the test oracle.
+3. The UI: a panel in `stemma-server` to step back a rule at a time and
+   pin slots. **M**.
+
+**Risks.**
+
+- Step 2 is a second implementation of how Brassica applies a rule
+  (simultaneous or iterated, overlapping matches, `-rtl`, exceptions,
+  sporadic rules), and the two have to agree. Every result is checked by
+  sampling words from it and running them forwards; a word that doesn't
+  give the form back is an error, not a warning.
+- An automaton that is far from linear has no tidy one-line shape. Then
+  the output falls back to a list, or to several shapes.
+
+Nothing is needed from Brassica. A native reverse mode would be a large
+change to propose upstream, and step 1 already covers what it would give.
+
 ## Later
 
 Ideas worth having eventually, but not needed by the Azal project yet.

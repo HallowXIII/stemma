@@ -28,6 +28,7 @@ module Stemma.Build
   , spelledAt
   , showForm
   , checkExpectations
+  , forbidden
   ) where
 
 import Control.Monad (foldM, forM)
@@ -668,7 +669,7 @@ outputWarnings rules b = concat
          , let bad = nub [(i, t) | (i, t, u) <- unknown, u == c] ]
       ++ [ s <> ": " <> fbText fb <> " is forbidden, but is in " <> few bad
          | fb <- maybe [] stForbid (Map.lookup s stages)
-         , let bad = [(i, renderForm f) | (i, rx) <- Map.toList res, f <- rxForms rx, forbidden fb f]
+         , let bad = [(i, renderForm f) | (i, rx) <- Map.toList res, f <- rxForms rx, forbidden fam fb f]
          , not (null bad) ]
   | (s, res) <- Map.toList (bActual b)
   , let forms = [(i, renderForm f) | (i, rx) <- Map.toList res, f <- rxForms rx]
@@ -684,16 +685,19 @@ outputWarnings rules b = concat
     stages = famStages fam
     few bad = T.intercalate ", " [f <> " (" <> i <> ")" | (i, f) <- take 5 bad]
       <> (if length bad > 5 then ", and " <> T.pack (show (length bad - 5)) <> " more" else "")
-    -- Boundaries are ignored, so that a sequence is found across a
-    -- morpheme boundary, but # doesn't match where a bound form attaches.
-    forbidden Forbid {..} f =
-      any fits (if fbStart then [core | not (open (listToMaybe f))] else tails core)
-      where
-        isBoundary g = Just g == famBoundary fam
-        open = maybe False isBoundary
-        core = filter (not . isBoundary) f
-        fits xs = fbGraphemes `isPrefixOf` xs
-          && (not fbEnd || (length xs == length fbGraphemes && not (open (listToMaybe (reverse f)))))
+
+-- | Whether a form has a forbidden sequence. Boundaries are ignored, so
+-- that a sequence is found across a morpheme boundary, but # doesn't match
+-- where a bound form attaches.
+forbidden :: Family -> Forbid -> Form -> Bool
+forbidden fam Forbid {..} f =
+  any fits (if fbStart then [core | not (open (listToMaybe f))] else tails core)
+  where
+    isBoundary g = Just g == famBoundary fam
+    open = maybe False isBoundary
+    core = filter (not . isBoundary) f
+    fits xs = fbGraphemes `isPrefixOf` xs
+      && (not fbEnd || (length xs == length fbGraphemes && not (open (listToMaybe (reverse f)))))
 
 -- | Problems that make a boundary symbol misbehave: Brassica replaces
 -- undeclared graphemes with U+FFFD, and a bound item without a @-@ is

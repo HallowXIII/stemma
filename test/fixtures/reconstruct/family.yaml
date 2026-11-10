@@ -1,0 +1,11 @@
+# Test fixture for reconstruction: undoing a stage's rules.
+name: Reconstruct
+
+stages:
+  proto:
+    name: Proto
+  modern:
+    name: Modern
+    parent: proto
+    rules: rules/proto-to-modern.bsc
+    current: true

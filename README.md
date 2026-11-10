@@ -50,6 +50,7 @@ cabal run stemma -- -d examples/romance history homo.SG spanish
 cabal run stemma -- -d examples/romance trace homo.ACC.SG
 cabal run stemma -- -d examples/romance trace homo.SG spanish
 cabal run stemma -- -d examples/romance shifts '*' '*'
+cabal run stemma -- -d test/fixtures/reconstruct reconstruct modern "rt'ma"   # what the rules make it from
 cabal test                                        # the example must reproduce its attested forms
 ```
 

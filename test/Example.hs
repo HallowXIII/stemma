@@ -20,6 +20,7 @@ import Stemma.Engine.Brassica (brassicaEngine)
 import Stemma.Load
 import Stemma.Output (formsTsv, writeBuild)
 import Stemma.Query (Shift (..), categoryAt, findShifts)
+import Stemma.Reconstruct
 import Stemma.Sources
 import Stemma.Typst
 import Stemma.View
@@ -27,7 +28,7 @@ import Stemma.View
 import Server.StageRules (addStageRules)
 
 projects :: [FilePath]
-projects = ["examples/romance","test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs", "test/fixtures/becomes", "test/fixtures/continues"]
+projects = ["examples/romance","test/fixtures/boundary", "test/fixtures/paradigms", "test/fixtures/cells", "test/fixtures/repattern", "test/fixtures/lost", "test/fixtures/morphophonology", "test/fixtures/allomorphs", "test/fixtures/becomes", "test/fixtures/continues", "test/fixtures/reconstruct"]
 
 main :: IO ()
 main = do
@@ -42,7 +43,8 @@ main = do
   collated <- checkCollation
   shifted <- checkShifts
   derived <- checkDerives
-  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs && collated && shifted && derived) exitFailure
+  reconstructed <- checkReconstruct
+  unless (and ok && overlaid && stageRules && typst && inputs && noRules && continued && outputs && collated && shifted && derived && reconstructed) exitFailure
 
 -- | A stage's alphabet orders spelled forms: letters first, then the ties
 -- within a letter (a before ā), and non-letters are skipped. lexicon.json
@@ -376,6 +378,40 @@ checkShifts = do
              | found /= [("kav", Just "ka", "N", "V")] ]
   forM_ failures $ \f -> TIO.putStrLn ("shifts: " <> f)
   TIO.putStrLn (if null failures then "shifts: conversion is a shift, affixal derivation is not" else "shifts: FAILED")
+  pure (null failures)
+
+-- | Undoing a stage's rules gives the shape of the forms they take to a
+-- known one. The rules constrain each other: a lost vowel after t' was
+-- front, and after a plain t it was not; and t', which the first
+-- categories block doesn't declare, was a t. The parent's @forbid@ drops
+-- candidates, and slots that depend on each other are linked.
+checkReconstruct :: IO Bool
+checkReconstruct = do
+  family <- B.readFile "test/fixtures/reconstruct/family.yaml"
+  let forbidding = B.concat [before, "name: Proto\n    forbid: [\"# r\"]", B.drop (B.length "name: Proto") after]
+        where (before, after) = B.breakSubstring "name: Proto" family
+  proj <- loadProject "test/fixtures/reconstruct"
+  strict <- loadProjectWith (overlay (Map.singleton "family.yaml" forbidding) []) "test/fixtures/reconstruct"
+  let shapeIn p limit f = case p of
+        Left errs -> Left (T.intercalate "; " errs)
+        Right p' -> (\r -> renderShape (rcCategories r) (shape (rcCandidates r)))
+          <$> reconstruct brassicaEngine p' limit "modern" f
+      linked = renderShape [] (shape [["i", "r", "t"], ["r", "i", "t"]])
+      failures =
+        [ "a lost vowel after t' should be front, and t' a t: " <> T.pack (show got)
+        | let got = shapeIn proj 10000 "rt'ma", got /= Right ["(Vh)r(Vh)tima"] ]
+          ++ [ "a lost vowel after t should not be front: " <> T.pack (show got)
+             | let got = shapeIn proj 10000 "tma", got /= Right ["(Vh)t(u)ma"] ]
+          ++ [ "a form no rule makes should have no candidates: " <> T.pack (show got)
+             | let got = shapeIn proj 10000 "tima", got /= Right [""] ]
+          ++ [ "the parent's forbid should drop candidates: " <> T.pack (show got)
+             | let got = shapeIn strict 10000 "rt'ma", got /= Right ["Vhr(Vh)tima"] ]
+          ++ [ "too many candidates should be an error naming the rule: " <> T.pack (show got)
+             | let got = shapeIn proj 5 "rt'ma", got /= Left "Vh / / _ [C Cp]: more than 5 candidates" ]
+          ++ [ "slots that depend on each other should be linked: " <> T.pack (show linked)
+             | linked /= ["(i¹)r(i¹)t", "  ¹ i ∅, ∅ i"] ]
+  forM_ failures $ \f -> TIO.putStrLn ("reconstruct: " <> f)
+  TIO.putStrLn (if null failures then "reconstruct: rules are undone into a shape" else "reconstruct: FAILED")
   pure (null failures)
 
 -- | An affix's @derives@ is the category of a derivative formed with it,

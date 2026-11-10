@@ -1,9 +1,15 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE GADTs #-}
+
 -- | Brassica, linked as a library.
 module Stemma.Engine.Brassica (brassicaEngine) where
 
+import Control.Monad (foldM, forM, when)
 import Data.ByteString qualified as B
-import Data.List (nub)
+import Data.List (nub, stripPrefix)
+import Data.Map.Strict qualified as Map
 import Data.Maybe (mapMaybe)
+import Data.Set qualified as Set
 import Data.Text qualified as T
 import Data.Text.Encoding (decodeUtf8')
 import Text.Read (readMaybe)
@@ -37,6 +43,8 @@ load ref bytes = do
     { rulesGraphemes = map T.pack (activeGraphemes before statements)
     , rulesInventory = map T.pack (inventory before statements)
     , rulesApply = pure . map (evolve statements)
+    , rulesCategories = categories parsed
+    , rulesUndo = Just (undo statements)
     }
   where
     here msg = renderRulesRef ref <> ": " <> msg
@@ -108,6 +116,92 @@ evolve statements form = case applyChanges statements (map T.unpack form) of
   where
     step (ActionApplied st out) = Just (Step (T.pack (plaintext' st)) (map T.pack <$> out))
     step (ReportWord _) = Nothing
+
+-- | The categories a rules file defines that hold only graphemes, as they
+-- stand at its end.
+categories :: SoundChanges CategorySpec Directive -> [(T.Text, [T.Text])]
+categories parsed =
+  [ (T.pack name, map T.pack gs)
+  | (name, Left (FromElements es)) <- Map.toList defined
+  , Just gs <- [mapM grapheme es] ]
+  where
+    defined = foldl (\cs d -> either (const cs) id (extendCategories cs d)) Map.empty
+      [(new, defs) | DeclS (Categories new _ defs) <- parsed]
+    grapheme = \case
+      [Grapheme g] -> Just g
+      _ -> Nothing
+
+-- | Every word a segment takes to the given one. The statements are undone
+-- last to first. Undoing one proposes words, and keeps those that the
+-- statement itself takes to the word in hand, so a rule is never inverted,
+-- only applied. A categories block or a filter proposes the word alone,
+-- and so drops it if it has an undeclared grapheme or is filtered out.
+undo :: Statements -> Int -> Form -> Either T.Text [Form]
+undo statements limit form =
+  map (map T.pack) . Set.toList
+    <$> foldM back (Set.singleton (map T.unpack form)) (reverse statements)
+  where
+    back ws st = do
+      propose <- either (Left . at st) Right (proposals st)
+      found <- fmap Set.unions . forM (Set.toList ws) $ \w -> do
+        let raw = take (limit + 1) (propose w)
+        when (length raw > limit) (tooMany st)
+        pure (Set.fromList (filter (elem w . applyStatementStr st) raw))
+      when (Set.size found > limit) (tooMany st)
+      pure found
+    tooMany st = Left (at st ("more than " <> T.pack (show limit) <> " candidates"))
+    at st msg = T.pack (plaintext' st) <> ": " <> msg
+
+-- | The words a statement may have changed into a given one: more than it
+-- really does, since the environment is not looked at here.
+proposals :: Statement Expanded GraphemeList -> Either T.Text (PWord -> [PWord])
+proposals = \case
+  RuleS r -> do
+    ts <- instances (target r)
+    -- What the rule makes of each word its target matches, wherever it is.
+    let bare = r {environment = [([], [])], exception = Nothing}
+    pure . unapply $ nub
+      [ (t', out)
+      | t <- ts, let t' = filter (/= "#") t
+      , out <- applyRuleStr bare t, out /= t' ]
+  _ -> Right pure
+
+-- | A word, with any of the places that are the second of a pair replaced
+-- by the first. A pair with nothing second is a loss: its first is put
+-- back at most once between two graphemes.
+unapply :: [(PWord, PWord)] -> PWord -> [PWord]
+unapply pairs = go True
+  where
+    lost = [t | (t, []) <- pairs]
+    go gap w = here ++ [t ++ rest | gap, t <- lost, rest <- go False w]
+      where
+        here = case w of
+          [] -> [[]]
+          g : gs -> map (g :) (go True gs)
+            ++ [ t ++ rest
+               | (t, out@(_ : _)) <- pairs
+               , Just after <- [stripPrefix out w], rest <- go True after ]
+
+-- | The words a rule's target matches. A repeated lexeme is tried up to
+-- twice.
+instances :: [Lexeme Expanded 'Matched] -> Either T.Text [PWord]
+instances = foldM (\ps l -> concat <$> mapM (\p -> map (p ++) <$> lexeme p l) ps) [[]]
+  where
+    lexeme p = \case
+      Grapheme g -> Right [[g]]
+      Category c -> category c
+      GreedyCategory c -> category c
+      Optional ls -> ([] :) <$> instances ls
+      GreedyOptional ls -> ([] :) <$> instances ls
+      Geminate -> Right [take 1 (reverse p)]
+      Kleene l -> do
+        one <- lexeme p l
+        pure ([] : one ++ [a ++ b | a <- one, b <- one])
+      Backreference _ c -> category c
+      Autosegment _ _ gs -> Right (map pure gs)
+      Wildcard _ -> Left "a wildcard in the target can't be undone"
+      Feature {} -> Left "a feature in the target can't be undone"
+    category (FromElements es) = concat <$> mapM instances es
 
 expandError :: ExpandError -> T.Text
 expandError = \case

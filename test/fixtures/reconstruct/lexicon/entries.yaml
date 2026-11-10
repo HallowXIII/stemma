@@ -1,0 +1,8 @@
+- id: ritima
+  form: "*ritima"
+  gloss: "frost"
+  expect: { modern: rt'ma }
+- id: utuma
+  form: "*utuma"
+  gloss: "smoke"
+  expect: { modern: tma }
