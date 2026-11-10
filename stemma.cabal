@@ -60,11 +60,15 @@ executable stemma
     , directory
     , optparse-applicative
     , filepath
+  if os(windows)
+    build-depends:  Win32
 
 executable stemma-server
   import:           shared
   hs-source-dirs:   server
   main-is:          Main.hs
+  -- warp's timeouts need the threaded runtime
+  ghc-options:      -threaded
   other-modules:
     Server.Api
     Server.Files

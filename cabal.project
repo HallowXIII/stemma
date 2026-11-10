@@ -1,0 +1,6 @@
+packages: .
+
+-- brassica 1.0.0 builds with newer versions of its dependencies than its
+-- bounds allow (containers 0.7, megaparsec 9.7, ...), as the flake's
+-- jailbreak also assumes.
+allow-newer: brassica:*
