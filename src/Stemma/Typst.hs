@@ -15,6 +15,7 @@ module Stemma.Typst
 
 import Data.ByteString (ByteString)
 import Data.FileEmbed (embedFile)
+import Data.List (intercalate)
 import Data.Map.Strict qualified as Map
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -22,7 +23,7 @@ import Data.Text.Encoding (encodeUtf8)
 import Data.Version (showVersion)
 import System.Directory (XdgDirectory (..), getHomeDirectory, getXdgDirectory)
 import System.Environment (lookupEnv)
-import System.FilePath (joinPath, splitDirectories, (</>))
+import System.FilePath (splitDirectories, (</>))
 import System.Info (os)
 
 import Paths_stemma (version)
@@ -86,9 +87,10 @@ dictionaryTyp proj stage from lexicon = T.unlines
     str t = "\"" <> T.concatMap (\c -> if c `elem` ['"', '\\'] then T.pack ['\\', c] else T.singleton c) t <> "\""
 
 -- | The path from one directory to a file, both absolute, going up with
--- @..@ where needed.
+-- @..@ where needed. It is written into a Typst document, so its parts
+-- are joined with @/@ on every platform.
 relativePath :: FilePath -> FilePath -> FilePath
-relativePath from to = joinPath (replicate (length fs - common) ".." ++ drop common ts)
+relativePath from to = intercalate "/" (replicate (length fs - common) ".." ++ drop common ts)
   where
     fs = splitDirectories from
     ts = splitDirectories to

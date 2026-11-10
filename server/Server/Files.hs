@@ -25,13 +25,14 @@ import System.FilePath (makeRelative, splitDirectories, (</>))
 import Stemma.Sources (isInputDir)
 
 -- | Files under the project, outside @build/@ and dot-directories, relative
--- to it: a directory's own files (sorted) before its subdirectories'.
+-- to it, with @/@ on every platform: a directory's own files (sorted)
+-- before its subdirectories'.
 projectFiles :: FilePath -> IO [FilePath]
 projectFiles project = go ""
   where
     go rel = do
       names <- sort <$> listDirectory (project </> rel)
-      let paths = [if null rel then n else rel </> n | n <- names]
+      let paths = [if null rel then n else rel <> "/" <> n | n <- names]
       dirs <- filterM isDir paths
       files <- filterM (doesFileExist . (project </>)) paths
       below <- forM [d | d <- dirs, isInputDir (last (splitDirectories d))] go

@@ -9,6 +9,7 @@ import Data.List (sortOn)
 import Data.Map.Strict qualified as Map
 import Data.Text qualified as T
 import Data.Text.IO qualified as TIO
+import GHC.IO.Encoding (setLocaleEncoding, utf8)
 import System.Directory (createDirectoryIfMissing)
 import System.Exit (exitFailure)
 import System.FilePath (takeDirectory, (</>))
@@ -31,6 +32,7 @@ projects = ["examples/romance","test/fixtures/boundary", "test/fixtures/paradigm
 
 main :: IO ()
 main = do
+  setLocaleEncoding utf8
   ok <- mapM check projects
   overlaid <- checkOverlay
   stageRules <- checkStageRules

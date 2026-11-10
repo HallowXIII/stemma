@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Main (main) where
 
 import Control.Monad (forM_, unless, when)
@@ -7,11 +9,15 @@ import Data.Map.Strict qualified as Map
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Data.Text.IO qualified as TIO
+import GHC.IO.Encoding (setLocaleEncoding, utf8)
 import Options.Applicative
 import System.Directory (canonicalizePath, createDirectoryIfMissing, doesFileExist)
 import System.Exit (exitFailure)
 import System.FilePath ((</>))
 import System.IO (stderr)
+#if defined(mingw32_HOST_OS)
+import System.Win32.Console (setConsoleOutputCP)
+#endif
 
 import Stemma.Build
 import Stemma.Engine (Engine (..))
@@ -39,6 +45,12 @@ data Opts = Opts
 
 main :: IO ()
 main = do
+  -- Files and output are UTF-8 whatever the locale, which on Windows is a
+  -- legacy code page; so is its console, until told otherwise.
+  setLocaleEncoding utf8
+#if defined(mingw32_HOST_OS)
+  setConsoleOutputCP 65001
+#endif
   Opts {..} <- execParser (info (opts <**> helper) (progDesc "Computed etymological lexicons"))
   case optCommand of
     -- Only parses the file, so it works while the project doesn't build.
